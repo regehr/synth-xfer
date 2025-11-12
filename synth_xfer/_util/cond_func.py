@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Any, Callable
 
 from xdsl.dialects.builtin import StringAttr, i1
 from xdsl.dialects.func import CallOp, FuncOp, ReturnOp
@@ -32,6 +32,7 @@ class FunctionWithCondition:
         cond_str = "True\n" if self.cond is None else dce(self.cond)
         return f"Cond:\n{cond_str}\nFunc:{dce(self.func)}"
 
+    # TODO rewrite this function
     def get_function(self) -> FuncOp:
         """
         Because select operation only works on TransferIntegertype, so we have to decouple all result obtained from getTop
@@ -104,13 +105,7 @@ class FunctionWithCondition:
         )
         return whole_function
 
-    # TODO probs needs some changing
-    def get_function_str(
-        self,
-        lower_to_str: Callable[[FuncOp], str],
-    ) -> tuple[str, str, str | None]:
-        func_str = lower_to_str(self.func)
-        cond_str = lower_to_str(self.cond) if self.cond else None
-        whole_function_str = lower_to_str(self.get_function())
-
-        return whole_function_str, func_str, cond_str
+    def lower(self, lowerer: Callable[[FuncOp], Any]) -> None:
+        lowerer(self.func)
+        lowerer(self.cond) if self.cond else None
+        lowerer(self.get_function())

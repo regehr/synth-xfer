@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Callable
 
 from xdsl.context import Context
 from xdsl.dialects.arith import Arith
-from xdsl.dialects.builtin import Builtin, ModuleOp, StringAttr
+from xdsl.dialects.builtin import Builtin, ModuleOp
 from xdsl.dialects.func import CallOp, Func, FuncOp, ReturnOp
 from xdsl.parser import Parser
 from xdsl_smt.dialects.transfer import AbstractValueType, Transfer, TransIntegerType
@@ -27,13 +27,6 @@ from synth_xfer.lower_to_llvm import LowerToLLVM
 if TYPE_CHECKING:
     from synth_xfer._eval_engine import BW, KnownBitsToEval
 
-# TODO this should be made local
-ctx = Context()
-ctx.load_dialect(Arith)
-ctx.load_dialect(Builtin)
-ctx.load_dialect(Func)
-ctx.load_dialect(Transfer)
-
 
 # TODO weird func
 def _construct_top_func(transfer: FuncOp) -> FuncOp:
@@ -52,67 +45,34 @@ def _construct_top_func(transfer: FuncOp) -> FuncOp:
 def _eval_helper(
     to_eval: "KnownBitsToEval",
     bw: "BW",
-    _domain: AbstractDomain,
     helper_funcs: HelperFuncs,
-    ret_top_func: FunctionWithCondition,
     jit: Jit,
 ) -> Callable[
-    [
-        list[FunctionWithCondition],
-        list[FunctionWithCondition],
-    ],
+    [list[FunctionWithCondition], list[FunctionWithCondition]],
     list[EvalResult],
 ]:
     def helper(
         transfer: list[FunctionWithCondition],
         base: list[FunctionWithCondition],
     ) -> list[EvalResult]:
-        lowerer = LowerToLLVM(bw, "tmp_name")
-        top_fn = lowerer.add_fn(helper_funcs.get_top_func)
+        lowerer = LowerToLLVM(bw)
+        lowerer.add_fn(helper_funcs.get_top_func)
 
         if not transfer:
+            ret_top_func = FunctionWithCondition(
+                _construct_top_func(helper_funcs.transfer_func)
+            )
+            ret_top_func.set_func_name("ret_top")
             transfer = [ret_top_func]
 
-        transfer_func_names: list[str] = []
-        transfer_func_srcs: list[str] = []
-        for fc in transfer:
-            caller_str, fn_str, cond_str = fc.get_function_str(
-                lambda x: str(lowerer.add_fn(x))
-            )
-            transfer_func_names.append(fc.func_name)
-            transfer_func_srcs.append(
-                f"{fn_str}\n{cond_str if cond_str else ''}\n{caller_str}"
-            )
+        [fc.lower(lowerer.add_fn) for fc in transfer]
+        [fc.lower(lowerer.add_fn) for fc in base]
 
-        base_func_names: list[str] = []
-        base_func_srcs: list[str] = []
-        for fc in base:
-            caller_str, fn_str, cond_str = fc.get_function_str(
-                lambda x: str(lowerer.add_fn(x))
-            )
-            base_func_names.append(fc.func_name)
-            base_func_srcs.append(
-                f"{fn_str}\n{cond_str if cond_str else ''}\n{caller_str}"
-            )
+        jit.add_mod(str(lowerer))
+        transfer_fn_ptrs = [jit.get_fn_ptr(x.func_name) for x in transfer]
+        base_fn_ptrs = [jit.get_fn_ptr(x.func_name) for x in base]
 
-        # TODO idk if it's a good idea for this function to own a jit,
-        # but idk where eles to put it rn
-        llvm_src = (
-            str(top_fn)
-            + "\n"
-            + "\n".join(transfer_func_srcs)
-            + "\n\n"
-            + "\n".join(base_func_srcs)
-        )
-        jit.add_mod(llvm_src)
-        transfer_fn_ptrs = [jit.get_fn_ptr(x) for x in transfer_func_names]
-        base_fn_ptrs = [jit.get_fn_ptr(x) for x in base_func_names]
-
-        return eval_transfer_func(
-            to_eval,
-            transfer_fn_ptrs,
-            base_fn_ptrs,
-        )
+        return eval_transfer_func(to_eval, transfer_fn_ptrs, base_fn_ptrs)
 
     return helper
 
@@ -122,16 +82,16 @@ def _save_solution(solution_module: ModuleOp, outputs_folder: Path):
         print(solution_module, file=fout)
 
 
-def _get_module(p: Path) -> ModuleOp:
+def _get_helper_funcs(p: Path, d: AbstractDomain) -> HelperFuncs:
+    ctx = Context()
+    ctx.load_dialect(Arith)
+    ctx.load_dialect(Builtin)
+    ctx.load_dialect(Func)
+    ctx.load_dialect(Transfer)
+
     with open(p, "r") as f:
         mod = Parser(ctx, f.read(), p.name).parse_op()
         assert isinstance(mod, ModuleOp)
-
-    return mod
-
-
-def _get_helper_funcs(mod: ModuleOp, p: Path, d: AbstractDomain) -> HelperFuncs:
-    # TODO only takes the abst domain to know how many fields should be in
 
     fns = {x.sym_name.data: x for x in mod.ops if isinstance(x, FuncOp)}
     FunctionCallInline(False, fns).apply(ctx, mod)
@@ -170,46 +130,6 @@ def _get_helper_funcs(mod: ModuleOp, p: Path, d: AbstractDomain) -> HelperFuncs:
     )
 
 
-def _get_base_xfers(module: ModuleOp) -> list[FunctionWithCondition]:
-    def is_base_function(func: FuncOp) -> bool:
-        return func.sym_name.data.startswith("part_solution_")
-
-    base_bodys: dict[str, FuncOp] = {}
-    base_conds: dict[str, FuncOp] = {}
-    base_transfers: list[FunctionWithCondition] = []
-
-    fs = [x for x in module.ops if isinstance(x, FuncOp) and is_base_function(x)]
-    for func in fs:
-        func_name = func.sym_name.data
-        if func_name.endswith("_body"):
-            main_name = func_name[: -len("_body")]
-            if main_name in base_conds:
-                body = func
-                cond = base_conds.pop(main_name)
-                body.attributes["number"] = StringAttr("init")
-                cond.attributes["number"] = StringAttr("init")
-                base_transfers.append(FunctionWithCondition(body, cond))
-            else:
-                base_bodys[main_name] = func
-        elif func_name.endswith("_cond"):
-            main_name = func_name[: -len("_cond")]
-            if main_name in base_bodys:
-                body = base_bodys.pop(main_name)
-                cond = func
-                body.attributes["number"] = StringAttr("init")
-                cond.attributes["number"] = StringAttr("init")
-                base_transfers.append(FunctionWithCondition(body, func))
-            else:
-                base_conds[main_name] = func
-
-    assert len(base_conds) == 0
-    for _, func in base_bodys.items():
-        func.attributes["number"] = StringAttr("init")
-        base_transfers.append(FunctionWithCondition(func))
-
-    return base_transfers
-
-
 def _setup_context(r: Random, use_full_i1_ops: bool) -> SynthesizerContext:
     c = SynthesizerContext(r)
     c.set_cmp_flags([0, 6, 7])
@@ -236,11 +156,7 @@ def run(
     weighted_dsl: bool,
     num_unsound_candidates: int,
     outputs_folder: Path,
-) -> EvalResult:
-    # TODO jit object needs to be alive for the runtime of this function (or else it'll be free'd and we'll segfault)
-    # So it's important who owns it, etc.
-
-    lowerer = LowerToLLVM(bw)
+):
     jit = Jit()
 
     # TODO fix evalresult
@@ -254,24 +170,16 @@ def run(
     if random_number_file is not None:
         random.read_from_file(random_number_file)
 
-    context = _setup_context(random, False)
-    context_weighted = _setup_context(random, False)
-    context_cond = _setup_context(random, True)
-
-    module = _get_module(transformer_file)
-    helper_funcs = _get_helper_funcs(module, transformer_file, domain)
-    base_transfers = _get_base_xfers(module)
-
-    ret_top_func = FunctionWithCondition(_construct_top_func(helper_funcs.transfer_func))
-    ret_top_func.set_func_name("ret_top")
+    helper_funcs = _get_helper_funcs(transformer_file, domain)
 
     to_eval = setup_eval(bw, samples, random_seed, helper_funcs, jit)
 
-    solution_eval_func = _eval_helper(
-        to_eval, bw, domain, helper_funcs, ret_top_func, jit
-    )
+    solution_eval_func = _eval_helper(to_eval, bw, helper_funcs, jit)
+    solution_set = UnsizedSolutionSet([], solution_eval_func, logger)
 
-    solution_set = UnsizedSolutionSet(base_transfers, solution_eval_func, logger)
+    context = _setup_context(random, False)
+    context_weighted = _setup_context(random, False)
+    context_cond = _setup_context(random, True)
 
     # eval the initial solutions in the solution set
     init_cmp_res = solution_set.eval_improve([])[0]
@@ -356,17 +264,17 @@ def run(
     solution_module = solution_set.generate_solution_mlir()
     _save_solution(solution_module, outputs_folder)
 
+    lowerer = LowerToLLVM(bw)
     lowerer.add_fn(helper_funcs.meet_func)
     lowerer.add_fn(helper_funcs.get_top_func)
     lowerer.add_mod(solution_module, ["solution"])
     jit.add_mod(str(lowerer))
     solution_ptr = jit.get_fn_ptr("solution_shim")
     solution_result = eval_transfer_func(to_eval, [solution_ptr], [])[0]
+
     solution_sound = solution_result.get_sound_prop() * 100
     solution_exact = solution_result.get_exact_prop() * 100
     print(f"last_solution\t{solution_sound:.2f}%\t{solution_exact:.2f}%")
-
-    return solution_result
 
 
 def main() -> None:
