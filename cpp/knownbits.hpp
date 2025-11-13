@@ -9,6 +9,7 @@
 
 #include "apint.hpp"
 #include "domain.hpp"
+#include "pdep.hpp"
 
 using namespace DomainHelpers;
 
@@ -52,19 +53,40 @@ public:
   }
 
   const constexpr std::vector<APInt<BW>> toConcrete() const noexcept {
-    std::vector<APInt<BW>> ret;
-    constexpr const APInt<BW> min = APInt<BW>::getZero();
-    constexpr const APInt<BW> max = APInt<BW>::getMaxValue();
+    std::vector<APInt<BW>> res;
+    const APInt<BW> unknown_bits = ~(zero() | one());
+    const std::uint32_t num_unknown_bits = unknown_bits.popcount();
 
-    for (APInt<BW> i = min;; ++i) {
-      if ((zero() & i) == 0 && (one() & ~i) == 0)
-        ret.emplace_back(i);
+    // fast case if *this is top
+    if (num_unknown_bits == BW) {
+      constexpr const APInt<BW> max = APInt<BW>::getMaxValue();
+      res.reserve(max.getZExtValue());
 
-      if (i == max)
-        break;
+      for (APInt<BW> i = APInt<BW>::getZero();; ++i) {
+        res.emplace_back(i);
+
+        if (i == max)
+          break;
+      }
+
+      return res;
     }
 
-    return ret;
+    // fast case if *this is a const
+    if (num_unknown_bits == 0) {
+      res.emplace_back(one());
+      return res;
+    }
+
+    const std::uint64_t num_perms = 1ULL << num_unknown_bits;
+    res.reserve(num_perms);
+    const std::uint64_t mask = unknown_bits.getZExtValue();
+    for (std::size_t i = 0; i < num_perms; ++i) {
+      std::uint64_t r = pdep<BW>(i, mask);
+      res.emplace_back(APInt<BW>(r) | one());
+    }
+
+    return res;
   }
 
   constexpr std::uint64_t distance(const KnownBits &rhs) const noexcept {
