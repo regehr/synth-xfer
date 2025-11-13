@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 import io
-import logging
 from typing import Callable
 
 from xdsl.dialects.builtin import ModuleOp
@@ -11,6 +10,7 @@ from xdsl.dialects.func import CallOp, FuncOp, ReturnOp
 from synth_xfer._util.cond_func import FunctionWithCondition
 from synth_xfer._util.dce import dce
 from synth_xfer._util.eval_result import EvalResult
+from synth_xfer._util.log import get_logger, write_log_file
 from synth_xfer._util.synth_context import SynthesizerContext
 from synth_xfer._util.verifier import verify_transfer_function
 from synth_xfer.cli.main import HelperFuncs
@@ -35,11 +35,11 @@ def _verify_function(
         cur_helper.append(func.cond)
 
     helpers = cur_helper + [
-            helper_funcs.get_top_func,
-            helper_funcs.instance_constraint_func,
-            helper_funcs.domain_constraint_func,
-            helper_funcs.op_constraint_func,
-            helper_funcs.meet_func,
+        helper_funcs.get_top_func,
+        helper_funcs.instance_constraint_func,
+        helper_funcs.domain_constraint_func,
+        helper_funcs.op_constraint_func,
+        helper_funcs.meet_func,
     ]
     helpers = [x for x in helpers if x is not None]
 
@@ -66,26 +66,18 @@ class SolutionSet(ABC):
         [list[FunctionWithCondition], list[FunctionWithCondition]], list[EvalResult]
     ]
 
-    logger: logging.Logger
-
     def __init__(
         self,
         initial_solutions: list[FunctionWithCondition],
         eval_func: Callable[
-            [
-                list[FunctionWithCondition],
-                list[FunctionWithCondition],
-            ],
-            list[EvalResult],
+            [list[FunctionWithCondition], list[FunctionWithCondition]], list[EvalResult]
         ],
-        logger: logging.Logger,
         is_perfect: bool = False,
     ):
         _rename_functions(initial_solutions, "partial_solution_")
         self.solutions = initial_solutions
         self.solutions_size = len(initial_solutions)
         self.eval_func = eval_func
-        self.logger = logger
         self.precise_set = []
         self.is_perfect = is_perfect
 
@@ -172,15 +164,9 @@ class UnsizedSolutionSet(SolutionSet):
             ],
             list[EvalResult],
         ],
-        logger: logging.Logger,
         is_perfect: bool = False,
     ):
-        super().__init__(
-            initial_solutions,
-            eval_func_with_cond,
-            logger,
-            is_perfect,
-        )
+        super().__init__(initial_solutions, eval_func_with_cond, is_perfect)
 
     def handle_inconsistent_result(self, f: FunctionWithCondition):
         str_output = io.StringIO()
@@ -190,8 +176,8 @@ class UnsizedSolutionSet(SolutionSet):
             print(dce(f.cond), file=str_output)
         print(f.get_function(), file=str_output)
 
-        func_op_str = str_output.getvalue()
-        self.logger.error(func_op_str)
+        write_log_file("error.mlir", str_output.getvalue())
+
         raise Exception("Inconsistent between eval engine and verifier")
 
     def construct_new_solution_set(
@@ -203,13 +189,16 @@ class UnsizedSolutionSet(SolutionSet):
         helper_funcs: HelperFuncs,
         num_unsound_candidates: int,
     ) -> SolutionSet:
+        logger = get_logger()
         candidates = self.solutions + new_candidates_sp + new_candidates_c
         _rename_functions(candidates, "part_solution_")
-        self.logger.info(f"Size of new candidates: {len(new_candidates_sp)}")
-        self.logger.info(f"Size of new conditional candidates: {len(new_candidates_c)}")
-        self.logger.info(f"Size of solutions: {len(candidates)}")
+
+        logger.info(f"Size of new candidates: {len(new_candidates_sp)}")
+        logger.info(f"Size of new conditional candidates: {len(new_candidates_c)}")
+        logger.info(f"Size of solutions: {len(candidates)}")
+        logger.info("Reset solution set...")
+
         self.solutions = []
-        self.logger.info("Reset solution set...")
         num_cond_solutions = 0
 
         while len(candidates) > 0:
@@ -228,13 +217,13 @@ class UnsizedSolutionSet(SolutionSet):
             if (cand in new_candidates_sp) or (cand in new_candidates_c):
                 unsound_bit = _verify_function(bw, cand, helper_funcs, timeout=200)
                 if unsound_bit is None:
-                    self.logger.info(
+                    logger.info(
                         f"Skip a function of which verification timed out, body: {body_number}, cond: {cond_number}"
                     )
                     candidates.remove(cand)
                     continue
                 elif unsound_bit != 0:
-                    self.logger.info(
+                    logger.info(
                         f"Skip a unsound function at bit width {unsound_bit}, body: {body_number}, cond: {cond_number}"
                     )
                     # Todo: Remove hard encoded bitwidth
@@ -255,14 +244,14 @@ class UnsizedSolutionSet(SolutionSet):
                     log_str = "Add a existing transformer (cond)"
                     num_cond_solutions += 1
             from_weighted_dsl = "from_weighted_dsl" in cand.func.attributes
-            self.logger.info(
+            logger.info(
                 f"{log_str}, body: {body_number}, cond: {cond_number}. After adding, Exact: {max_improve_res.get_exact_prop() * 100:.2f}%, Dist: {max_improve_res.get_dist():.2f}, weighted?: {from_weighted_dsl}"
             )
             candidates.remove(cand)
             self.solutions.append(cand)
 
-        self.logger.info(f"The number of solutions after reseting: {len(self.solutions)}")
-        self.logger.info(f"The number of conditional solutions: {num_cond_solutions}")
+        logger.info(f"The number of solutions after reseting: {len(self.solutions)}")
+        logger.info(f"The number of conditional solutions: {num_cond_solutions}")
         self.solutions_size = len(self.solutions)
 
         final_result = self.eval_improve([])[0]
@@ -283,11 +272,11 @@ class UnsizedSolutionSet(SolutionSet):
             key=lambda x: x[1].get_potential_improve(),
         )
         top_k = sorted_pairs[:num_unsound_candidates]
-        self.logger.info(f"Top {num_unsound_candidates} Precise candidates:")
+        logger.info(f"Top {num_unsound_candidates} Precise candidates:")
         self.precise_set = []
         for cand, res in top_k:
             body_number = cand.attributes["number"]
-            self.logger.info(
+            logger.info(
                 f"{body_number}\tunsolved_exact: {res.get_unsolved_exact_prop() * 100:.2f}%, sound: {res.get_sound_prop() * 100:.2f}%, dist_reduce: {res.base_dist:.2f} -> {res.sound_dist:.2f}"
             )
             self.precise_set.append(cand)
@@ -296,7 +285,9 @@ class UnsizedSolutionSet(SolutionSet):
 
     def learn_weights(self, context: SynthesizerContext):
         "Set weights in context according to the frequencies of each DSL operation that appear in func in solution set"
-        self.logger.info("Improvement by each individual function")
+
+        logger = get_logger()
+        logger.info("Improvement by each individual function")
         learn_form_funcs: list[FuncOp] = []
         for i, sol in enumerate(self.solutions):
             cmp_results: list[EvalResult] = self.eval_func(
@@ -307,7 +298,7 @@ class UnsizedSolutionSet(SolutionSet):
             to_learn = res.get_new_exact_prop() > 0.005
             body_number = sol.func.attributes["number"]
             cond_number = "None" if sol.cond is None else sol.cond.attributes["number"]
-            self.logger.info(
+            logger.info(
                 f"\tbody {body_number}, cond {cond_number} : #exact {res.get_exacts() - res.get_unsolved_exacts()} -> {res.get_exacts()}, dist_improve: {res.get_potential_improve():3f}%, cond?: {self.solutions[i].cond is not None}, learn?: {to_learn}"
             )
             if to_learn:
@@ -316,7 +307,7 @@ class UnsizedSolutionSet(SolutionSet):
         freq_of_learn_funcs = SynthesizerContext.count_op_frequency(learn_form_funcs)
         context.update_weights(freq_of_learn_funcs)
 
-        self.logger.info("Current Weights:")
+        logger.info("Current Weights:")
         for _, weights in context.op_weights.items():
             for key, value in weights.items():
-                self.logger.info(f"\t{key}: {value}")
+                logger.info(f"\t{key}: {value}")

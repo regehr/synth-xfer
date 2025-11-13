@@ -1,5 +1,5 @@
-import logging
 from pathlib import Path
+from time import perf_counter
 from typing import TYPE_CHECKING, Callable
 
 from xdsl.context import Context
@@ -14,7 +14,7 @@ from synth_xfer._util.cond_func import FunctionWithCondition
 from synth_xfer._util.eval import AbstractDomain, eval_transfer_func, setup_eval
 from synth_xfer._util.eval_result import EvalResult
 from synth_xfer._util.helper_funcs import HelperFuncs
-from synth_xfer._util.log import print_fns_to_file, setup_loggers
+from synth_xfer._util.log import get_logger, init_logging, write_log_file
 from synth_xfer._util.mcmc_sampler import setup_mcmc
 from synth_xfer._util.one_iter import synthesize_one_iteration
 from synth_xfer._util.random import Random
@@ -77,11 +77,6 @@ def _eval_helper(
     return helper
 
 
-def _save_solution(solution_module: ModuleOp, outputs_folder: Path):
-    with open(outputs_folder.joinpath("solution.mlir"), "w") as fout:
-        print(solution_module, file=fout)
-
-
 def _get_helper_funcs(p: Path, d: AbstractDomain) -> HelperFuncs:
     ctx = Context()
     ctx.load_dialect(Arith)
@@ -139,7 +134,6 @@ def _setup_context(r: Random, use_full_i1_ops: bool) -> SynthesizerContext:
 
 
 def run(
-    logger: logging.Logger,
     domain: AbstractDomain,
     num_programs: int,
     total_rounds: int,
@@ -155,8 +149,8 @@ def run(
     transformer_file: Path,
     weighted_dsl: bool,
     num_unsound_candidates: int,
-    outputs_folder: Path,
 ):
+    logger = get_logger()
     jit = Jit()
 
     # TODO fix evalresult
@@ -172,26 +166,33 @@ def run(
 
     helper_funcs = _get_helper_funcs(transformer_file, domain)
 
+    start_time = perf_counter()
     to_eval = setup_eval(bw, samples, random_seed, helper_funcs, jit)
+    run_time = perf_counter() - start_time
+    logger.perf(f"Enum engine took {run_time:.4f}s")
 
     solution_eval_func = _eval_helper(to_eval, bw, helper_funcs, jit)
-    solution_set = UnsizedSolutionSet([], solution_eval_func, logger)
+    solution_set = UnsizedSolutionSet([], solution_eval_func)
 
     context = _setup_context(random, False)
     context_weighted = _setup_context(random, False)
     context_cond = _setup_context(random, True)
 
-    # eval the initial solutions in the solution set
+    start_time = perf_counter()
     init_cmp_res = solution_set.eval_improve([])[0]
-    init_sound = init_cmp_res.get_sound_prop() * 100
+    run_time = perf_counter() - start_time
+    logger.perf(f"Init Eval took {run_time:.4f}s")
+
     init_exact = init_cmp_res.get_exact_prop() * 100
-    logger.info(f"Initial Solution. Sound:{init_sound:.4f}% Exact: {init_exact:.4f}%")
-    print(f"init_solution\t{init_sound:.4f}%\t{init_exact:.4f}%")
+    s = f"Top Solution | Exact {init_exact:.4f}% |"
+    logger.info(s)
+    print(s)
 
     current_prog_len = program_length
     current_total_rounds = total_rounds
     current_num_abd_procs = num_abd_procs
     for ith_iter in range(num_iters):
+        iter_start = perf_counter()
         # gradually increase the program length
         current_prog_len += (program_length - current_prog_len) // (num_iters - ith_iter)
         current_total_rounds += (total_rounds - current_total_rounds) // (
@@ -200,8 +201,6 @@ def run(
         current_num_abd_procs += (num_abd_procs - current_num_abd_procs) // (
             num_iters - ith_iter
         )
-
-        print(f"Iteration {ith_iter} starts...")
 
         if weighted_dsl:
             assert isinstance(solution_set, UnsizedSolutionSet)
@@ -225,7 +224,6 @@ def run(
             ith_iter,
             random,
             solution_set,
-            logger,
             helper_funcs,
             inv_temp,
             num_unsound_candidates,
@@ -235,23 +233,28 @@ def run(
             bw,
         )
 
-        print_fns_to_file(map(str, solution_set.solutions), ith_iter, outputs_folder)
+        write_log_file(
+            f"iter{ith_iter}.mlir", "\n".join(map(str, solution_set.solutions))
+        )
 
-        final_cmp_res = solution_set.eval_improve([])
+        final_cmp_res = solution_set.eval_improve([])[0]
         lbw_mbw_log = "\n".join(
             f"bw: {res.bitwidth}, dist: {res.dist:.2f}, exact%: {res.get_exact_prop() * 100:.4f}"
-            for res in final_cmp_res[0].get_low_med_res()
+            for res in final_cmp_res.get_low_med_res()
         )
         hbw_log = "\n".join(
             f"bw: {res.bitwidth}, dist: {res.dist:.2f}"
-            for res in final_cmp_res[0].get_high_res()
-        )
-        logger.info(
-            f"""Iter {ith_iter} Finished. Result of Current Solution: \n{lbw_mbw_log}\n{hbw_log}\n"""
+            for res in final_cmp_res.get_high_res()
         )
 
+        iter_time = perf_counter() - iter_start
+        final_exact = final_cmp_res.get_exact_prop() * 100
         print(
-            f"Iteration {ith_iter} finished. Exact: {final_cmp_res[0].get_exact_prop() * 100:.4f}%, Size of the solution set: {solution_set.solutions_size}"
+            f"Iteration {ith_iter}  | Exact {final_exact:.4f}% | {solution_set.solutions_size} solutions | {iter_time:.4f}s |"
+        )
+
+        logger.info(
+            f"""Iter {ith_iter} Finished. Result of Current Solution: \n{lbw_mbw_log}\n{hbw_log}\n"""
         )
 
         if solution_set.is_perfect:
@@ -262,7 +265,7 @@ def run(
     if not solution_set.has_solution():
         raise Exception("Found no solutions")
     solution_module = solution_set.generate_solution_mlir()
-    _save_solution(solution_module, outputs_folder)
+    write_log_file("solution.mlir", solution_module)
 
     lowerer = LowerToLLVM(bw)
     lowerer.add_fn(helper_funcs.meet_func)
@@ -272,9 +275,10 @@ def run(
     solution_ptr = jit.get_fn_ptr("solution_shim")
     solution_result = eval_transfer_func(to_eval, [solution_ptr], [])[0]
 
-    solution_sound = solution_result.get_sound_prop() * 100
     solution_exact = solution_result.get_exact_prop() * 100
-    print(f"last_solution\t{solution_sound:.2f}%\t{solution_exact:.2f}%")
+    print(
+        f"Final Soln   | Exact {solution_exact:.4f}% | {solution_set.solutions_size} solutions |"
+    )
 
 
 def main() -> None:
@@ -283,11 +287,11 @@ def main() -> None:
     if not args.outputs_folder.is_dir():
         args.outputs_folder.mkdir()
 
-    logger = setup_loggers(args.outputs_folder, not args.quiet)
-    [logger.info(f"{k}: {v}") for k, v in vars(args).items()]
+    logger = init_logging(args.outputs_folder, not args.quiet)
+    max_len = max(len(k) for k in vars(args))
+    [logger.config(f"{k:<{max_len}} | {v}") for k, v in vars(args).items()]
 
     run(
-        logger=logger,
         domain=AbstractDomain[args.domain],
         num_programs=args.num_programs,
         total_rounds=args.total_rounds,
@@ -303,5 +307,4 @@ def main() -> None:
         transformer_file=args.transfer_functions,
         weighted_dsl=args.weighted_dsl,
         num_unsound_candidates=args.num_unsound_candidates,
-        outputs_folder=args.outputs_folder,
     )

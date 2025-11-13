@@ -1,5 +1,4 @@
-import logging
-import time
+from time import perf_counter
 
 from xdsl.dialects.builtin import StringAttr
 from xdsl.dialects.func import FuncOp
@@ -8,6 +7,7 @@ from synth_xfer._util.cond_func import FunctionWithCondition
 from synth_xfer._util.cost_model import decide
 from synth_xfer._util.eval_result import EvalResult
 from synth_xfer._util.helper_funcs import HelperFuncs
+from synth_xfer._util.log import get_logger
 from synth_xfer._util.mcmc_sampler import MCMCSampler
 from synth_xfer._util.random import Random
 from synth_xfer._util.solution_set import SolutionSet
@@ -50,7 +50,6 @@ def synthesize_one_iteration(
     ith_iter: int,
     random: Random,
     solution_set: SolutionSet,
-    logger: logging.Logger,
     helper_funcs: HelperFuncs,
     inv_temp: int,
     num_unsound_candidates: int,
@@ -60,6 +59,13 @@ def synthesize_one_iteration(
     bw: int,
 ) -> SolutionSet:
     "Given ith_iter, performs total_rounds mcmc sampling"
+
+    iter_start_time = perf_counter()
+    logger = get_logger()
+
+    eval_total = 0.0
+    sample_total = 0.0
+    decide_total = 0.0
 
     sp_range, p_range, c_range = ranges
     num_programs = len(sp_range) + len(p_range) + len(c_range)
@@ -86,21 +92,23 @@ def synthesize_one_iteration(
 
     # MCMC start
     logger.info(
-        f"Iter {ith_iter}: Start {num_programs - len(c_range)} MCMC to sampling programs of length {program_length}. Start {len(c_range)} MCMC to sample abductions. Each one is run for {total_rounds} steps..."
+        f"Iter {ith_iter}: Start {num_programs - len(c_range)} MCMC to sampling programs of length {program_length}."
+        f"Start {len(c_range)} MCMC to sample abductions. Each one is run for {total_rounds} steps..."
     )
 
     for rnd in range(total_rounds):
+        s = perf_counter()
         transfers = [spl.sample_next().get_current() for spl in mcmc_samplers]
-
         func_with_cond_lst = _build_eval_list(
             transfers, sp_range, p_range, c_range, prec_set
         )
+        sample_total += perf_counter() - s
 
-        start = time.time()
+        s = perf_counter()
         cmp_results = solution_set.eval_improve(func_with_cond_lst)
-        end = time.time()
-        used_time = end - start
+        eval_total += perf_counter() - s
 
+        s = perf_counter()
         for i, (spl, res) in enumerate(zip(mcmc_samplers, cmp_results)):
             proposed_cost = spl.compute_cost(res)
             current_cost = spl.compute_current_cost()
@@ -138,7 +146,8 @@ def synthesize_one_iteration(
             )
             cost_data[i].append(res_cost)
 
-        logger.debug(f"Used Time: {used_time:.2f}")
+        decide_total += perf_counter() - s
+
         # Print the current best result every K rounds
         if rnd % 250 == 100 or rnd == total_rounds - 1:
             logger.debug("Sound transformers with most exact outputs:")
@@ -176,6 +185,7 @@ def synthesize_one_iteration(
                 )
             )
 
+    verif_start_time = perf_counter()
     new_solution_set = solution_set.construct_new_solution_set(
         bw,
         candidates_sp,
@@ -184,5 +194,16 @@ def synthesize_one_iteration(
         helper_funcs,
         num_unsound_candidates,
     )
+    verif_time = perf_counter() - verif_start_time
+    iter_time = perf_counter() - iter_start_time
+
+    def perf_str(x: float) -> str:
+        return f"{x:.4f}s | avg {x / total_rounds:.4f}s | {100 * x / iter_time:.2f}%"
+
+    logger.perf(f"Iter {ith_iter} took {iter_time:.4f}s")
+    logger.perf("\tEval took     | " + perf_str(eval_total))
+    logger.perf("\tSampling took | " + perf_str(sample_total))
+    logger.perf("\tDeciding took | " + perf_str(decide_total))
+    logger.perf("\tVerif took    | " + perf_str(verif_time))
 
     return new_solution_set
