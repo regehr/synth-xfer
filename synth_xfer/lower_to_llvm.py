@@ -1,5 +1,5 @@
 from functools import singledispatchmethod
-from typing import Callable, Protocol
+from typing import Protocol
 
 from llvmlite import ir
 from xdsl.dialects.arith import AndIOp, ConstantOp, OrIOp, XOrIOp
@@ -58,162 +58,6 @@ from xdsl_smt.dialects.transfer import (
     UShlOverflowOp,
     XorOp,
 )
-
-
-class _IRBuilderOp(Protocol):
-    __self__: ir.IRBuilder
-
-    def __call__(
-        self, b: ir.IRBuilder, *args: ir.Value, name: str = ""
-    ) -> ir.Instruction: ...
-
-
-# TODO mlir_op map be owned by the lowerer
-_llvm_intrinsics: dict[type[Operation], _IRBuilderOp] = {  # type: ignore
-    # unary
-    NegOp: ir.IRBuilder.neg,
-    # binary
-    AndOp: ir.IRBuilder.and_,
-    AndIOp: ir.IRBuilder.and_,
-    AddOp: ir.IRBuilder.add,
-    OrOp: ir.IRBuilder.or_,
-    OrIOp: ir.IRBuilder.or_,
-    XorOp: ir.IRBuilder.xor,
-    XOrIOp: ir.IRBuilder.xor,
-    SubOp: ir.IRBuilder.sub,
-    MulOp: ir.IRBuilder.mul,
-    UDivOp: ir.IRBuilder.udiv,
-    SDivOp: ir.IRBuilder.sdiv,
-    URemOp: ir.IRBuilder.urem,
-    SRemOp: ir.IRBuilder.srem,
-    AShrOp: ir.IRBuilder.ashr,
-    LShrOp: ir.IRBuilder.lshr,
-    ShlOp: ir.IRBuilder.shl,
-    # # ternery
-    SelectOp: ir.IRBuilder.select,
-}
-
-
-# TODO doesn't insert into the ssa map
-# TODO these should just be special case lowerings
-# TODO rewrite so that they are, this could make them faster
-class _OpConstraints:
-    def c(self, v: int) -> ir.Constant:
-        return ir.Constant(ir.IntType(self.bw), v)
-
-    def rhs_eq_zero(self, b: ir.IRBuilder, _: ir.Value, rhs: ir.Value):
-        return b.icmp_unsigned("==", rhs, self.c(0))
-
-    def val_uge_bw(self, b: ir.IRBuilder, _: ir.Value, rhs: ir.Value):
-        return b.icmp_unsigned(">=", rhs, self.c(self.bw))
-
-    def ashr_bad_bw_pos(self, b: ir.IRBuilder, lhs: ir.Value, rhs: ir.Value):
-        pos = b.icmp_signed(">=", lhs, self.c(0))
-        badbw = b.icmp_unsigned(">=", rhs, self.c(self.bw))
-        return b.and_(pos, badbw)
-
-    def ashr_bad_bw_neg(self, b: ir.IRBuilder, lhs: ir.Value, rhs: ir.Value):
-        neg = b.icmp_signed("<", lhs, self.c(0))
-        badbw = b.icmp_unsigned(">=", rhs, self.c(self.bw))
-        return b.and_(neg, badbw)
-
-    def sdiv_underflow(self, b: ir.IRBuilder, lhs: ir.Value, rhs: ir.Value):
-        int_min = self.c(2 ** (self.bw - 1))
-        neg_one = self.c((2**self.bw) - 1)
-        lhs_is_min = b.icmp_signed("==", lhs, int_min)
-        rhs_is_m1 = b.icmp_signed("==", rhs, neg_one)
-        return b.and_(lhs_is_min, rhs_is_m1)
-
-    def sdiv_by_zero_pos(self, b: ir.IRBuilder, lhs: ir.Value, rhs: ir.Value):
-        pos = b.icmp_signed(">=", lhs, self.c(0))
-        rhs0 = b.icmp_unsigned("==", rhs, self.c(0))
-        return b.and_(pos, rhs0)
-
-    def sdiv_by_zero_neg(self, b: ir.IRBuilder, lhs: ir.Value, rhs: ir.Value):
-        neg = b.icmp_signed("<", lhs, self.c(0))
-        rhs0 = b.icmp_unsigned("==", rhs, self.c(0))
-        return b.and_(neg, rhs0)
-
-    def ret_lhs(self, lhs: ir.Value):
-        return lhs
-
-    def ret_zero(self, _: ir.Value):
-        return self.c(0)
-
-    def ret_one(self, _: ir.Value):
-        return self.c(1)
-
-    def ret_ones(self, _: ir.Value):
-        return self.c((2**self.bw) - 1)
-
-    def ret_int_min(self, _: ir.Value):
-        return self.c(2 ** (self.bw - 1))
-
-    def __init__(self, bw: int):
-        self.bw = bw
-
-        self.ops: list[type[Operation]] = [
-            ShlOp,
-            LShrOp,
-            AShrOp,
-            UDivOp,
-            URemOp,
-            SRemOp,
-            SDivOp,
-        ]
-
-        self.constraints: dict[  # type: ignore
-            type[Operation],
-            list[
-                tuple[
-                    Callable[[ir.IRBuilder, ir.Value, ir.Value], ir.Value],
-                    Callable[[ir.Value], ir.Value],
-                ]
-            ],
-        ] = {
-            ShlOp: [(self.val_uge_bw, self.ret_zero)],
-            LShrOp: [(self.val_uge_bw, self.ret_zero)],
-            AShrOp: [
-                (self.ashr_bad_bw_pos, self.ret_zero),
-                (self.ashr_bad_bw_neg, self.ret_ones),
-            ],
-            UDivOp: [(self.rhs_eq_zero, self.ret_ones)],
-            URemOp: [(self.rhs_eq_zero, self.ret_lhs)],
-            SRemOp: [(self.rhs_eq_zero, self.ret_lhs)],
-            SDivOp: [
-                (self.sdiv_underflow, self.ret_int_min),
-                (self.sdiv_by_zero_pos, self.ret_ones),
-                (self.sdiv_by_zero_neg, self.ret_one),
-            ],
-        }
-
-    def safe_lower(
-        self, b: ir.IRBuilder, op: Operation, lhs: ir.Value, rhs: ir.Value
-    ) -> ir.Instruction:
-        const_zero = ir.Constant(ir.IntType(self.bw), 0)
-        const_one = ir.Constant(ir.IntType(self.bw), 1)
-        const_false = ir.Constant(ir.IntType(1), 0)
-        const_true = ir.Constant(ir.IntType(1), 1)
-
-        ub_any = const_false
-        latched = const_false
-        chosen = const_zero
-
-        for pred, default in self.constraints[type(op)]:
-            p = pred(b, lhs, rhs)
-            ub_any = b.or_(ub_any, p)
-            dval = default(lhs)
-            take = b.and_(p, b.icmp_unsigned("==", latched, const_false))
-            chosen = b.select(take, dval, chosen)
-            latched = b.select(p, const_true, latched)
-
-        lhs_safe = b.select(ub_any, const_zero, lhs)
-        rhs_safe = b.select(ub_any, const_one, rhs)
-
-        raw_llvm_op = _llvm_intrinsics[type(op)]
-        raw = raw_llvm_op(b, lhs_safe, rhs_safe)
-
-        return b.select(ub_any, chosen, raw)
 
 
 def lower_type(typ: Attribute, bw: int) -> ir.Type:
@@ -300,7 +144,9 @@ class LowerToLLVM:
         self.fns[fn_name] = _LowerFuncToLLVM(mlir_fn, llvm_fn, self.fns, self.bw).llvm_fn
 
         if shim:
-            return self.shim(mlir_fn, fn_name)
+            shimmed_fn = self.shim(mlir_fn, fn_name)
+            self.fns[f"{fn_name}_shim"] = shimmed_fn
+            return shimmed_fn
         else:
             return self.fns[fn_name]
 
@@ -420,6 +266,29 @@ class LowerToLLVM:
 
 
 class _LowerFuncToLLVM:
+    class _IRBuilderOp(Protocol):
+        __self__: ir.IRBuilder
+
+        def __call__(
+            self, b: ir.IRBuilder, *args: ir.Value, name: str = ""
+        ) -> ir.Instruction: ...
+
+    _llvm_intrinsics: dict[type[Operation], _IRBuilderOp] = {  # type: ignore
+        # unary
+        NegOp: ir.IRBuilder.not_,
+        # binary
+        AndOp: ir.IRBuilder.and_,
+        AndIOp: ir.IRBuilder.and_,
+        AddOp: ir.IRBuilder.add,
+        OrOp: ir.IRBuilder.or_,
+        OrIOp: ir.IRBuilder.or_,
+        XorOp: ir.IRBuilder.xor,
+        XOrIOp: ir.IRBuilder.xor,
+        SubOp: ir.IRBuilder.sub,
+        MulOp: ir.IRBuilder.mul,
+        # # ternery
+        SelectOp: ir.IRBuilder.select,
+    }
     bw: int
     b: ir.IRBuilder
     ssa_map: dict[SSAValue, ir.Value]
@@ -459,15 +328,8 @@ class _LowerFuncToLLVM:
 
     @add_op.register
     def _(self, op: Operation) -> None:
-        llvm_op = _llvm_intrinsics[type(op)]
-
-        constraints = _OpConstraints(self.bw)
-        if type(op) in constraints.ops:
-            self.ssa_map[op.results[0]] = constraints.safe_lower(
-                self.b, op, self.operands(op)[0], self.operands(op)[1]
-            )
-        else:
-            self.ssa_map[op.results[0]] = llvm_op(self.b, *self.operands(op))
+        llvm_op = self._llvm_intrinsics[type(op)]
+        self.ssa_map[op.results[0]] = llvm_op(self.b, *self.operands(op))
 
     @add_op.register
     def _(self, op: CallOp) -> None:
@@ -507,7 +369,7 @@ class _LowerFuncToLLVM:
         # | SSubOverflowOp,
     ) -> None:
         res_name = self.result_name(op)
-        oprands = self.operands(op)
+        lhs, rhs = self.operands(op)
 
         d = {
             UAddOverflowOp: self.b.uadd_with_overflow,
@@ -518,25 +380,25 @@ class _LowerFuncToLLVM:
             # SSubOverflowOp: self.b.ssub_with_overflow,
         }
 
-        ov = d[type(op)](oprands[0], oprands[1], name=f"{res_name}_ov")
+        ov = d[type(op)](lhs, rhs, name=f"{res_name}_ov")
         self.ssa_map[op.results[0]] = self.b.extract_value(ov, 1, name=res_name)
 
     @add_op.register
     def _(self, op: UShlOverflowOp | SShlOverflowOp) -> None:
         res_name = self.result_name(op)
-        oprnds = self.operands(op)
+        lhs, rhs = self.operands(op)
 
         bw_const = ir.Constant(ir.IntType(self.bw), self.bw)
         true_const = ir.Constant(ir.IntType(1), 1)
-        cmp = self.b.icmp_unsigned(">=", oprnds[0], bw_const, name=f"{res_name}_cmp")
+        cmp = self.b.icmp_unsigned(">=", lhs, bw_const, name=f"{res_name}_cmp")
 
-        shl = self.b.shl(oprnds[0], oprnds[1], name=f"{res_name}_shl")
+        shl = self.b.shl(lhs, rhs, name=f"{res_name}_shl")
         if isinstance(op, SShlOverflowOp):
-            shr = self.b.ashr(shl, oprnds[1], name=f"{res_name}_ashr")
+            shr = self.b.ashr(shl, rhs, name=f"{res_name}_ashr")
         elif isinstance(op, UShlOverflowOp):
-            shr = self.b.lshr(shl, oprnds[1], name=f"{res_name}_ashr")
+            shr = self.b.lshr(shl, rhs, name=f"{res_name}_ashr")
 
-        ov = self.b.icmp_signed("!=", shr, oprnds[0], name=f"{res_name}_ov")
+        ov = self.b.icmp_signed("!=", shr, lhs, name=f"{res_name}_ov")
         self.ssa_map[op.results[0]] = self.b.select(
             cmp, true_const, ov, name=f"{res_name}_ov"
         )
@@ -593,54 +455,50 @@ class _LowerFuncToLLVM:
 
     @add_op.register
     def _(self, op: UMaxOp | UMinOp | SMaxOp | SMinOp) -> None:
-        oprnds = self.operands(op)
         res_name = self.result_name(op)
+        lhs, rhs = self.operands(op)
 
         if isinstance(op, UMaxOp):
-            cmp = self.b.icmp_unsigned(">", oprnds[0], oprnds[1], name=f"{res_name}_cmp")
+            cmp = self.b.icmp_unsigned(">", lhs, rhs, name=f"{res_name}_cmp")
         elif isinstance(op, UMinOp):
-            cmp = self.b.icmp_unsigned("<", oprnds[0], oprnds[1], name=f"{res_name}_cmp")
+            cmp = self.b.icmp_unsigned("<", lhs, rhs, name=f"{res_name}_cmp")
         elif isinstance(op, SMaxOp):
-            cmp = self.b.icmp_signed(">", oprnds[0], oprnds[1], name=f"{res_name}_cmp")
+            cmp = self.b.icmp_signed(">", lhs, rhs, name=f"{res_name}_cmp")
         elif isinstance(op, SMinOp):
-            cmp = self.b.icmp_signed("<", oprnds[0], oprnds[1], name=f"{res_name}_cmp")
+            cmp = self.b.icmp_signed("<", lhs, rhs, name=f"{res_name}_cmp")
 
-        self.ssa_map[op.results[0]] = self.b.select(
-            cmp, oprnds[0], oprnds[1], name=res_name
-        )
+        self.ssa_map[op.results[0]] = self.b.select(cmp, lhs, rhs, name=res_name)
 
     @add_op.register
     def _(self, op: IsNegativeOp) -> None:
-        oprnds = self.operands(op)
+        oprnd = self.operands(op)[0]
         res_name = self.result_name(op)
 
         const_zero = ir.Constant(ir.IntType(self.bw), 0)
         self.ssa_map[op.results[0]] = self.b.icmp_signed(
-            "<", oprnds[0], const_zero, name=res_name
+            "<", oprnd, const_zero, name=res_name
         )
 
     @add_op.register
     def _(self, op: SetSignBitOp | ClearSignBitOp) -> None:
-        oprnds = self.operands(op)
+        oprnd = self.operands(op)[0]
         res_name = self.result_name(op)
 
         if isinstance(op, SetSignBitOp):
             mask = ir.Constant(ir.IntType(self.bw), (2 ** (self.bw - 1)))
-            self.ssa_map[op.results[0]] = self.b.or_(oprnds[0], mask, name=res_name)  # type: ignore
+            self.ssa_map[op.results[0]] = self.b.or_(oprnd, mask, name=res_name)  # type: ignore
         else:
             mask = ir.Constant(ir.IntType(self.bw), ((2 ** (self.bw - 1)) - 1))
-            self.ssa_map[op.results[0]] = self.b.and_(oprnds[0], mask, name=res_name)  # type: ignore
+            self.ssa_map[op.results[0]] = self.b.and_(oprnd, mask, name=res_name)  # type: ignore
 
     @add_op.register
     def _(
         self, op: SetHighBitsOp | SetLowBitsOp | ClearHighBitsOp | ClearLowBitsOp
     ) -> None:
-        oprnds = self.operands(op)
+        x, n = self.operands(op)
         res_name = self.result_name(op)
         high = isinstance(op, SetHighBitsOp) or isinstance(op, ClearHighBitsOp)
 
-        n = oprnds[1]
-        x = oprnds[0]
         allones = ir.Constant(ir.IntType(self.bw), ((2**self.bw) - 1))
         c_zero = ir.Constant(ir.IntType(self.bw), 0)
         c_bw = ir.Constant(ir.IntType(self.bw), self.bw)
@@ -667,10 +525,109 @@ class _LowerFuncToLLVM:
         cmp_sign_map = [s, s, s, s, s, s, us, us, us, us]
         cmp_pred_map = ["==", "!=", "<", "<=", ">", ">=", "<", "<=", ">", ">="]
 
-        oprnds = self.operands(op)
+        lhs, rhs = self.operands(op)
         cmp_pred = op.predicate.value.data
         res_name = self.result_name(op)
 
         self.ssa_map[op.results[0]] = cmp_sign_map[cmp_pred](
-            cmp_pred_map[cmp_pred], oprnds[0], oprnds[1], name=res_name
+            cmp_pred_map[cmp_pred], lhs, rhs, name=res_name
+        )
+
+    @add_op.register
+    def _(self, op: SRemOp | URemOp | UDivOp) -> None:
+        lhs, rhs = self.operands(op)
+        res_name = self.result_name(op)
+
+        int_ty = ir.IntType(self.bw)
+        zero = ir.Constant(int_ty, 0)
+        one = ir.Constant(int_ty, 1)
+        int_min = ir.Constant(int_ty, (2 ** (self.bw - 1)))
+
+        rhs_is_z = self.b.icmp_signed("==", rhs, zero, name=f"{res_name}_rhs_is_zero")
+        safe_rhs = self.b.select(rhs_is_z, one, rhs, name=f"{res_name}_safe_rhs")
+        if isinstance(op, SRemOp):
+            raw_op = self.b.srem(lhs, safe_rhs, name=f"{res_name}_raw")
+            val = lhs
+        elif isinstance(op, URemOp):
+            raw_op = self.b.urem(lhs, safe_rhs, name=f"{res_name}_raw")
+            val = lhs
+        elif isinstance(op, UDivOp):
+            raw_op = self.b.udiv(lhs, safe_rhs, name=f"{res_name}_raw")
+            val = int_min
+
+        self.ssa_map[op.results[0]] = self.b.select(rhs_is_z, val, raw_op, name=res_name)
+
+    @add_op.register
+    def _(self, op: ShlOp | LShrOp) -> None:
+        lhs, rhs = self.operands(op)
+        res_name = self.result_name(op)
+
+        int_ty = ir.IntType(self.bw)
+        zero = ir.Constant(int_ty, 0)
+        c_bw = ir.Constant(int_ty, self.bw)
+
+        rhs_ge_bw = self.b.icmp_unsigned(">=", rhs, c_bw, name=f"{res_name}_rhs_ge_bw")
+        safe_rhs = self.b.select(rhs_ge_bw, zero, rhs, name=f"{res_name}_safe_rhs")
+
+        if isinstance(op, ShlOp):
+            raw_shift = self.b.shl(lhs, safe_rhs, name=f"{res_name}_raw")
+        elif isinstance(op, LShrOp):
+            raw_shift = self.b.lshr(lhs, safe_rhs, name=f"{res_name}_raw")
+
+        self.ssa_map[op.results[0]] = self.b.select(
+            rhs_ge_bw, zero, raw_shift, name=res_name
+        )
+
+    @add_op.register
+    def _(self, op: AShrOp) -> None:
+        lhs, rhs = self.operands(op)
+        res_name = self.result_name(op)
+
+        int_ty = ir.IntType(self.bw)
+        zero = ir.Constant(int_ty, 0)
+        all_ones = ir.Constant(int_ty, (2**self.bw) - 1)
+        c_bw = ir.Constant(int_ty, self.bw)
+
+        rhs_ge_bw = self.b.icmp_unsigned(">=", rhs, c_bw, name=f"{res_name}_rhs_ge_bw")
+        lhs_is_neg = self.b.icmp_signed("<", lhs, zero, name=f"{res_name}_lhs_is_neg")
+        safe_rhs = self.b.select(rhs_ge_bw, zero, rhs, name=f"{res_name}_safe_rhs")
+        raw_ashr = self.b.ashr(lhs, safe_rhs, name=f"{res_name}_raw")
+        saturated = self.b.select(lhs_is_neg, all_ones, zero, name=f"{res_name}_sat")
+
+        self.ssa_map[op.results[0]] = self.b.select(
+            rhs_ge_bw, saturated, raw_ashr, name=res_name
+        )
+
+    @add_op.register
+    def _(self, op: SDivOp) -> None:
+        lhs, rhs = self.operands(op)
+        res_name = self.result_name(op)
+
+        int_ty = ir.IntType(self.bw)
+        zero = ir.Constant(int_ty, 0)
+        one = ir.Constant(int_ty, 1)
+        all_ones = ir.Constant(int_ty, (2**self.bw) - 1)
+        int_min = ir.Constant(int_ty, (2 ** (self.bw - 1)))
+
+        rhs_is_zero = self.b.icmp_signed("==", rhs, zero, name=f"{res_name}_rhs_is_zero")
+        lhs_is_neg = self.b.icmp_signed("<", lhs, zero, name=f"{res_name}_lhs_is_neg")
+        lhs_is_im = self.b.icmp_signed(
+            "==", lhs, int_min, name=f"{res_name}_lhs_is_int_min"
+        )
+        rhs_is_m1 = self.b.icmp_signed("==", rhs, all_ones, name=f"{res_name}_rhs_is_m1")
+
+        ov_case = self.b.and_(lhs_is_im, rhs_is_m1, name=f"{res_name}_ov_case")
+        ub_case = self.b.or_(rhs_is_zero, ov_case, name=f"{res_name}_ub_case")
+
+        safe_rhs = self.b.select(ub_case, one, rhs, name=f"{res_name}_safe_rhs")
+        raw_sdiv = self.b.sdiv(lhs, safe_rhs, name=f"{res_name}_raw")
+
+        div0_res = self.b.select(lhs_is_neg, one, all_ones, name=f"{res_name}_div0_res")
+
+        after_div0 = self.b.select(
+            rhs_is_zero, div0_res, raw_sdiv, name=f"{res_name}_after_div0"
+        )
+
+        self.ssa_map[op.results[0]] = self.b.select(
+            ov_case, int_min, after_div0, name=res_name
         )

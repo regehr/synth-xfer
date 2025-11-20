@@ -60,12 +60,12 @@ def _eval_helper(
             ret_top_func.set_func_name("ret_top")
             transfer = [ret_top_func]
 
-        [fc.lower(lowerer.add_fn) for fc in transfer]
-        [fc.lower(lowerer.add_fn) for fc in base]
+        transfer_names = [fc.lower(lowerer.add_fn) for fc in transfer]
+        base_names = [fc.lower(lowerer.add_fn) for fc in base]
 
         jit.add_mod(str(lowerer))
-        transfer_fn_ptrs = [jit.get_fn_ptr(x.func_name) for x in transfer]
-        base_fn_ptrs = [jit.get_fn_ptr(x.func_name) for x in base]
+        transfer_fn_ptrs = [jit.get_fn_ptr(x) for x in transfer_names]
+        base_fn_ptrs = [jit.get_fn_ptr(x) for x in base_names]
 
         return eval_transfer_func(to_eval, transfer_fn_ptrs, base_fn_ptrs)
 

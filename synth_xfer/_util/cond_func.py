@@ -105,7 +105,7 @@ class FunctionWithCondition:
         )
         return whole_function
 
-    def lower(self, lowerer: Callable[[FuncOp], Any]) -> None:
+    def lower(self, lowerer: Callable[[FuncOp], Any]) -> str:
         lowerer(self.func)
         lowerer(self.cond) if self.cond else None
-        lowerer(self.get_function())
+        return lowerer(self.get_function(), shim=True).name  # type: ignore

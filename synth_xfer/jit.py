@@ -57,4 +57,6 @@ class Jit:
         mpm.run(mod, pb)
 
     def get_fn_ptr(self, fn: str) -> int:
-        return self.engine.get_function_address(fn)
+        ptr = self.engine.get_function_address(fn)
+        assert ptr != 0
+        return ptr
