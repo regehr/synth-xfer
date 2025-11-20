@@ -64,9 +64,9 @@ from synth_xfer._eval_engine import (
 )
 from synth_xfer._util.domain import AbstractDomain
 from synth_xfer._util.eval_result import EvalResult, PerBitRes, get_per_bit
+from synth_xfer._util.jit import Jit
+from synth_xfer._util.lower import LowerToLLVM
 from synth_xfer._util.parse_mlir import HelperFuncs
-from synth_xfer.jit import Jit
-from synth_xfer.lower_to_llvm import LowerToLLVM
 
 if TYPE_CHECKING:
     from synth_xfer._eval_engine import BW, Results, ToEval

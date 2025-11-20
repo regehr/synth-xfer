@@ -8,7 +8,9 @@ from synth_xfer._util.cond_func import FunctionWithCondition
 from synth_xfer._util.domain import AbstractDomain
 from synth_xfer._util.eval import eval_transfer_func, setup_eval
 from synth_xfer._util.eval_result import EvalResult
+from synth_xfer._util.jit import Jit
 from synth_xfer._util.log import get_logger, init_logging, write_log_file
+from synth_xfer._util.lower import LowerToLLVM
 from synth_xfer._util.mcmc_sampler import setup_mcmc
 from synth_xfer._util.one_iter import synthesize_one_iteration
 from synth_xfer._util.parse_mlir import HelperFuncs, get_helper_funcs
@@ -16,8 +18,6 @@ from synth_xfer._util.random import Random
 from synth_xfer._util.solution_set import UnsizedSolutionSet
 from synth_xfer._util.synth_context import SynthesizerContext
 from synth_xfer.cli.args import build_parser
-from synth_xfer.jit import Jit
-from synth_xfer.lower_to_llvm import LowerToLLVM
 
 if TYPE_CHECKING:
     from synth_xfer._eval_engine import BW, ToEval

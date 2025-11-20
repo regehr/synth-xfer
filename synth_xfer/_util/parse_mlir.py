@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Protocol, runtime_checkable
 
 from xdsl.context import Context
 from xdsl.dialects.arith import Arith
 from xdsl.dialects.builtin import Builtin, ModuleOp
 from xdsl.dialects.func import Func, FuncOp
+from xdsl.ir import Operation
 from xdsl.parser import Parser
 from xdsl_smt.dialects.transfer import AbstractValueType, Transfer, TransIntegerType
 from xdsl_smt.passes.transfer_inline import FunctionCallInline
@@ -18,10 +20,23 @@ _ctx.load_dialect(Func)
 _ctx.load_dialect(Transfer)
 
 
-def parse_mlir_func(p: Path | str) -> FuncOp:
+@runtime_checkable
+class _Readable(Protocol):
+    @property
+    def name(self) -> str: ...
+    def read_text(self) -> str: ...
+
+
+def parse_mlir(p: _Readable) -> Operation:
     func_str = p if isinstance(p, str) else p.read_text()
     func_name = "<text>" if isinstance(p, str) else p.name
-    mod = Parser(_ctx, func_str, func_name).parse_op()
+
+    return Parser(_ctx, func_str, func_name).parse_op()
+
+
+def parse_mlir_func(p: _Readable) -> FuncOp:
+    func_name = "<text>" if isinstance(p, str) else p.name
+    mod = parse_mlir(p)
 
     if isinstance(mod, FuncOp):
         return mod
@@ -29,10 +44,9 @@ def parse_mlir_func(p: Path | str) -> FuncOp:
         raise ValueError(f"mlir in '{func_name}' is not a FuncOp")
 
 
-def parse_mlir_mod(p: Path | str, inline: bool = False) -> ModuleOp:
-    func_str = p if isinstance(p, str) else p.read_text()
+def parse_mlir_mod(p: _Readable, inline: bool = False) -> ModuleOp:
     func_name = "<text>" if isinstance(p, str) else p.name
-    mod = Parser(_ctx, func_str, func_name).parse_op()
+    mod = parse_mlir(p)
 
     if isinstance(mod, ModuleOp):
         if inline:

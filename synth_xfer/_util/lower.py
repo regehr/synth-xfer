@@ -141,7 +141,9 @@ class LowerToLLVM:
         llvm_fn = ir.Function(self.llvm_mod, fn_type, name=fn_name)
         llvm_fn = self.add_attrs(llvm_fn)
 
-        self.fns[fn_name] = _LowerFuncToLLVM(mlir_fn, llvm_fn, self.fns, self.bw).llvm_fn
+        self.fns[fn_name] = _LowerFuncToLLVM(
+            mlir_fn, llvm_fn, self.llvm_mod, self.fns, self.bw
+        ).llvm_fn
 
         if shim:
             shimmed_fn = self.shim(mlir_fn, fn_name)
@@ -289,17 +291,25 @@ class _LowerFuncToLLVM:
         # # ternery
         SelectOp: ir.IRBuilder.select,
     }
+
     bw: int
     b: ir.IRBuilder
     ssa_map: dict[SSAValue, ir.Value]
     llvm_fn: ir.Function
+    llvm_mod: ir.Module
     fns: dict[str, ir.Function]
 
     def __init__(
-        self, mlir_fn: FuncOp, llvm_fn: ir.Function, fns: dict[str, ir.Function], bw: int
+        self,
+        mlir_fn: FuncOp,
+        llvm_fn: ir.Function,
+        llvm_mod: ir.Module,
+        fns: dict[str, ir.Function],
+        bw: int,
     ) -> None:
         self.bw = bw
         self.fns = fns
+        self.llvm_mod = llvm_mod
 
         self.b = ir.IRBuilder(llvm_fn.append_basic_block(name="entry"))
         self.ssa_map = dict(zip(mlir_fn.args, llvm_fn.args))  # type: ignore
@@ -335,7 +345,14 @@ class _LowerFuncToLLVM:
     def _(self, op: CallOp) -> None:
         res_name = self.result_name(op)
         callee = op.callee.string_value()
-        fn = self.fns[callee]
+
+        if callee in self.fns:
+            fn = self.fns[callee]
+        else:
+            ret_ty = lower_type(op.results[0].type, self.bw)
+            in_tys = [lower_type(x.type, self.bw) for x in op.arguments]
+            func_ty = ir.FunctionType(ret_ty, in_tys)
+            fn = ir.Function(self.llvm_mod, func_ty, name=callee)
 
         self.ssa_map[op.results[0]] = self.b.call(fn, self.operands(op), name=res_name)
 
