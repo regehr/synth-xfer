@@ -201,7 +201,7 @@ def run(
         )
 
         logger.info(
-            f"""Iter {ith_iter} Finished. Result of Current Solution: \n{lbw_mbw_log}\n{hbw_log}\n"""
+            f"Iter {ith_iter} Finished. Result of Current Solution: \n{lbw_mbw_log}\n{hbw_log}\n"
         )
 
         if solution_set.is_perfect:
@@ -231,15 +231,23 @@ def run(
 def main() -> None:
     args = build_parser("synth_transfer")
 
-    if not args.outputs_folder.is_dir():
-        args.outputs_folder.mkdir()
+    domain = AbstractDomain[args.domain]
+    op_path = Path(args.transfer_functions)
 
-    logger = init_logging(args.outputs_folder, not args.quiet)
+    if args.outputs_folder is None:
+        outputs_folder = Path(f"{domain}_{op_path.stem}")
+    else:
+        outputs_folder = Path(args.outputs_folder)
+
+    if not outputs_folder.is_dir():
+        outputs_folder.mkdir()
+
+    logger = init_logging(outputs_folder, not args.quiet)
     max_len = max(len(k) for k in vars(args))
     [logger.config(f"{k:<{max_len}} | {v}") for k, v in vars(args).items()]
 
     run(
-        domain=AbstractDomain[args.domain],
+        domain=domain,
         num_programs=args.num_programs,
         total_rounds=args.total_rounds,
         program_length=args.program_length,
@@ -251,7 +259,7 @@ def main() -> None:
         num_abd_procs=args.num_abd_procs,
         random_seed=args.random_seed,
         random_number_file=args.random_file,
-        transformer_file=args.transfer_functions,
+        transformer_file=op_path,
         weighted_dsl=args.weighted_dsl,
         num_unsound_candidates=args.num_unsound_candidates,
     )

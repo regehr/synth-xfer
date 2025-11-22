@@ -103,7 +103,7 @@ class LowerToLLVM:
 
         i64 = ir.IntType(64)
         ret_match = fn_ret_type == i64
-        arg_match = fn_arg_types == (i64, i64)
+        arg_match = fn_arg_types == tuple(i64 for _ in fn_arg_types)
 
         return ret_match and arg_match
 
@@ -114,7 +114,7 @@ class LowerToLLVM:
 
         i64 = ir.IntType(64)
         ret_match = fn_ret_type == ir.IntType(1)
-        arg_match = fn_arg_types == (i64, i64)
+        arg_match = fn_arg_types == tuple(i64 for _ in fn_arg_types)
 
         return ret_match and arg_match
 
@@ -126,7 +126,7 @@ class LowerToLLVM:
         i64 = ir.IntType(64)
         abst = ir.ArrayType(i64, 2)
         ret_match = fn_ret_type == abst
-        arg_match = fn_arg_types == (abst, abst)
+        arg_match = fn_arg_types == tuple(abst for _ in fn_arg_types)
 
         return ret_match and arg_match
 
@@ -177,85 +177,85 @@ class LowerToLLVM:
             )
 
     def shim_constraint(self, old_fn: ir.Function) -> ir.Function:
+        n_args = len(old_fn.function_type.args)
         lane_t = ir.IntType(self.bw)
         wide_t = ir.IntType(64)
-        bool_t = ir.IntType(1)
 
         fn_name = f"{old_fn.name}_shim"
-        shim_ty = ir.FunctionType(bool_t, [wide_t, wide_t])
+        shim_ty = ir.FunctionType(wide_t, [wide_t for _ in range(n_args)])
         shim_fn = ir.Function(self.llvm_mod, shim_ty, name=fn_name)
         shim_fn = self.add_attrs(shim_fn)
 
         entry = shim_fn.append_basic_block(name="entry")
         b = ir.IRBuilder(entry)
 
-        a64, b64 = shim_fn.args
-        a64.name = "a64"
-        b64.name = "b64"
+        new_args: list[ir.Argument] = []
+        for arg in shim_fn.args:
+            arg.name = f"{arg.name}_wide"
+            new_arg = arg if self.bw == 64 else b.trunc(arg, lane_t)
+            new_args.append(new_arg)  # type: ignore
 
-        a_n = a64 if self.bw == 64 else b.trunc(a64, lane_t)
-        b_n = b64 if self.bw == 64 else b.trunc(b64, lane_t)
-        r = b.call(old_fn, [a_n, b_n])
-        b.ret(r)
+        r_n = b.call(old_fn, new_args)
+        r64 = b.zext(r_n, wide_t)
+        b.ret(r64)
 
         return shim_fn
 
     def shim_conc(self, old_fn: ir.Function) -> ir.Function:
+        n_args = len(old_fn.function_type.args)
         lane_t = ir.IntType(self.bw)
         wide_t = ir.IntType(64)
 
         fn_name = f"{old_fn.name}_shim"
-        shim_ty = ir.FunctionType(wide_t, [wide_t, wide_t])
+        shim_ty = ir.FunctionType(wide_t, [wide_t for _ in range(n_args)])
         shim_fn = ir.Function(self.llvm_mod, shim_ty, name=fn_name)
         shim_fn = self.add_attrs(shim_fn)
 
         entry = shim_fn.append_basic_block(name="entry")
         b = ir.IRBuilder(entry)
 
-        a64, b64 = shim_fn.args
-        a64.name = "a64"
-        b64.name = "b64"
+        new_args: list[ir.Argument] = []
+        for arg in shim_fn.args:
+            arg.name = f"{arg.name}_wide"
+            new_arg = arg if self.bw == 64 else b.trunc(arg, lane_t)
+            new_args.append(new_arg)  # type: ignore
 
-        a_n = a64 if self.bw == 64 else b.trunc(a64, lane_t)
-        b_n = b64 if self.bw == 64 else b.trunc(b64, lane_t)
-        r_n = b.call(old_fn, [a_n, b_n])
+        r_n = b.call(old_fn, new_args)
         r64 = r_n if self.bw == 64 else b.zext(r_n, wide_t)
         b.ret(r64)
 
         return shim_fn
 
     def shim_xfer(self, old_fn: ir.Function) -> ir.Function:
+        n_args = len(old_fn.function_type.args)
         lane_t = ir.IntType(self.bw)
         i64 = ir.IntType(64)
         lane_arr_t = ir.ArrayType(lane_t, 2)
         i64_arr_t = ir.ArrayType(i64, 2)
 
         fn_name = f"{old_fn.name}_shim"
-        shim_ty = ir.FunctionType(i64_arr_t, [i64_arr_t, i64_arr_t])
+        shim_ty = ir.FunctionType(i64_arr_t, [i64_arr_t for _ in range(n_args)])
         shim_fn = ir.Function(self.llvm_mod, shim_ty, name=fn_name)
         shim_fn = self.add_attrs(shim_fn)
 
         b = ir.IRBuilder(shim_fn.append_basic_block(name="entry"))
-        a64, b64 = shim_fn.args
+        empty_arr = ir.Constant(lane_arr_t, None)
 
         def to_lane(v):
             return v if self.bw == 64 else b.trunc(v, lane_t)
 
-        a0 = to_lane(b.extract_value(a64, 0))
-        a1 = to_lane(b.extract_value(a64, 1))
-        b0 = to_lane(b.extract_value(b64, 0))
-        b1 = to_lane(b.extract_value(b64, 1))
-
-        empty_arr = ir.Constant(lane_arr_t, None)
-        a_n = b.insert_value(empty_arr, a0, 0)
-        a_n = b.insert_value(a_n, a1, 1)
-        b_n = b.insert_value(empty_arr, b0, 0)
-        b_n = b.insert_value(b_n, b1, 1)
-
         def to_i64(v):
             return v if self.bw == 64 else b.zext(v, i64)
 
-        r_n = b.call(old_fn, [a_n, b_n])
+        new_lanes = []
+        for arg in shim_fn.args:
+            new_arg_0 = to_lane(b.extract_value(arg, 0))
+            new_arg_1 = to_lane(b.extract_value(arg, 1))
+            new_lane = b.insert_value(empty_arr, new_arg_0, 0)
+            new_lane = b.insert_value(new_lane, new_arg_1, 1)
+            new_lanes.append(new_lane)
+
+        r_n = b.call(old_fn, new_lanes)
         r0 = to_i64(b.extract_value(r_n, 0))
         r1 = to_i64(b.extract_value(r_n, 1))
 
@@ -288,7 +288,7 @@ class _LowerFuncToLLVM:
         XOrIOp: ir.IRBuilder.xor,
         SubOp: ir.IRBuilder.sub,
         MulOp: ir.IRBuilder.mul,
-        # # ternery
+        # ternery
         SelectOp: ir.IRBuilder.select,
     }
 
@@ -352,31 +352,31 @@ class _LowerFuncToLLVM:
             func_ty = ir.FunctionType(ret_ty, in_tys)
             new_fn = ir.Function(self.llvm_mod, func_ty, name=callee)
             self.fns[callee] = new_fn
-        
+
         fn = self.fns[callee]
         self.ssa_map[op.results[0]] = self.b.call(fn, self.operands(op), name=res_name)
 
     @add_op.register
     def _(self, op: CountLOneOp | CountLZeroOp) -> None:
         res_name = self.result_name(op)
-        true_const = ir.Constant(ir.IntType(1), 1)
+        false_const = ir.Constant(ir.IntType(1), 0)
 
         operand = self.operands(op)[0]
         if isinstance(op, CountLOneOp):
             operand = self.b.not_(operand, name=f"{res_name}_not")
 
-        self.ssa_map[op.results[0]] = self.b.ctlz(operand, true_const, name=res_name)  # type: ignore
+        self.ssa_map[op.results[0]] = self.b.ctlz(operand, false_const, name=res_name)  # type: ignore
 
     @add_op.register
     def _(self, op: CountROneOp | CountRZeroOp) -> None:
         res_name = self.result_name(op)
-        true_const = ir.Constant(ir.IntType(1), 1)
+        false_const = ir.Constant(ir.IntType(1), 0)
 
         operand = self.operands(op)[0]
         if isinstance(op, CountROneOp):
             operand = self.b.not_(operand, name=f"{res_name}_not")
 
-        self.ssa_map[op.results[0]] = self.b.cttz(operand, true_const, name=res_name)  # type: ignore
+        self.ssa_map[op.results[0]] = self.b.cttz(operand, false_const, name=res_name)  # type: ignore
 
     @add_op.register
     def _(

@@ -44,12 +44,7 @@ def build_parser(prog: str) -> Namespace:
             help="Abstract Domain to evaluate",
         )
 
-    p.add_argument(
-        "-outputs_folder",
-        type=Path,
-        help="Output folder for logs",
-        default=Path("outputs"),
-    )
+    p.add_argument("-outputs_folder", type=Path, help="Output dir", default=None)
     p.add_argument("-random_seed", type=int, help="seed for synthesis")
     p.add_argument(
         "-program_length",

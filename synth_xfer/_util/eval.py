@@ -92,7 +92,7 @@ if TYPE_CHECKING:
     from synth_xfer._eval_engine import BW, Results, ToEval
 
 
-def _parse_engine_output(output: str) -> list[EvalResult]:
+def parse_engine_output(output: str) -> list[EvalResult]:
     bw_evals = output.split("---\n")
     bw_evals.reverse()
     per_bits = [get_per_bit(x) for x in bw_evals if x != ""]
@@ -212,4 +212,4 @@ def eval_transfer_func(
     }
     res = d[type(to_eval)](to_eval, xfers, bases)
 
-    return _parse_engine_output(str(res))
+    return parse_engine_output(str(res))

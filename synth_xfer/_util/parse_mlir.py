@@ -80,9 +80,16 @@ def get_helper_funcs(p: Path, d: AbstractDomain) -> HelperFuncs:
     crt_func = fns["concrete_op"]
     op_con_fn = fns.get("op_constraint", None)
 
+    n_args = len(crt_func.function_type.inputs.data)
+    assert len(crt_func.function_type.outputs.data) == 1
+    assert crt_func.function_type.outputs.data[0].name == "transfer.integer"
+    assert n_args <= 3
+    for ty in crt_func.function_type.outputs.data:
+        assert ty.name == "transfer.integer"
+
     # TODO xfer fn is only ever used as a type to construct a top fn
     ty = AbstractValueType([TransIntegerType() for _ in range(d.vec_size)])
-    xfer_fn = FuncOp.from_region("empty_transformer", [ty, ty], [ty])
+    xfer_fn = FuncOp.from_region("empty_transformer", [ty for _ in range(n_args)], [ty])
 
     def get_domain_fns(fp: str) -> FuncOp:
         dp = p.resolve().parent.parent.joinpath(str(d), fp)
