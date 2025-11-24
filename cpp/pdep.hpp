@@ -42,7 +42,7 @@ __attribute__((target("bmi2"))) inline uint64_t pdep_bmi2_only(uint64_t src,
 template <int BW> inline uint64_t pdep(uint64_t src, uint64_t mask) {
 #if defined(__x86_64__)
   if (__builtin_cpu_supports("bmi2"))
-    return pdep_bmi2_only(src, mask);
+    return pdep_detail::pdep_bmi2_only(src, mask);
   return pdep_detail::pdep_fallback<BW>(src, mask);
 #elif defined(__aarch64__)
   return pdep_detail::pdep_fallback<BW>(src, mask);
