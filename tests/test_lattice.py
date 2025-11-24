@@ -2,6 +2,8 @@ from pathlib import Path
 
 from synth_xfer._eval_engine import (
     enum_low_knownbits_4_4,
+    enum_low_knownbits_4_4_4,
+    enum_low_knownbits_8_8,
     enum_low_sconstrange_4_4,
     enum_low_uconstrange_4_4,
     eval_knownbits_4_4,
@@ -100,3 +102,26 @@ def test_scr_lattice():
         str(res).strip()
         == "bw: 4  all: 136   s: 136   e: 136   uall: 135   ue: 135   dis: 0       bdis: 123.5   sdis: 0"
     )
+
+
+def test_kb_n_ary_kb_lattice():
+    conc_nop_f = PROJ_DIR / "mlir" / "Operations" / "Nop.mlir"
+    helpers = get_helper_funcs(conc_nop_f, AbstractDomain.KnownBits)
+
+    lowerer_4 = LowerToLLVM(4)
+    lowerer_4.add_fn(helpers.crt_func, shim=True)
+
+    jit_4 = Jit()
+    jit_4.add_mod(str(lowerer_4))
+    conc_op_addr = jit_4.get_fn_ptr("concrete_op")
+
+    lowerer_8 = LowerToLLVM(8)
+    lowerer_8.add_fn(helpers.crt_func, shim=True)
+
+    jit_8 = Jit()
+    jit_8.add_mod(str(lowerer_8))
+    conc_op_addr = jit_8.get_fn_ptr("concrete_op")
+
+    to_eval_4 = enum_low_knownbits_4_4_4(conc_op_addr, None)
+    to_eval_8 = enum_low_knownbits_8_8(conc_op_addr, None)
+    assert len(to_eval_4) == len(to_eval_8)

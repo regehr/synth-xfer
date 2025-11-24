@@ -5,7 +5,7 @@ from typing import Protocol, runtime_checkable
 from xdsl.context import Context
 from xdsl.dialects.arith import Arith
 from xdsl.dialects.builtin import Builtin, ModuleOp
-from xdsl.dialects.func import Func, FuncOp
+from xdsl.dialects.func import CallOp, Func, FuncOp, ReturnOp
 from xdsl.ir import Operation
 from xdsl.parser import Parser
 from xdsl_smt.dialects.transfer import AbstractValueType, Transfer, TransIntegerType
@@ -109,3 +109,16 @@ def get_helper_funcs(p: Path, d: AbstractDomain) -> HelperFuncs:
         transfer_func=xfer_fn,
         meet_func=meet,
     )
+
+
+def top_as_xfer(transfer: FuncOp) -> FuncOp:
+    func = FuncOp("top_transfer_function", transfer.function_type)
+    block = func.body.block
+    args = func.args
+
+    call_top_op = CallOp("getTop", [args[0]], func.function_type.outputs.data)
+    assert len(call_top_op.results) == 1
+    top_res = call_top_op.results[0]
+    return_op = ReturnOp(top_res)
+    block.add_ops([call_top_op, return_op])
+    return func

@@ -28,14 +28,70 @@ def bw_type(value: str) -> "BW":
     return val
 
 
+ALL_OPS = [
+    "Abds",
+    "Abdu",
+    "Add",
+    "AddNsw",
+    "AddNswNuw",
+    "AddNuw",
+    "And",
+    "Ashr",
+    "AshrExact",
+    "AvgCeilS",
+    "AvgCeilU",
+    "AvgFloorS",
+    "AvgFloorU",
+    "CountLOne",
+    "CountLZero",
+    "CountROne",
+    "CountRZero",
+    "Lshr",
+    "LshrExact",
+    "Mods",
+    "Modu",
+    "Mul",
+    "MulNsw",
+    "MulNswNuw",
+    "MulNuw",
+    "Nop",
+    "Or",
+    "PopCount",
+    "SaddSat",
+    "Sdiv",
+    "SdivExact",
+    "Select",
+    "Shl",
+    "ShlNsw",
+    "ShlNswNuw",
+    "ShlNuw",
+    "Smax",
+    "Smin",
+    "SmulSat",
+    "SshlSat",
+    "SsubSat",
+    "Sub",
+    "SubNsw",
+    "SubNswNuw",
+    "SubNuw",
+    "UaddSat",
+    "Udiv",
+    "UdivExact",
+    "Umax",
+    "Umin",
+    "UmulSat",
+    "UshlSat",
+    "UsubSat",
+    "Xor",
+]
+
+
 def build_parser(prog: str) -> Namespace:
     p = ArgumentParser(prog=prog, formatter_class=ArgumentDefaultsHelpFormatter)
 
-    if prog == "synth_transfer":
+    if prog == "synth_xfer":
         p.add_argument("transfer_functions", type=Path, help="path to transfer function")
-        p.add_argument(
-            "-random_file", type=FileType("r"), help="file for preset operation picks"
-        )
+        p.add_argument("-random_file", type=FileType("r"), help="file for preset rng")
         p.add_argument(
             "-domain",
             type=str,
@@ -43,8 +99,33 @@ def build_parser(prog: str) -> Namespace:
             required=True,
             help="Abstract Domain to evaluate",
         )
+    if prog == "benchmark":
+        p.add_argument(
+            "--kb-eval",
+            nargs="*",
+            choices=ALL_OPS,
+            default=[],
+            help=f"Zero or more items from: {', '.join(ALL_OPS)}",
+        )
+        p.add_argument(
+            "--ucr-eval",
+            nargs="*",
+            choices=ALL_OPS,
+            default=[],
+            help=f"Zero or more items from: {', '.join(ALL_OPS)}",
+        )
+        p.add_argument(
+            "--scr-eval",
+            nargs="*",
+            choices=ALL_OPS,
+            default=[],
+            help=f"Zero or more items from: {', '.join(ALL_OPS)}",
+        )
+    if prog == "eval":
+        ...
 
-    p.add_argument("-outputs_folder", type=Path, help="Output dir", default=None)
+    output_dir = Path("outputs") if prog == "benchmark" else None
+    p.add_argument("-o", "--output", type=Path, help="Output dir", default=output_dir)
     p.add_argument("-random_seed", type=int, help="seed for synthesis")
     p.add_argument(
         "-program_length",

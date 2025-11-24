@@ -2,8 +2,6 @@ from pathlib import Path
 from time import perf_counter
 from typing import TYPE_CHECKING, Callable
 
-from xdsl.dialects.func import CallOp, FuncOp, ReturnOp
-
 from synth_xfer._util.cond_func import FunctionWithCondition
 from synth_xfer._util.domain import AbstractDomain
 from synth_xfer._util.eval import eval_transfer_func, setup_eval
@@ -13,7 +11,7 @@ from synth_xfer._util.log import get_logger, init_logging, write_log_file
 from synth_xfer._util.lower import LowerToLLVM
 from synth_xfer._util.mcmc_sampler import setup_mcmc
 from synth_xfer._util.one_iter import synthesize_one_iteration
-from synth_xfer._util.parse_mlir import HelperFuncs, get_helper_funcs
+from synth_xfer._util.parse_mlir import HelperFuncs, get_helper_funcs, top_as_xfer
 from synth_xfer._util.random import Random
 from synth_xfer._util.solution_set import UnsizedSolutionSet
 from synth_xfer._util.synth_context import SynthesizerContext
@@ -21,20 +19,6 @@ from synth_xfer.cli.args import build_parser
 
 if TYPE_CHECKING:
     from synth_xfer._eval_engine import BW, ToEval
-
-
-# TODO weird func
-def _construct_top_func(transfer: FuncOp) -> FuncOp:
-    func = FuncOp("top_transfer_function", transfer.function_type)
-    block = func.body.block
-    args = func.args
-
-    call_top_op = CallOp("getTop", [args[0]], func.function_type.outputs.data)
-    assert len(call_top_op.results) == 1
-    top_res = call_top_op.results[0]
-    return_op = ReturnOp(top_res)
-    block.add_ops([call_top_op, return_op])
-    return func
 
 
 def _eval_helper(
@@ -54,9 +38,7 @@ def _eval_helper(
         lowerer.add_fn(helper_funcs.get_top_func)
 
         if not transfer:
-            ret_top_func = FunctionWithCondition(
-                _construct_top_func(helper_funcs.transfer_func)
-            )
+            ret_top_func = FunctionWithCondition(top_as_xfer(helper_funcs.transfer_func))
             ret_top_func.set_func_name("ret_top")
             transfer = [ret_top_func]
 
@@ -96,7 +78,7 @@ def run(
     transformer_file: Path,
     weighted_dsl: bool,
     num_unsound_candidates: int,
-):
+) -> EvalResult:
     logger = get_logger()
     jit = Jit()
 
@@ -227,17 +209,19 @@ def run(
         f"Final Soln   | Exact {solution_exact:.4f}% | {solution_set.solutions_size} solutions |"
     )
 
+    return solution_result
+
 
 def main() -> None:
-    args = build_parser("synth_transfer")
+    args = build_parser("synth_xfer")
 
     domain = AbstractDomain[args.domain]
     op_path = Path(args.transfer_functions)
 
-    if args.outputs_folder is None:
+    if args.output is None:
         outputs_folder = Path(f"{domain}_{op_path.stem}")
     else:
-        outputs_folder = Path(args.outputs_folder)
+        outputs_folder = Path(args.output)
 
     if not outputs_folder.is_dir():
         outputs_folder.mkdir()

@@ -125,6 +125,7 @@ def setup_eval(
     concrete_fn_ptr = jit.get_fn_ptr(crt.name)
     constraint_fn_ptr = jit.get_fn_ptr(op_constraint.name) if op_constraint else None
 
+    # TODO need to fix unary enum and eval
     low_fns: dict[tuple[AbstractDomain, "BW"], Callable[[int, int | None], "ToEval"]] = {
         (AbstractDomain.AntiRange, 4): enum_low_antirange_4_4_4,
         (AbstractDomain.AntiRange, 8): enum_low_antirange_8_8_8,
