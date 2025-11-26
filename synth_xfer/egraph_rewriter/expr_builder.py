@@ -3,7 +3,7 @@ from __future__ import annotations
 from egglog import EGraph, Expr
 from xdsl.dialects.func import FuncOp
 from xdsl.ir import Operation
-from xdsl.ir.core import BlockArgument
+from xdsl.ir.core import SSAValue
 from xdsl_smt.dialects.transfer import Constant, GetAllOnesOp, GetOp, MakeOp
 
 from synth_xfer.egraph_rewriter.datatypes import BV, gen_ruleset, mlir_op_to_egraph_op
@@ -12,7 +12,7 @@ from synth_xfer.egraph_rewriter.datatypes import BV, gen_ruleset, mlir_op_to_egr
 class ExprBuilder:
     func: FuncOp
     op_to_expr: dict[Operation, Expr]
-    arg_index: dict[BlockArgument, int]
+    arg_index: dict[SSAValue, int]
     ret_exprs: tuple[Expr, ...]
 
     def __init__(self, _func: FuncOp):
@@ -20,7 +20,7 @@ class ExprBuilder:
         self.op_to_expr = {}
         self.arg_index = {}
 
-    def create_arg_name(self, op: BlockArgument, index: int) -> str:
+    def create_arg_name(self, op: SSAValue, index: int) -> str:
         return f"arg{self.arg_index[op]}_{index}"
 
     def build_expr(self):
@@ -35,9 +35,11 @@ class ExprBuilder:
                 self.op_to_expr[op] = BV.var(arg_name)
 
             if isinstance(op, MakeOp):
-                self.ret_exprs = tuple(
-                    self.op_to_expr[operand.owner] for operand in op.operands
-                )
+                ret_exprs: list[Expr] = []
+                for operand in op.operands:
+                    assert isinstance(operand.owner, Operation)
+                    ret_exprs.append(self.op_to_expr[operand.owner])
+                self.ret_exprs = tuple(ret_exprs)
                 return
 
             if isinstance(op, Constant):
@@ -49,20 +51,24 @@ class ExprBuilder:
 
             if type(op) in mlir_op_to_egraph_op:
                 egraph_op = mlir_op_to_egraph_op[type(op)]
-                expr_operands = [
-                    self.op_to_expr[operand.owner] for operand in op.operands
-                ]
-                # print("operands:", expr_operands, "egraph_op:", egraph_op)
+                expr_operands = []
+                for operand in op.operands:
+                    assert isinstance(operand.owner, Operation)
+                    expr_operands.append(self.op_to_expr[operand.owner])
                 self.op_to_expr[op] = egraph_op(*expr_operands)
 
 
-def build_meet_expr(all_ret_exprs: list[tuple[BV, ...]]) -> tuple[BV, ...]:
+def build_meet_expr(all_ret_exprs: list[tuple[Expr, ...]]) -> tuple[Expr, ...]:
     num_rets = len(all_ret_exprs[0])
     meet_exprs: list[BV] = []
     for i in range(num_rets):
-        meet_expr = all_ret_exprs[0][i]
+        first_expr = all_ret_exprs[0][i]
+        assert isinstance(first_expr, BV)
+        meet_expr = first_expr
         for exprs in all_ret_exprs[1:]:
-            meet_expr = BV.Or(meet_expr, exprs[i])
+            next_expr = exprs[i]
+            assert isinstance(next_expr, BV)
+            meet_expr = BV.Or(meet_expr, next_expr)
         meet_exprs.append(meet_expr)
     return tuple(meet_exprs)
 
