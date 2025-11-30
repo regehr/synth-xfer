@@ -194,8 +194,9 @@ class UnsizedSolutionSet(SolutionSet):
             body_number = cand.func.attributes["number"]
             cond_number = "None" if cand.cond is None else cand.cond.attributes["number"]
 
-            for bw in vbw:
-                if (cand in new_candidates_sp) or (cand in new_candidates_c):
+            removed = False
+            if (cand in new_candidates_sp) or (cand in new_candidates_c):
+                for bw in vbw:
                     is_sound, _ = verify_function(
                         bw, cand.get_function(), [cand.func, cand.cond], helper_funcs, 200
                     )
@@ -204,7 +205,8 @@ class UnsizedSolutionSet(SolutionSet):
                             f"Skip a function of which verification timed out at bw {bw}, body: {body_number}, cond: {cond_number}"
                         )
                         candidates.remove(cand)
-                        continue
+                        removed = True
+                        break
                     elif not is_sound:
                         logger.info(
                             f"Skip a unsound function at bw {bw}, body: {body_number}, cond: {cond_number}"
@@ -212,7 +214,10 @@ class UnsizedSolutionSet(SolutionSet):
                         if bw in lbw:
                             self.handle_inconsistent_result(cand)
                         candidates.remove(cand)
-                        continue
+                        removed = True
+                        break
+            if removed:
+                continue
 
             if cand in new_candidates_sp:
                 log_str = "Add a new transformer"
