@@ -3,7 +3,6 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
-#include <optional>
 #include <ostream>
 #include <random>
 #include <string_view>

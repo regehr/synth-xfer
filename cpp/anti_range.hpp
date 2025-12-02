@@ -85,7 +85,6 @@ public:
     return res;
   }
 
-
   constexpr std::uint64_t distance(const AntiRange &rhs) const noexcept {
     if (isBottom() && rhs.isBottom())
       return 0;
