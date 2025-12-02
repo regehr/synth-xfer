@@ -431,7 +431,7 @@ class _LowerFuncToLLVM:
 
         bw_const = ir.Constant(ir.IntType(self.bw), self.bw)
         true_const = ir.Constant(ir.IntType(1), 1)
-        cmp = self.b.icmp_unsigned(">=", lhs, bw_const, name=f"{res_name}_cmp")
+        cmp = self.b.icmp_unsigned(">=", rhs, bw_const, name=f"{res_name}_cmp")
 
         shl = self.b.shl(lhs, rhs, name=f"{res_name}_shl")
         if isinstance(op, SShlOverflowOp):
@@ -575,7 +575,7 @@ class _LowerFuncToLLVM:
         )
 
     @add_op.register
-    def _(self, op: SRemOp | URemOp | UDivOp) -> None:
+    def _(self, op: URemOp | UDivOp) -> None:
         lhs, rhs = self.operands(op)
         res_name = self.result_name(op)
 
@@ -586,10 +586,7 @@ class _LowerFuncToLLVM:
 
         rhs_is_z = self.b.icmp_signed("==", rhs, zero, name=f"{res_name}_rhs_is_zero")
         safe_rhs = self.b.select(rhs_is_z, one, rhs, name=f"{res_name}_safe_rhs")
-        if isinstance(op, SRemOp):
-            raw_op = self.b.srem(lhs, safe_rhs, name=f"{res_name}_raw")
-            val = lhs
-        elif isinstance(op, URemOp):
+        if isinstance(op, URemOp):
             raw_op = self.b.urem(lhs, safe_rhs, name=f"{res_name}_raw")
             val = lhs
         elif isinstance(op, UDivOp):
@@ -597,6 +594,38 @@ class _LowerFuncToLLVM:
             val = all_ones
 
         self.ssa_map[op.results[0]] = self.b.select(rhs_is_z, val, raw_op, name=res_name)
+
+    @add_op.register
+    def _(self, op: SRemOp | SDivOp) -> None:
+        lhs, rhs = self.operands(op)
+        res_name = self.result_name(op)
+
+        int_ty = ir.IntType(self.bw)
+        zero = ir.Constant(int_ty, 0)
+        one = ir.Constant(int_ty, 1)
+        all_ones = ir.Constant(int_ty, (2**self.bw) - 1)
+        int_min = ir.Constant(int_ty, (2 ** (self.bw - 1)))
+
+        rhs_0 = self.b.icmp_signed("==", rhs, zero, name=f"{res_name}_rhs_is_zero")
+
+        lhs_is_im = self.b.icmp_signed("==", lhs, int_min, name=f"{res_name}_lhs_is_im")
+        rhs_is_m1 = self.b.icmp_signed("==", rhs, all_ones, name=f"{res_name}_rhs_is_m1")
+        ov_case = self.b.and_(lhs_is_im, rhs_is_m1, name=f"{res_name}_ov_case")
+        ub_case = self.b.or_(rhs_0, ov_case, name=f"{res_name}_ub_case")
+
+        safe_rhs = self.b.select(ub_case, one, rhs, name=f"{res_name}_safe_rhs")
+        if isinstance(op, SDivOp):
+            raw_sdiv = self.b.sdiv(lhs, safe_rhs, name=f"{res_name}_raw")
+            lhs_neg = self.b.icmp_signed("<", lhs, zero, name=f"{res_name}_lhs_is_neg")
+            div0_res = self.b.select(lhs_neg, one, all_ones, name=f"{res_name}_div0_res")
+            after_div0 = self.b.select(rhs_0, div0_res, raw_sdiv, name=f"{res_name}_div0")
+            final = self.b.select(ov_case, int_min, after_div0, name=res_name)
+        elif isinstance(op, SRemOp):
+            raw_srem = self.b.srem(lhs, safe_rhs, name=f"{res_name}_raw")
+            after_div0 = self.b.select(rhs_0, lhs, raw_srem, name=f"{res_name}_div0")
+            final = self.b.select(ov_case, zero, after_div0, name=res_name)
+
+        self.ssa_map[op.results[0]] = final
 
     @add_op.register
     def _(self, op: ShlOp | LShrOp) -> None:
@@ -637,38 +666,4 @@ class _LowerFuncToLLVM:
 
         self.ssa_map[op.results[0]] = self.b.select(
             rhs_ge_bw, saturated, raw_ashr, name=res_name
-        )
-
-    @add_op.register
-    def _(self, op: SDivOp) -> None:
-        lhs, rhs = self.operands(op)
-        res_name = self.result_name(op)
-
-        int_ty = ir.IntType(self.bw)
-        zero = ir.Constant(int_ty, 0)
-        one = ir.Constant(int_ty, 1)
-        all_ones = ir.Constant(int_ty, (2**self.bw) - 1)
-        int_min = ir.Constant(int_ty, (2 ** (self.bw - 1)))
-
-        rhs_is_zero = self.b.icmp_signed("==", rhs, zero, name=f"{res_name}_rhs_is_zero")
-        lhs_is_neg = self.b.icmp_signed("<", lhs, zero, name=f"{res_name}_lhs_is_neg")
-        lhs_is_im = self.b.icmp_signed(
-            "==", lhs, int_min, name=f"{res_name}_lhs_is_int_min"
-        )
-        rhs_is_m1 = self.b.icmp_signed("==", rhs, all_ones, name=f"{res_name}_rhs_is_m1")
-
-        ov_case = self.b.and_(lhs_is_im, rhs_is_m1, name=f"{res_name}_ov_case")
-        ub_case = self.b.or_(rhs_is_zero, ov_case, name=f"{res_name}_ub_case")
-
-        safe_rhs = self.b.select(ub_case, one, rhs, name=f"{res_name}_safe_rhs")
-        raw_sdiv = self.b.sdiv(lhs, safe_rhs, name=f"{res_name}_raw")
-
-        div0_res = self.b.select(lhs_is_neg, one, all_ones, name=f"{res_name}_div0_res")
-
-        after_div0 = self.b.select(
-            rhs_is_zero, div0_res, raw_sdiv, name=f"{res_name}_after_div0"
-        )
-
-        self.ssa_map[op.results[0]] = self.b.select(
-            ov_case, int_min, after_div0, name=res_name
         )
