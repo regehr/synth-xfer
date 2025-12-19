@@ -228,7 +228,7 @@ class UnsizedSolutionSet(SolutionSet):
                 def _rewrite(candidate: FunctionWithCondition) -> FunctionWithCondition:
                     if not self.optimize:
                         return candidate
-                    rwt_func = rewrite_single_function(dce(candidate.func))
+                    rwt_func = rewrite_single_function(dce(candidate.func), quiet=True, timeout=10)
                     # Todo: support rewriting condition functions later
                     # rwt_cond = rewrite_single_function(candidate.cond) if candidate.cond is not None else None
                     rwt_cond = candidate.cond
