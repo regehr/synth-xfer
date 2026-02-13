@@ -35,7 +35,7 @@ def main() -> None:
     out_f = stdout if args.output is None else args.output.open("w")
 
     mlir = parse_mlir(in_f)
-    lowerer = LowerToLLVM(args.bw)
+    lowerer = LowerToLLVM([args.bw])
 
     if isinstance(mlir, ModuleOp):
         lowerer.add_mod(mlir)
