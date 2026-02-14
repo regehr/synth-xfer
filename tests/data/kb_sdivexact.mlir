@@ -33,20 +33,13 @@
     %lhs_odd = "transfer.cmp"(%lhs_bit0_one, %const1) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
     %odd_one_mask = "transfer.select"(%lhs_odd, %const1, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %res0_tz = "transfer.or"(%low_zero_mask, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %res1_tz = "transfer.or"(%exact_tz_one_mask, %odd_one_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %bw_minus_1 = "transfer.sub"(%bitwidth, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %sign_mask = "transfer.shl"(%const1, %bw_minus_1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_sign_zero = "transfer.and"(%lhs0, %sign_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_sign_one = "transfer.and"(%lhs1, %sign_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_sign_zero = "transfer.and"(%rhs0, %sign_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_sign_one = "transfer.and"(%rhs1, %sign_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-
-    %lhs_nonneg = "transfer.cmp"(%lhs_sign_zero, %sign_mask) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %lhs_neg = "transfer.cmp"(%lhs_sign_one, %sign_mask) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs_nonneg = "transfer.cmp"(%rhs_sign_zero, %sign_mask) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs_neg = "transfer.cmp"(%rhs_sign_one, %sign_mask) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %sign_mask = "transfer.get_signed_min_value"(%lhs0) : (!transfer.integer) -> !transfer.integer
+    %lhs_nonneg = "transfer.cmp"(%lhs0, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_neg = "transfer.cmp"(%lhs1, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_nonneg = "transfer.cmp"(%rhs0, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_neg = "transfer.cmp"(%rhs1, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
 
     %lhs_nz = "transfer.cmp"(%lhs1, %const0) {predicate = 1 : i64} : (!transfer.integer, !transfer.integer) -> i1
 
@@ -62,7 +55,7 @@
     %sign_zero_mask = "transfer.select"(%sign_zero_known, %sign_mask, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %sign_one_mask = "transfer.select"(%sign_one_known, %sign_mask, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %res0_sign = "transfer.or"(%res0_tz, %sign_zero_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %res0_sign = "transfer.or"(%low_zero_mask, %sign_zero_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %res1_sign = "transfer.or"(%res1_tz, %sign_one_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
     %lhs_max = "transfer.xor"(%lhs0, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
@@ -72,8 +65,7 @@
     %nonneg_leadz = "transfer.countl_zero"(%max_quot_nonneg) : (!transfer.integer) -> !transfer.integer
     %nonneg_leadz_inv = "transfer.sub"(%bitwidth, %nonneg_leadz) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %high_zero_nonneg_cand = "transfer.shl"(%all_ones, %nonneg_leadz_inv) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %both_nonneg = "arith.andi"(%lhs_nonneg, %rhs_nonneg) : (i1, i1) -> i1
-    %high_zero_nonneg = "transfer.select"(%both_nonneg, %high_zero_nonneg_cand, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %high_zero_nonneg = "transfer.select"(%sign_zero_nn, %high_zero_nonneg_cand, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %res0_sign_refined = "transfer.or"(%res0_sign, %high_zero_nonneg) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
     %rhs1_not = "transfer.xor"(%rhs1, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer

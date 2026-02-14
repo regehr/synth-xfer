@@ -22,14 +22,13 @@
 
     %lhs_min_tz = "transfer.countr_one"(%lhs0) : (!transfer.integer) -> !transfer.integer
     %lhs_max_tz = "transfer.countr_zero"(%lhs1) : (!transfer.integer) -> !transfer.integer
-    %rhs_min_tz = "transfer.countr_one"(%rhs0) : (!transfer.integer) -> !transfer.integer
     %rhs_max_tz = "transfer.countr_zero"(%rhs1) : (!transfer.integer) -> !transfer.integer
 
     %min_nonneg = "transfer.cmp"(%lhs_min_tz, %rhs_max_tz) {predicate = 9 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %max_neg = "transfer.cmp"(%lhs_max_tz, %rhs_min_tz) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %max_neg = "transfer.cmp"(%lhs_max_tz, %rhs_min_tz_ub) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
 
     %min_tz = "transfer.sub"(%lhs_min_tz, %rhs_max_tz) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %max_tz = "transfer.sub"(%lhs_max_tz, %rhs_min_tz) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %max_tz = "transfer.sub"(%lhs_max_tz, %rhs_min_tz_ub) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
     %min_tz_inv = "transfer.sub"(%bitwidth, %min_tz) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %low_zero_cand = "transfer.lshr"(%all_ones, %min_tz_inv) : (!transfer.integer, !transfer.integer) -> !transfer.integer
@@ -55,13 +54,11 @@
     %rhs1_and_minus_1 = "transfer.and"(%rhs1, %rhs1_minus_1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %rhs1_and_minus_1_is_zero = "transfer.cmp"(%rhs1_and_minus_1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
     %rhs_const_pow2 = "arith.andi"(%rhs_is_const, %rhs1_and_minus_1_is_zero) : (i1, i1) -> i1
-    %rhs_shift = "transfer.countr_zero"(%rhs1) : (!transfer.integer) -> !transfer.integer
-    %lhs0_lshr = "transfer.lshr"(%lhs0, %rhs_shift) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs1_lshr = "transfer.lshr"(%lhs1, %rhs_shift) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %pow2_lshr_ones = "transfer.lshr"(%all_ones, %rhs_shift) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs0_lshr = "transfer.lshr"(%lhs0, %rhs_max_tz) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs1_lshr = "transfer.lshr"(%lhs1, %rhs_max_tz) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pow2_lshr_ones = "transfer.lshr"(%all_ones, %rhs_max_tz) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %pow2_high_zero = "transfer.xor"(%pow2_lshr_ones, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %res0_pow2 = "transfer.or"(%lhs0_lshr, %pow2_high_zero) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %res1_pow2 = "transfer.or"(%lhs1_lshr, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
     %lhs1_not = "transfer.xor"(%lhs1, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %lhs_is_const = "transfer.cmp"(%lhs0, %lhs1_not) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
@@ -69,12 +66,11 @@
     %rhs_const_safe = "transfer.select"(%rhs1_is_zero, %const1, %rhs1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %quot_const = "transfer.udiv"(%lhs1, %rhs_const_safe) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %res0_const = "transfer.xor"(%quot_const, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %res1_const = "transfer.or"(%quot_const, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
     %res0_base_pow2 = "transfer.select"(%rhs_const_pow2, %res0_pow2, %res0_base) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %res1_base_pow2 = "transfer.select"(%rhs_const_pow2, %res1_pow2, %res1_tz) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res1_base_pow2 = "transfer.select"(%rhs_const_pow2, %lhs1_lshr, %res1_tz) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %res0_base_const = "transfer.select"(%both_const, %res0_const, %res0_base_pow2) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %res1_base_const = "transfer.select"(%both_const, %res1_const, %res1_base_pow2) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res1_base_const = "transfer.select"(%both_const, %quot_const, %res1_base_pow2) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
     %lhs0_all_ones = "transfer.cmp"(%lhs0, %all_ones) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
     %lhs1_is_zero = "transfer.cmp"(%lhs1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
