@@ -51,80 +51,30 @@
     %rhs_unknown_pow2ish = "transfer.cmp"(%rhs_unknown_and_minus_1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
     %rhs_one_unknown = "arith.andi"(%rhs_unknown_nonzero, %rhs_unknown_pow2ish) : (i1, i1) -> i1
 
-    %rhs_unknown_neg = "transfer.neg"(%rhs_unknown_mask) : (!transfer.integer) -> !transfer.integer
-    %rhs_unknown_lowbit = "transfer.and"(%rhs_unknown_mask, %rhs_unknown_neg) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_unknown_rest = "transfer.xor"(%rhs_unknown_mask, %rhs_unknown_lowbit) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_rest_nonzero = "transfer.cmp"(%rhs_unknown_rest, %const0) {predicate = 1 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs_rest_minus_1 = "transfer.sub"(%rhs_unknown_rest, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_rest_and_minus_1 = "transfer.and"(%rhs_unknown_rest, %rhs_rest_minus_1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_rest_pow2ish = "transfer.cmp"(%rhs_rest_and_minus_1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs_two_unknown = "arith.andi"(%rhs_rest_nonzero, %rhs_rest_pow2ish) : (i1, i1) -> i1
     %rhs_alt = "transfer.add"(%rhs1_c, %rhs_unknown_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %rhs_alt_le_bw = "transfer.cmp"(%rhs_alt, %bitwidth) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %const_true = "arith.constant"() {value = 1 : i1} : () -> i1
-    %rhs_alt_gt_bw = "arith.xori"(%rhs_alt_le_bw, %const_true) : (i1, i1) -> i1
-    %one_unknown_two_vals = "arith.andi"(%rhs_one_unknown, %rhs_alt_le_bw) : (i1, i1) -> i1
-    %one_unknown_one_val = "arith.andi"(%rhs_one_unknown, %rhs_alt_gt_bw) : (i1, i1) -> i1
+    %rhs_val0_le_bw = "transfer.cmp"(%rhs1_c, %bitwidth) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_feas0 = "arith.andi"(%rhs_one_unknown, %rhs_val0_le_bw) : (i1, i1) -> i1
+    %rhs_feas2 = "arith.andi"(%rhs_one_unknown, %rhs_alt_le_bw) : (i1, i1) -> i1
+    %rhs_any_feas = "arith.ori"(%rhs_feas0, %rhs_feas2) : (i1, i1) -> i1
 
     %alt_res0 = "transfer.ashr"(%lhs0, %rhs_alt) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %alt_res1 = "transfer.ashr"(%lhs1, %rhs_alt) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_val_res0 = "transfer.and"(%const_res0, %alt_res0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_val_res1 = "transfer.and"(%const_res1, %alt_res1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-
-    %var_res0_two = "transfer.select"(%one_unknown_two_vals, %two_val_res0, %var_res0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %var_res1_two = "transfer.select"(%one_unknown_two_vals, %two_val_res1, %var_res1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %var_res0_one = "transfer.select"(%one_unknown_one_val, %const_res0, %var_res0_two) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %var_res1_one = "transfer.select"(%one_unknown_one_val, %const_res1, %var_res1_two) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-
-    %rhs_val0 = "transfer.or"(%rhs1_c, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_val1 = "transfer.add"(%rhs1_c, %rhs_unknown_lowbit) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_val2 = "transfer.add"(%rhs1_c, %rhs_unknown_rest) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_val3 = "transfer.add"(%rhs1_c, %rhs_unknown_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-
-    %rhs_val0_le_bw = "transfer.cmp"(%rhs_val0, %bitwidth) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs_val1_le_bw = "transfer.cmp"(%rhs_val1, %bitwidth) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs_val2_le_bw = "transfer.cmp"(%rhs_val2, %bitwidth) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs_val3_le_bw = "transfer.cmp"(%rhs_val3, %bitwidth) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
-
-    %rhs_feas0 = "arith.andi"(%rhs_two_unknown, %rhs_val0_le_bw) : (i1, i1) -> i1
-    %rhs_feas1 = "arith.andi"(%rhs_two_unknown, %rhs_val1_le_bw) : (i1, i1) -> i1
-    %rhs_feas2 = "arith.andi"(%rhs_two_unknown, %rhs_val2_le_bw) : (i1, i1) -> i1
-    %rhs_feas3 = "arith.andi"(%rhs_two_unknown, %rhs_val3_le_bw) : (i1, i1) -> i1
-    %rhs_any01 = "arith.ori"(%rhs_feas0, %rhs_feas1) : (i1, i1) -> i1
-    %rhs_any23 = "arith.ori"(%rhs_feas2, %rhs_feas3) : (i1, i1) -> i1
-    %rhs_any_feas = "arith.ori"(%rhs_any01, %rhs_any23) : (i1, i1) -> i1
-
-    %two_res0_0 = "transfer.ashr"(%lhs0, %rhs_val0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_res0_1 = "transfer.ashr"(%lhs0, %rhs_val1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_res0_2 = "transfer.ashr"(%lhs0, %rhs_val2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_res0_3 = "transfer.ashr"(%lhs0, %rhs_val3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_sel0_0 = "transfer.select"(%rhs_feas0, %two_res0_0, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_sel0_1 = "transfer.select"(%rhs_feas1, %two_res0_1, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_sel0_2 = "transfer.select"(%rhs_feas2, %two_res0_2, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_sel0_3 = "transfer.select"(%rhs_feas3, %two_res0_3, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_acc0_01 = "transfer.and"(%two_sel0_0, %two_sel0_1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_acc0_23 = "transfer.and"(%two_sel0_2, %two_sel0_3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_acc0 = "transfer.and"(%two_acc0_01, %two_acc0_23) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %two_sel0_0 = "transfer.select"(%rhs_feas0, %const_res0, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %two_sel0_2 = "transfer.select"(%rhs_feas2, %alt_res0, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %two_acc0 = "transfer.and"(%two_sel0_0, %two_sel0_2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %two_case_res0 = "transfer.select"(%rhs_any_feas, %two_acc0, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %two_res1_0 = "transfer.ashr"(%lhs1, %rhs_val0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_res1_1 = "transfer.ashr"(%lhs1, %rhs_val1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_res1_2 = "transfer.ashr"(%lhs1, %rhs_val2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_res1_3 = "transfer.ashr"(%lhs1, %rhs_val3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_sel1_0 = "transfer.select"(%rhs_feas0, %two_res1_0, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_sel1_1 = "transfer.select"(%rhs_feas1, %two_res1_1, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_sel1_2 = "transfer.select"(%rhs_feas2, %two_res1_2, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_sel1_3 = "transfer.select"(%rhs_feas3, %two_res1_3, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_acc1_01 = "transfer.and"(%two_sel1_0, %two_sel1_1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_acc1_23 = "transfer.and"(%two_sel1_2, %two_sel1_3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %two_acc1 = "transfer.and"(%two_acc1_01, %two_acc1_23) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %two_sel1_0 = "transfer.select"(%rhs_feas0, %const_res1, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %two_sel1_2 = "transfer.select"(%rhs_feas2, %alt_res1, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %two_acc1 = "transfer.and"(%two_sel1_0, %two_sel1_2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %two_case_res1 = "transfer.select"(%rhs_any_feas, %two_acc1, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %var_res0_two_unknown = "transfer.select"(%rhs_two_unknown, %two_case_res0, %var_res0_one) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %var_res1_two_unknown = "transfer.select"(%rhs_two_unknown, %two_case_res1, %var_res1_one) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %var_res0_dyn = "transfer.select"(%rhs_one_unknown, %two_case_res0, %var_res0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %var_res1_dyn = "transfer.select"(%rhs_one_unknown, %two_case_res1, %var_res1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %res0_const_sel = "transfer.select"(%rhs_is_const, %const_res0, %var_res0_two_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %res1_const_sel = "transfer.select"(%rhs_is_const, %const_res1, %var_res1_two_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res0_const_sel = "transfer.select"(%rhs_is_const, %const_res0, %var_res0_dyn) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res1_const_sel = "transfer.select"(%rhs_is_const, %const_res1, %var_res1_dyn) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
     %lhs0_all_ones = "transfer.cmp"(%lhs0, %all_ones) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
     %lhs1_is_zero = "transfer.cmp"(%lhs1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1

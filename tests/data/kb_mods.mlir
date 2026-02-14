@@ -10,8 +10,6 @@
     %const1 = "transfer.constant"(%lhs0) {value = 1 : index} : (!transfer.integer) -> !transfer.integer
 
     %bitwidth = "transfer.get_bit_width"(%lhs0) : (!transfer.integer) -> !transfer.integer
-    %bw_minus_1 = "transfer.sub"(%bitwidth, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %sign_mask = "transfer.shl"(%const1, %bw_minus_1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %lhs_max = "transfer.xor"(%lhs0, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
     %rhs_tz = "transfer.countr_one"(%rhs0) : (!transfer.integer) -> !transfer.integer
@@ -20,16 +18,13 @@
     %res0_low = "transfer.and"(%lhs0, %low_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %res1_low = "transfer.and"(%lhs1, %low_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %lhs_sign_zero = "transfer.and"(%lhs0, %sign_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_non_neg = "transfer.cmp"(%lhs_sign_zero, %sign_mask) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_non_neg = "transfer.cmp"(%lhs0, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
 
     %lhs_mlz = "transfer.countl_one"(%lhs0) : (!transfer.integer) -> !transfer.integer
     %rhs_mlz = "transfer.countl_one"(%rhs0) : (!transfer.integer) -> !transfer.integer
     %rhs_mlo = "transfer.countl_one"(%rhs1) : (!transfer.integer) -> !transfer.integer
-    %rhs_sign_zero = "transfer.and"(%rhs0, %sign_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_sign_one = "transfer.and"(%rhs1, %sign_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_non_neg = "transfer.cmp"(%rhs_sign_zero, %sign_mask) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs_neg = "transfer.cmp"(%rhs_sign_one, %sign_mask) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_non_neg = "transfer.cmp"(%rhs0, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_neg = "transfer.cmp"(%rhs1, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
     %rhs_sign_bits_or1 = "transfer.select"(%rhs_neg, %rhs_mlo, %const1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %rhs_min_sign_bits = "transfer.select"(%rhs_non_neg, %rhs_mlz, %rhs_sign_bits_or1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
@@ -39,8 +34,7 @@
     %non_neg_zero_mask = "transfer.select"(%lhs_non_neg, %high_zero_mask, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
     %lhs_mlo = "transfer.countl_one"(%lhs1) : (!transfer.integer) -> !transfer.integer
-    %lhs_sign_one = "transfer.and"(%lhs1, %sign_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_neg = "transfer.cmp"(%lhs_sign_one, %sign_mask) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_neg = "transfer.cmp"(%lhs1, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
     %res_low_nonzero = "transfer.cmp"(%res1_low, %const0) {predicate = 1 : i64} : (!transfer.integer, !transfer.integer) -> i1
     %lhs_neg_nonzero = "arith.andi"(%lhs_neg, %res_low_nonzero) : (i1, i1) -> i1
     %leaders_neg = "transfer.umax"(%lhs_mlo, %rhs_min_sign_bits) : (!transfer.integer, !transfer.integer) -> !transfer.integer
@@ -53,9 +47,7 @@
     %rhs1_minus1 = "transfer.sub"(%rhs1, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %rhs1_and_minus1 = "transfer.and"(%rhs1, %rhs1_minus1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %rhs1_and_minus1_is_zero = "transfer.cmp"(%rhs1_and_minus1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs1_is_zero = "transfer.cmp"(%rhs1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %const_true = "arith.constant"() {value = 1 : i1} : () -> i1
-    %rhs1_nonzero = "arith.xori"(%rhs1_is_zero, %const_true) : (i1, i1) -> i1
+    %rhs1_nonzero = "transfer.cmp"(%rhs1, %const0) {predicate = 1 : i64} : (!transfer.integer, !transfer.integer) -> i1
     %rhs_is_pow2 = "arith.andi"(%rhs1_and_minus1_is_zero, %rhs1_nonzero) : (i1, i1) -> i1
     %rhs_const_pow2 = "arith.andi"(%rhs_is_const, %rhs_is_pow2) : (i1, i1) -> i1
     %pow2_lowbits = "transfer.sub"(%rhs1, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer

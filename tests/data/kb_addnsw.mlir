@@ -55,10 +55,8 @@
 
     %lhs_upper_max = "transfer.and"(%lhs_max, %smax) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %rhs_upper_max = "transfer.and"(%rhs_max, %smax) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_sign_is_one = "transfer.and"(%lhs1, %smin) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_sign_is_one = "transfer.and"(%rhs1, %smin) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_smax = "transfer.or"(%lhs_upper_max, %lhs_sign_is_one) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_smax = "transfer.or"(%rhs_upper_max, %rhs_sign_is_one) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_smax = "transfer.or"(%lhs_upper_max, %lhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_smax = "transfer.or"(%rhs_upper_max, %rhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
     %smin_sum = "transfer.add"(%lhs_smin, %rhs_smin) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %smin_ov = "transfer.sadd_overflow"(%lhs_smin, %rhs_smin) : (!transfer.integer, !transfer.integer) -> i1

@@ -19,12 +19,9 @@
     %tz_sum_inv = "transfer.sub"(%bitwidth, %tz_sum_clamped) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %res0_base = "transfer.lshr"(%all_ones, %tz_sum_inv) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %lhs_bit0_one = "transfer.and"(%lhs1, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %rhs_bit0_one = "transfer.and"(%rhs1, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_odd = "transfer.cmp"(%lhs_bit0_one, %const1) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %rhs_odd = "transfer.cmp"(%rhs_bit0_one, %const1) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %both_odd = "arith.andi"(%lhs_odd, %rhs_odd) : (i1, i1) -> i1
-    %res1_base = "transfer.select"(%both_odd, %const1, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs1 = "transfer.and"(%lhs1, %rhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %res1_base = "transfer.and"(%lhs_rhs1, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %both_odd = "transfer.cmp"(%res1_base, %const1) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
 
     %lhs_bit1_zero = "transfer.and"(%lhs0, %const2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %lhs_bit1_one = "transfer.and"(%lhs1, %const2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
