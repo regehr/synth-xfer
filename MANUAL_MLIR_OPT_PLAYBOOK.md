@@ -25,6 +25,14 @@ Important:
 
 Assume target file is `tests/data/FOO.mlir` and concrete op is `mlir/Operations/Op.mlir`.
 
+Before running validation, confirm the concrete op file is correct.
+- Example: `kb_addnsw.mlir` pairs with `mlir/Operations/AddNsw.mlir`, not a generic placeholder path.
+- Quick check:
+
+```bash
+ls mlir/Operations
+```
+
 1. Save a baseline copy.
 2. Run baseline soundness.
 3. Run baseline precision with fixed seed.
@@ -116,6 +124,23 @@ Pattern E: Two’s complement identity
   - `~(~a + ~b) == a + b + 1`
 - In transfer form, this can remove an inversion chain in carry logic.
 
+Pattern F: Collapse paired bit-tests into one bitwise expression
+- Example shape:
+  - `cmp(and(a,1),1) && cmp(and(b,1),1)` plus `select(...,1,0)`
+  - can become:
+  - `t = and(a,b)`, `bit = and(t,1)`, `cmp(bit,1)`
+- This removes duplicated `and/cmp/select` scaffolding while preserving bit intent.
+
+Pattern G: Replace sign-mask equality checks with signed compare to zero
+- Example shape:
+  - `cmp(and(x, sign_mask), sign_mask, eq)` -> `cmp(x, 0, slt)`
+- Apply only when `sign_mask` is exactly the sign bit mask for the operand width.
+
+Pattern H: Collapse over-enumerated unknown-case partitions
+- If a dynamic-case split enumerates many possibilities (e.g. 4-way feasibility trees), verify whether transfer semantics imply fewer feasible classes.
+- Large wins often come from reducing N-way trees to 2-way trees plus gating.
+- For semantics-sensitive ops, confirm lowering behavior in `synth_xfer/_util/lower.py` before rewriting around them.
+
 ## 6. Rewrite Discipline
 
 When editing MLIR:
@@ -132,6 +157,30 @@ When editing MLIR:
 verify --bw 4-64 -d KnownBits \
   --op mlir/Operations/Op.mlir \
   --xfer-file tests/data/FOO.mlir
+```
+
+If full-range verify is too slow, run ranges in parallel (up to 10 workers):
+
+```bash
+printf '%s\n' 4-9 10-15 16-21 22-27 28-33 34-39 40-45 46-51 52-57 58-64 | \
+  xargs -I{} -P 10 sh -c '
+    verify --bw {} -d KnownBits \
+      --op mlir/Operations/Op.mlir \
+      --xfer-file tests/data/FOO.mlir > outputs/FOO.verify.{}.log
+  '
+
+rg -n "unsound|timeout" outputs/FOO.verify.*.log
+```
+
+Timeout handling rule:
+- Treat `timeout` as unknown, not sound.
+- If timeouts appear, rerun only timed-out ranges with a larger SMT timeout:
+
+```bash
+verify --bw 34-39 -d KnownBits \
+  --op mlir/Operations/Op.mlir \
+  --xfer-file tests/data/FOO.mlir \
+  --timeout 120
 ```
 
 2. Precision (fixed random seed):
@@ -182,7 +231,7 @@ Applied rewrites:
 2) <rewrite> at <file:line>
 
 Validation:
-- verify --bw 4-64: all sound
+- verify --bw 4-64: all sound / sound+timeouts (list ranges)
 - eval-final (seed 12345): unchanged / changed (details)
 - focused tests: pass/fail
 
@@ -198,6 +247,8 @@ Size impact:
 - Favor substitutions that eliminate dynamic mask-building logic.
 - Reuse already-computed intermediates aggressively.
 - Treat LLVM constants from `-bw 8` as hints only. Convert to bitwidth-generic MLIR forms before committing.
+- Prioritize rewrites that remove case-explosion structure (multi-branch feasibility trees); these usually dominate wins.
+- If post-pass LLVM line count is unchanged but pre-pass LLVM and MLIR op counts drop, the rewrite is still valuable.
 - Iterate: apply small batch -> validate -> re-lower -> mine new opportunities.
 - Stop when repeated pass mining yields only LLVM-specific canonicalization with no MLIR-op reduction opportunity.
 
@@ -206,5 +257,6 @@ Size impact:
 - Porting bitwidth-specific constants literally (`127`, `128`) into generic MLIR.
 - Applying a rewrite based on value equivalence without proving predicate equivalence.
 - Trusting only one check (`verify` or `eval-final`); always run both.
+- Treating `verify` timeouts as success.
+- Assuming transfer-op semantics from name alone (for some ops, lowering behavior is subtler than the name suggests; e.g. `transfer.neg` lowering is not arithmetic negation).
 - Counting LLVM line reductions as success if MLIR op count and validation do not improve.
-
