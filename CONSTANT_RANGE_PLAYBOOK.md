@@ -5,7 +5,8 @@ Implement or improve a ConstantRange transfer function for operation `<OP>` in t
 ## Key Clarifications
 
 - CI integration is **not required** for this task.
-- The primary tools are `verify` and `eval-final`.
+- The primary tools are `verify` and `final-eval`.
+- `final-eval` must always be run with these exact arguments: `--exact-bw 8,1000 --norm-bw 64,10000,1000`.
 - The width list below is only a suggestion; choose widths freely to maximize useful signal.
 
 ## Requirements
@@ -49,11 +50,18 @@ Implement or improve a ConstantRange transfer function for operation `<OP>` in t
    - `transfer.uadd_overflow`
    - etc.
 
+## SSA IR Discipline (Important)
+
+- This MLIR parser uses strict SSA form: every `%name = ...` must be the result of an operation.
+- Do **not** write alias assignments like `%x = %y : !transfer.integer` (invalid syntax here).
+- If you only need another reference, reuse the original SSA value directly instead of creating an alias.
+- After drafting a new transfer file, run a quick one-width `verify` first to catch parser/syntax issues early, then run broader widths.
+
 ## Testing Guidance
 
 - Use `verify` as the soundness oracle.
-- Use `eval-final` as the precision/quality metric.
-- You may choose any widths (examples: `4, 8, 16, 24, 32, 40, 48`).
+- Use `final-eval` as the precision/quality metric.
+- You may choose any widths (examples: `4, 8, 16, 24, 32, 40, 48, 56, 64`).
 - Prefer testing widths separately (and in parallel if convenient) so one slow width does not block all results.
 
 ## Command Templates
@@ -65,7 +73,7 @@ verify --xfer-file tests/data/ucr_<op>.mlir --bw <chosen-widths> --timeout 60 --
 ```
 
 ```bash
-eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<Op>.mlir
+final-eval tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<Op>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
 ```
 
 Signed ConstantRange (`SConstRange`) when applicable:
@@ -75,7 +83,7 @@ verify --xfer-file tests/data/scr_<op>.mlir --bw <chosen-widths> --timeout 60 --
 ```
 
 ```bash
-eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<Op>.mlir
+final-eval tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<Op>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
 ```
 
 ## Optional Test File Updates (Only If Asked)
@@ -87,5 +95,5 @@ eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<O
 
 1. Files changed.
 2. Soundness results per tested bitwidth (`sound` / `unsound` / `timeout` + runtime).
-3. `eval-final` table values.
+3. `final-eval` table values (run with `--exact-bw 8,1000 --norm-bw 64,10000,1000`).
 4. Precision/soundness caveats, clearly separating `timeout/unresolved` from `unsound`.
