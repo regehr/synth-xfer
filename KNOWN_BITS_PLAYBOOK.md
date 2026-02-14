@@ -8,6 +8,7 @@ Implement or improve a KnownBits transfer function for operation `<OP>` in this 
 - The primary tools are `verify` and `final-eval`.
 - `final-eval` must always be run with these exact arguments: `--exact-bw 8,1000 --norm-bw 64,10000,1000`.
 - The width list below is only a suggestion; choose widths freely to maximize useful signal.
+- In addition to implementing/testing the transfer, you may optionally suggest concrete `transfer` dialect integer operations that are missing and would enable a more precise or more efficient transformer.
 
 ## Requirements
 
