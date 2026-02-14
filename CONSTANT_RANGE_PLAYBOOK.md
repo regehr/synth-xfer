@@ -10,10 +10,17 @@ Implement or improve a ConstantRange transfer function for operation `<OP>` in t
 
 ## Requirements
 
-1. Implement `tests/data/cr_<op>.mlir` in the same MLIR style as:
-   - `tests/data/cr_add.mlir`
+1. Implement domain-specific transfer files in `tests/data/`:
+   - unsigned: `tests/data/ucr_<op>.mlir`
+   - signed: `tests/data/scr_<op>.mlir`
+   - if doing both domains, implement both files.
+   Use the same MLIR style as:
+   - `tests/data/ucr_add.mlir`
    - `tests/data/xfer_nop.mlir`
-2. Use symbol name `cr_<op>` and this exact function signature:
+2. Use symbol name to match the file:
+   - unsigned file: `ucr_<op>`
+   - signed file: `scr_<op>`
+   and this exact function signature:
 
 ```mlir
 (!transfer.abs_value<[!transfer.integer, !transfer.integer]>, !transfer.abs_value<[!transfer.integer, !transfer.integer]>) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>
@@ -54,21 +61,21 @@ Implement or improve a ConstantRange transfer function for operation `<OP>` in t
 Unsigned ConstantRange (`UConstRange`):
 
 ```bash
-verify --xfer-file tests/data/cr_<op>.mlir --bw <chosen-widths> --timeout 60 --domain UConstRange --op mlir/Operations/<Op>.mlir
+verify --xfer-file tests/data/ucr_<op>.mlir --bw <chosen-widths> --timeout 60 --domain UConstRange --op mlir/Operations/<Op>.mlir
 ```
 
 ```bash
-eval-final tests/data/cr_<op>.mlir --domain UConstRange --op mlir/Operations/<Op>.mlir
+eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<Op>.mlir
 ```
 
 Signed ConstantRange (`SConstRange`) when applicable:
 
 ```bash
-verify --xfer-file tests/data/cr_<op>.mlir --bw <chosen-widths> --timeout 60 --domain SConstRange --op mlir/Operations/<Op>.mlir
+verify --xfer-file tests/data/scr_<op>.mlir --bw <chosen-widths> --timeout 60 --domain SConstRange --op mlir/Operations/<Op>.mlir
 ```
 
 ```bash
-eval-final tests/data/cr_<op>.mlir --domain SConstRange --op mlir/Operations/<Op>.mlir
+eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<Op>.mlir
 ```
 
 ## Optional Test File Updates (Only If Asked)
