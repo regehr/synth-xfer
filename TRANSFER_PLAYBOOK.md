@@ -22,6 +22,7 @@ Implement or improve one transfer function in this repo.
 - If you hit a bug in any tool in this repository (for example `verify-upto`, `eval-final`, `sxf`, lowering, or parsing), stop normal transfer-function work immediately.
 - Report the bug clearly to the user first (minimal reproducer command, observed behavior, traceback/signature, and any relevant output paths/log files).
 - Do not attempt a workaround by default.
+- Mining logs/artifacts from the failed run is allowed, but only after the bug has been reported to the user.
 - Only proceed with a workaround if the user explicitly asks for one after the bug report.
 - If a workaround is requested, keep it scoped and temporary, and clearly label which results were obtained under workaround conditions.
 
@@ -75,7 +76,8 @@ timeout 300 sxf mlir/Operations/<Op>.mlir \
   - Use moderate `--num-steps`/`--num-mcmc` (for example, `400-1200` and `60-120`) to trade breadth vs. depth.
   - Inspect `/tmp/<domain>_<op>_ideas/info.log` and `/tmp/<domain>_<op>_ideas/debug.log` for high-precision partial candidates and reusable guard patterns.
   - Treat mined snippets as hypotheses: manually simplify, convert to meet-style sub-transfers, then re-check with `verify-upto`.
-  - Even if `sxf` fails or times out, partial logs are still useful for extracting ideas.
+  - If `sxf` fails or times out, partial logs can still be useful for extracting ideas.
+  - If the failure appears to be a tool bug, first report the bug per the Tool Bug Policy, then mine the failed-run logs.
 
 ## SSA IR Discipline (Important)
 
