@@ -11,7 +11,7 @@ Implement or improve one transfer function in this repo.
 ## Key Clarifications
 
 - CI integration is not required for this task.
-- Primary tools are `verify` and `eval-final`.
+- Primary tools are `verify-upto` and `eval-final`.
 - `eval-final` must always use: `--exact-bw 8,1000 --norm-bw 64,10000,1000`.
 - Width lists are suggestions only; choose widths that maximize useful signal.
 - You may optionally suggest concrete missing `transfer` dialect integer ops that would enable better precision or efficiency.
@@ -30,12 +30,22 @@ Implement or improve one transfer function in this repo.
 5. Keep changes minimal and repo-consistent.
 6. Reuse existing transfer primitives whenever possible.
 
+## Construction Strategy (Recommended)
+
+- Prefer composing the final transfer as the meet of several simpler transfer functions, each capturing one sound insight.
+- Keep each candidate independently sound; the meet of sound candidates is also sound.
+- Typical candidates include:
+  - exact special cases (`lhs == 0`, `rhs == 0`, both operands constant),
+  - validity/feasibility filters (e.g., whether the op constraints allow any concrete pair in-range),
+  - monotonic endpoint bounds valid under explicit guards (sign-partitioned or no-overflow conditions).
+- When encoding a meet in-range domains, use domain-consistent intersection logic (e.g., lower via `smax`/`umax`, upper via `smin`/`umin` as appropriate).
+
 ## SSA IR Discipline (Important)
 
 - This MLIR parser uses strict SSA form: each `%name = ...` must be an operation result.
 - Do not write alias assignments like `%x = %y : !transfer.integer`.
 - If you need another reference, reuse the original SSA value directly.
-- After drafting a transfer file, run a quick single-width `verify` first to catch parser/syntax issues, then run broader widths.
+- After drafting a transfer file, run a quick small-limit `verify-upto` first to catch parser/syntax issues, then run a broader limit.
 
 ## Domain-Specific Mapping
 
@@ -59,30 +69,30 @@ Run only the commands for your chosen domain.
 KnownBits:
 
 ```bash
-verify --xfer-file tests/data/kb_<op>.mlir --bw <chosen-widths> --timeout 60 --domain KnownBits --op mlir/Operations/<Op>.mlir
+verify-upto --xfer-file tests/data/kb_<op>.mlir --bw <max-width> --timeout 60 --domain KnownBits --op mlir/Operations/<Op>.mlir
 eval-final tests/data/kb_<op>.mlir --domain KnownBits --op mlir/Operations/<Op>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
 ```
 
 Unsigned ConstantRange (`UConstRange`):
 
 ```bash
-verify --xfer-file tests/data/ucr_<op>.mlir --bw <chosen-widths> --timeout 60 --domain UConstRange --op mlir/Operations/<Op>.mlir
+verify-upto --xfer-file tests/data/ucr_<op>.mlir --bw <max-width> --timeout 60 --domain UConstRange --op mlir/Operations/<Op>.mlir
 eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<Op>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
 ```
 
 Signed ConstantRange (`SConstRange`):
 
 ```bash
-verify --xfer-file tests/data/scr_<op>.mlir --bw <chosen-widths> --timeout 60 --domain SConstRange --op mlir/Operations/<Op>.mlir
+verify-upto --xfer-file tests/data/scr_<op>.mlir --bw <max-width> --timeout 60 --domain SConstRange --op mlir/Operations/<Op>.mlir
 eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<Op>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
 ```
 
 ## Testing Guidance
 
-- Use `verify` as the soundness oracle.
+- Use `verify-upto` as the soundness oracle.
+- `verify-upto` uses the same core arguments as `verify`, but checks all bitwidths from `1` up to the requested max width.
 - Use `eval-final` as the precision/quality metric.
-- Suggested widths include `4, 8, 16, 24, 32, 40, 48, 56, 64`, but choose as needed.
-- Prefer separate width runs (parallel if convenient) so one slow width does not block all results.
+- Suggested max widths include `16, 32, 64` (you can run several limits as needed).
 
 ## Optional Test File Updates (Only If Asked)
 
