@@ -13,8 +13,17 @@ Implement or improve one transfer function in this repo.
 - CI integration is not required for this task.
 - Primary tools are `verify-upto` and `eval-final`.
 - `eval-final` must always use: `--exact-bw 8,1000 --norm-bw 64,10000,1000`.
-- Width lists are suggestions only; choose widths that maximize useful signal.
+- For `verify-upto`, always use `--bw 64`.
+- To reduce runtime during intermediate checks, lower `--timeout` instead of lowering `--bw`.
 - You may optionally suggest concrete missing `transfer` dialect integer ops that would enable better precision or efficiency.
+
+## Tool Bug Policy (Required)
+
+- If you hit a bug in any tool in this repository (for example `verify-upto`, `eval-final`, `sxf`, lowering, or parsing), stop normal transfer-function work immediately.
+- Report the bug clearly to the user first (minimal reproducer command, observed behavior, traceback/signature, and any relevant output paths/log files).
+- Do not attempt a workaround by default.
+- Only proceed with a workaround if the user explicitly asks for one after the bug report.
+- If a workaround is requested, keep it scoped and temporary, and clearly label which results were obtained under workaround conditions.
 
 ## Shared Requirements
 
@@ -39,6 +48,34 @@ Implement or improve one transfer function in this repo.
   - validity/feasibility filters (e.g., whether the op constraints allow any concrete pair in-range),
   - monotonic endpoint bounds valid under explicit guards (sign-partitioned or no-overflow conditions).
 - When encoding a meet in-range domains, use domain-consistent intersection logic (e.g., lower via `smax`/`umax`, upper via `smin`/`umin` as appropriate).
+
+## Optional Idea Mining with `sxf` (5-minute Budget)
+
+- If progress stalls, use `sxf` to generate ideas, not final code.
+- Cap runtime to about 5 minutes:
+
+```bash
+timeout 300 sxf mlir/Operations/<Op>.mlir \
+  -o /tmp/<domain>_<op>_ideas \
+  -d <Domain> \
+  --num-iters 1 \
+  --num-steps 600 \
+  --num-mcmc 80 \
+  --program-length 40 \
+  --condition-length 12 \
+  --num-abd-procs 0 \
+  --num-unsound-candidates 0 \
+  --vbw 1-16 \
+  --random-seed <seed>
+```
+
+- To get the most from this command:
+  - Run 2-3 different seeds and compare recurring patterns.
+  - Keep `--num-iters 1`; in this workflow you want candidate ideas quickly, not a full synthesis run.
+  - Use moderate `--num-steps`/`--num-mcmc` (for example, `400-1200` and `60-120`) to trade breadth vs. depth.
+  - Inspect `/tmp/<domain>_<op>_ideas/info.log` and `/tmp/<domain>_<op>_ideas/debug.log` for high-precision partial candidates and reusable guard patterns.
+  - Treat mined snippets as hypotheses: manually simplify, convert to meet-style sub-transfers, then re-check with `verify-upto`.
+  - Even if `sxf` fails or times out, partial logs are still useful for extracting ideas.
 
 ## SSA IR Discipline (Important)
 
@@ -69,21 +106,21 @@ Run only the commands for your chosen domain.
 KnownBits:
 
 ```bash
-verify-upto --xfer-file tests/data/kb_<op>.mlir --bw <max-width> --timeout 60 --domain KnownBits --op mlir/Operations/<Op>.mlir
+verify-upto --xfer-file tests/data/kb_<op>.mlir --bw 64 --timeout 60 --domain KnownBits --op mlir/Operations/<Op>.mlir
 eval-final tests/data/kb_<op>.mlir --domain KnownBits --op mlir/Operations/<Op>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
 ```
 
 Unsigned ConstantRange (`UConstRange`):
 
 ```bash
-verify-upto --xfer-file tests/data/ucr_<op>.mlir --bw <max-width> --timeout 60 --domain UConstRange --op mlir/Operations/<Op>.mlir
+verify-upto --xfer-file tests/data/ucr_<op>.mlir --bw 64 --timeout 60 --domain UConstRange --op mlir/Operations/<Op>.mlir
 eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<Op>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
 ```
 
 Signed ConstantRange (`SConstRange`):
 
 ```bash
-verify-upto --xfer-file tests/data/scr_<op>.mlir --bw <max-width> --timeout 60 --domain SConstRange --op mlir/Operations/<Op>.mlir
+verify-upto --xfer-file tests/data/scr_<op>.mlir --bw 64 --timeout 60 --domain SConstRange --op mlir/Operations/<Op>.mlir
 eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<Op>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
 ```
 
