@@ -218,3 +218,37 @@ Generated: 2026-02-16 18:50:18 UTC
 | `SaddSat` | — | missing | — | — | transfer file not present |
 | `Sdiv` | — | missing | — | — | transfer file not present |
 [run] SConstRange SdivExact: eval-final
+[run] SConstRange SdivExact: verify-upto
+| `SdivExact` | `tests/data/scr_sdivexact.mlir` | ... | 0 | 162 | incomplete/unknown verify output |
+[run] SConstRange Shl: eval-final
+[run] SConstRange Shl: verify-upto
+| `Shl` | `tests/data/scr_shl.mlir` | 46.355066 | 0 | 85 | incomplete/unknown verify output |
+| `ShlNsw` | — | missing | — | — | transfer file not present |
+| `ShlNswNuw` | — | missing | — | — | transfer file not present |
+| `ShlNuw` | — | missing | — | — | transfer file not present |
+| `Smax` | — | missing | — | — | transfer file not present |
+| `Smin` | — | missing | — | — | transfer file not present |
+| `SmulSat` | — | missing | — | — | transfer file not present |
+| `Square` | — | missing | — | — | transfer file not present |
+| `SshlSat` | — | missing | — | — | transfer file not present |
+| `SsubSat` | — | missing | — | — | transfer file not present |
+[run] SConstRange Sub: eval-final
+[run] SConstRange Sub: verify-upto
+| `Sub` | `tests/data/scr_sub.mlir` | 100.0 | 0 | 17 | incomplete/unknown verify output |
+| `SubNsw` | — | missing | — | — | transfer file not present |
+[run] SConstRange SubNswNuw: eval-final
+[run] SConstRange SubNswNuw: verify-upto
+| `SubNswNuw` | `tests/data/scr_subnswnuw.mlir` | ... | 0 | 67 | incomplete/unknown verify output |
+| `SubNuw` | — | missing | — | — | transfer file not present |
+| `UaddSat` | — | missing | — | — | transfer file not present |
+| `Udiv` | — | missing | — | — | transfer file not present |
+| `UdivExact` | — | missing | — | — | transfer file not present |
+| `Umax` | — | missing | — | — | transfer file not present |
+| `Umin` | — | missing | — | — | transfer file not present |
+| `UmulSat` | — | missing | — | — | transfer file not present |
+| `UshlSat` | — | missing | — | — | transfer file not present |
+| `UsubSat` | — | missing | — | — | transfer file not present |
+[run] SConstRange Xor: eval-final
+[run] SConstRange Xor: verify-upto
+| `Xor` | `tests/data/scr_xor.mlir` | 54.887049 | 0 | 54 | incomplete/unknown verify output |
+
