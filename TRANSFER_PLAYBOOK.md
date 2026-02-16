@@ -13,9 +13,8 @@ Implement or improve one transfer function in this repo.
 - CI integration is not required for this task.
 - Primary tools are `verify-upto` and `eval-final`.
 - If you need to inspect one specific abstract input pair, use `eval-point` for a single-point transfer evaluation.
-- `eval-final` must always use: `--exact-bw 8,1000 --norm-bw 64,10000,1000`.
+- `eval-final` must always use: `--exact-bw 7 --norm-bw 64,10000,1000`.
 - For `verify-upto`, always use `--bw 64`.
-- `verify-upto` accepts the same `--bw` syntax as `verify`, but it uses the maximum provided value as the upper bound it checks (`1..max_bw`).
 - To reduce runtime during intermediate checks, lower `--timeout` instead of lowering `--bw`.
 - You may optionally suggest concrete missing `transfer` dialect integer ops that would enable better precision or efficiency.
 
@@ -36,10 +35,15 @@ Implement or improve one transfer function in this repo.
 
 ## Shared Requirements
 
-1. Use this exact transfer function signature:
+1. Match the transfer function arity to the concrete op in `mlir/Operations/<OP>.mlir`.
+   - If `concrete_op` takes `N` integer inputs, the transfer must take `N` abstract-value inputs and return one abstract value.
+   - Keep the per-argument abstract type as `!transfer.abs_value<[!transfer.integer, !transfer.integer]>`.
+   - Typical shapes:
 
 ```mlir
+(!transfer.abs_value<[!transfer.integer, !transfer.integer]>) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>
 (!transfer.abs_value<[!transfer.integer, !transfer.integer]>, !transfer.abs_value<[!transfer.integer, !transfer.integer]>) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>
+(!transfer.abs_value<[!transfer.integer, !transfer.integer]>, !transfer.abs_value<[!transfer.integer, !transfer.integer]>, !transfer.abs_value<[!transfer.integer, !transfer.integer]>) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>
 ```
 
 2. Transfer must be sound and as precise as possible.
@@ -108,7 +112,7 @@ Choose one row only for a given task.
 ## Domain-Specific Primitive Guidance
 
 - `KnownBits`: prefer `transfer.and`, `transfer.or`, `transfer.xor`, `transfer.add`, `transfer.sub`, `transfer.shl`, `transfer.lshr`, `transfer.constant`, `transfer.get_all_ones`.
-- `UConstRange` and `SConstRange`: same as above, plus `transfer.cmp`, `transfer.select`, `transfer.uadd_overflow` when useful.
+- `UConstRange` and `SConstRange`: same as above, plus `transfer.cmp`, `transfer.select`, and overflow predicates such as `transfer.uadd_overflow`, `transfer.sadd_overflow`, and `transfer.ssub_overflow` when useful.
 
 ## Command Templates
 
@@ -119,31 +123,30 @@ KnownBits:
 
 ```bash
 verify-upto --xfer-file tests/data/kb_<op>.mlir --bw 64 --timeout 120 --domain KnownBits --op mlir/Operations/<OP>.mlir
-eval-final tests/data/kb_<op>.mlir --domain KnownBits --op mlir/Operations/<OP>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
+eval-final tests/data/kb_<op>.mlir --domain KnownBits --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
 ```
 
 Unsigned ConstantRange (`UConstRange`):
 
 ```bash
 verify-upto --xfer-file tests/data/ucr_<op>.mlir --bw 64 --timeout 120 --domain UConstRange --op mlir/Operations/<OP>.mlir
-eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<OP>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
+eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
 ```
 
 Signed ConstantRange (`SConstRange`):
 
 ```bash
 verify-upto --xfer-file tests/data/scr_<op>.mlir --bw 64 --timeout 120 --domain SConstRange --op mlir/Operations/<OP>.mlir
-eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<OP>.mlir --exact-bw 8,1000 --norm-bw 64,10000,1000
+eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
 ```
 
 ## Testing Guidance
 
-- Use `verify-upto` as the soundness oracle.
-- `verify-upto` uses the same core arguments as `verify`, checks bitwidths from `1` up to the requested max width, and stops early on the first `timeout`.
-- Use `eval-final` as the precision/quality metric.
+- Use `verify-upto` as the soundness oracle with a 120-second timeout.
+- `verify-upto` checks bitwidths from `1` up to the requested max width, and stops early on the first `timeout`.
+- Use `eval-final` as the precision/quality metric. This command might be slow, but you must let it finish. Don't time this one out.
 - Always use `--bw 64` for `verify-upto`.
-- For faster intermediate feedback, lower `--timeout` (never lower `--bw`).
-- For final reporting, use `--timeout 120`.
+- For faster intermediate feedback from `verify-upto`, lower `--timeout` (never lower `--bw`). For final reporting, use `--timeout 120`.
 
 ## Optional Test File Updates (Only If Asked)
 
@@ -163,5 +166,5 @@ SConstRange:
 
 1. Files changed.
 2. Soundness results per tested bitwidth (`sound` / `unsound` / `timeout` plus runtime).
-3. `eval-final` table values (run with `--exact-bw 8,1000 --norm-bw 64,10000,1000`).
+3. `eval-final` table values (run with `--exact-bw 7 --norm-bw 64,10000,1000`).
 4. Precision and soundness caveats, clearly separating `timeout/unresolved` from `unsound`.

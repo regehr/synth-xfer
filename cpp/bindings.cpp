@@ -235,6 +235,9 @@ void register_domain_widths(py::module_ &m) {
 
 // Register domain classes here
 MAKE_OPAQUE_UNIFORM(KnownBits, 4);
+MAKE_OPAQUE_UNIFORM(KnownBits, 5);
+MAKE_OPAQUE_UNIFORM(KnownBits, 6);
+MAKE_OPAQUE_UNIFORM(KnownBits, 7);
 MAKE_OPAQUE_UNIFORM(KnownBits, 8);
 MAKE_OPAQUE_UNIFORM(KnownBits, 16);
 MAKE_OPAQUE_UNIFORM(KnownBits, 32);
@@ -250,6 +253,9 @@ MAKE_OPAQUE_UNIFORM(UConstRange, 32);
 MAKE_OPAQUE_UNIFORM(UConstRange, 64);
 
 MAKE_OPAQUE_UNIFORM(SConstRange, 4);
+MAKE_OPAQUE_UNIFORM(SConstRange, 5);
+MAKE_OPAQUE_UNIFORM(SConstRange, 6);
+MAKE_OPAQUE_UNIFORM(SConstRange, 7);
 MAKE_OPAQUE_UNIFORM(SConstRange, 8);
 MAKE_OPAQUE_UNIFORM(SConstRange, 16);
 MAKE_OPAQUE_UNIFORM(SConstRange, 32);
@@ -291,9 +297,9 @@ PYBIND11_MODULE(_eval_engine, m) {
   register_rng(m);
   register_results_class(m);
 
-  register_domain_widths<KnownBits, 4, 8, 16, 32, 64>(m);
+  register_domain_widths<KnownBits, 4, 5, 6, 7, 8, 16, 32, 64>(m);
   register_domain_widths<UConstRange, 4, 5, 6, 7, 8, 16, 32, 64>(m);
-  register_domain_widths<SConstRange, 4, 8, 16, 32, 64>(m);
+  register_domain_widths<SConstRange, 4, 5, 6, 7, 8, 16, 32, 64>(m);
   register_domain_widths<Mod3, 4, 8, 16, 32, 64>(m);
   register_domain_widths<Mod5, 4, 8, 16, 32, 64>(m);
   register_domain_widths<Mod7, 4, 8, 16, 32, 64>(m);
