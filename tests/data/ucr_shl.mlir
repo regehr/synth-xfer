@@ -22,9 +22,6 @@
     %y4 = "transfer.add"(%y3, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %y5 = "transfer.add"(%y4, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %y6 = "transfer.add"(%y5, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %y7 = "transfer.add"(%y6, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %y8 = "transfer.add"(%y7, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %y9 = "transfer.add"(%y8, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
     %bw_minus_y0 = "transfer.sub"(%bw, %y0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %lhs_lower_q0 = "transfer.lshr"(%lhs_lower, %bw_minus_y0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
@@ -104,45 +101,6 @@
     %low5 = "transfer.select"(%y5_is_bw, %const0, %low_nonbw5) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %hi5 = "transfer.select"(%y5_is_bw, %const0, %hi_nonbw5) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %bw_minus_y6 = "transfer.sub"(%bw, %y6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_lower_q6 = "transfer.lshr"(%lhs_lower, %bw_minus_y6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_upper_q6 = "transfer.lshr"(%lhs_upper, %bw_minus_y6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %cross6 = "transfer.cmp"(%lhs_lower_q6, %lhs_upper_q6) {predicate = 1 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %nowrap_low6 = "transfer.shl"(%lhs_lower, %y6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %nowrap_hi6 = "transfer.shl"(%lhs_upper, %y6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %wrap_hi6 = "transfer.clear_low_bits"(%all_ones, %y6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %low_nonbw6 = "transfer.select"(%cross6, %const0, %nowrap_low6) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %hi_nonbw6 = "transfer.select"(%cross6, %wrap_hi6, %nowrap_hi6) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %y6_is_bw = "transfer.cmp"(%y6, %bw) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %low6 = "transfer.select"(%y6_is_bw, %const0, %low_nonbw6) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %hi6 = "transfer.select"(%y6_is_bw, %const0, %hi_nonbw6) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-
-    %bw_minus_y7 = "transfer.sub"(%bw, %y7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_lower_q7 = "transfer.lshr"(%lhs_lower, %bw_minus_y7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_upper_q7 = "transfer.lshr"(%lhs_upper, %bw_minus_y7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %cross7 = "transfer.cmp"(%lhs_lower_q7, %lhs_upper_q7) {predicate = 1 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %nowrap_low7 = "transfer.shl"(%lhs_lower, %y7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %nowrap_hi7 = "transfer.shl"(%lhs_upper, %y7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %wrap_hi7 = "transfer.clear_low_bits"(%all_ones, %y7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %low_nonbw7 = "transfer.select"(%cross7, %const0, %nowrap_low7) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %hi_nonbw7 = "transfer.select"(%cross7, %wrap_hi7, %nowrap_hi7) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %y7_is_bw = "transfer.cmp"(%y7, %bw) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %low7 = "transfer.select"(%y7_is_bw, %const0, %low_nonbw7) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %hi7 = "transfer.select"(%y7_is_bw, %const0, %hi_nonbw7) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-
-    %bw_minus_y8 = "transfer.sub"(%bw, %y8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_lower_q8 = "transfer.lshr"(%lhs_lower, %bw_minus_y8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lhs_upper_q8 = "transfer.lshr"(%lhs_upper, %bw_minus_y8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %cross8 = "transfer.cmp"(%lhs_lower_q8, %lhs_upper_q8) {predicate = 1 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %nowrap_low8 = "transfer.shl"(%lhs_lower, %y8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %nowrap_hi8 = "transfer.shl"(%lhs_upper, %y8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %wrap_hi8 = "transfer.clear_low_bits"(%all_ones, %y8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %low_nonbw8 = "transfer.select"(%cross8, %const0, %nowrap_low8) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %hi_nonbw8 = "transfer.select"(%cross8, %wrap_hi8, %nowrap_hi8) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %y8_is_bw = "transfer.cmp"(%y8, %bw) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %low8 = "transfer.select"(%y8_is_bw, %const0, %low_nonbw8) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %hi8 = "transfer.select"(%y8_is_bw, %const0, %hi_nonbw8) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-
     %lower_acc0 = "transfer.add"(%low0, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %upper_acc0 = "transfer.add"(%hi0, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
@@ -177,31 +135,13 @@
     %upper_acc5 = "transfer.select"(%present5, %upper_join5, %upper_acc4) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
     %present6 = "transfer.cmp"(%y5, %rhs_eff_upper) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %lower_join6 = "transfer.umin"(%lower_acc5, %low6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %upper_join6 = "transfer.umax"(%upper_acc5, %hi6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lower_acc6 = "transfer.select"(%present6, %lower_join6, %lower_acc5) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %upper_acc6 = "transfer.select"(%present6, %upper_join6, %upper_acc5) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %no_more = "arith.xori"(%present6, %const_true) : (i1, i1) -> i1
+    %safe_known = "arith.ori"(%no_more, %cross5) : (i1, i1) -> i1
 
-    %present7 = "transfer.cmp"(%y6, %rhs_eff_upper) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %lower_join7 = "transfer.umin"(%lower_acc6, %low7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %upper_join7 = "transfer.umax"(%upper_acc6, %hi7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lower_acc7 = "transfer.select"(%present7, %lower_join7, %lower_acc6) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %upper_acc7 = "transfer.select"(%present7, %upper_join7, %upper_acc6) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-
-    %present8 = "transfer.cmp"(%y7, %rhs_eff_upper) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %lower_join8 = "transfer.umin"(%lower_acc7, %low8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %upper_join8 = "transfer.umax"(%upper_acc7, %hi8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lower_acc8 = "transfer.select"(%present8, %lower_join8, %lower_acc7) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %upper_acc8 = "transfer.select"(%present8, %upper_join8, %upper_acc7) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-
-    %present9 = "transfer.cmp"(%y8, %rhs_eff_upper) {predicate = 6 : i64} : (!transfer.integer, !transfer.integer) -> i1
-    %no_more = "arith.xori"(%present9, %const_true) : (i1, i1) -> i1
-    %safe_known = "arith.ori"(%no_more, %cross8) : (i1, i1) -> i1
-
-    %tail_mask9 = "transfer.clear_low_bits"(%all_ones, %y9) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %upper_tail_bound = "transfer.umax"(%upper_acc8, %tail_mask9) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %lower_known = "transfer.select"(%safe_known, %lower_acc8, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %upper_known = "transfer.select"(%safe_known, %upper_acc8, %upper_tail_bound) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %tail_mask = "transfer.clear_low_bits"(%all_ones, %y6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %upper_tail_bound = "transfer.umax"(%upper_acc5, %tail_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lower_known = "transfer.select"(%safe_known, %lower_acc5, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %upper_known = "transfer.select"(%safe_known, %upper_acc5, %upper_tail_bound) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
     %ret_lower = "transfer.select"(%has_valid_rhs, %lower_known, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %ret_upper = "transfer.select"(%has_valid_rhs, %upper_known, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer

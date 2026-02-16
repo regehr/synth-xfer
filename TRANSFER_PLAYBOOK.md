@@ -13,7 +13,9 @@ Implement or improve one transfer function in this repo.
 - CI integration is not required for this task.
 - Primary tools are `verify-upto` and `eval-final`.
 - If you need to inspect one specific abstract input pair, use `eval-point` for a single-point transfer evaluation.
-- `eval-final` must always use: `--exact-bw 7 --norm-bw 64,10000,1000`.
+- `eval-final` default/final setting is: `--exact-bw 7 --norm-bw 64,10000,1000`.
+- For faster intermediate feedback, you may run `eval-final` with `--exact-bw 6` (keep `--norm-bw 64,10000,1000`).
+- `eval-final` outputs are not comparable across different `--exact-bw` values; only compare runs that use the same `--exact-bw`.
 - For `verify-upto`, always use `--bw 64`.
 - To reduce runtime during intermediate checks, lower `--timeout` instead of lowering `--bw`.
 - You may optionally suggest concrete missing `transfer` dialect integer ops that would enable better precision or efficiency.
@@ -124,6 +126,8 @@ KnownBits:
 ```bash
 verify-upto --xfer-file tests/data/kb_<op>.mlir --bw 64 --timeout 120 --domain KnownBits --op mlir/Operations/<OP>.mlir
 eval-final tests/data/kb_<op>.mlir --domain KnownBits --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
+# Optional faster intermediate feedback (not comparable to --exact-bw 7 runs):
+# eval-final tests/data/kb_<op>.mlir --domain KnownBits --op mlir/Operations/<OP>.mlir --exact-bw 6 --norm-bw 64,10000,1000
 ```
 
 Unsigned ConstantRange (`UConstRange`):
@@ -131,6 +135,8 @@ Unsigned ConstantRange (`UConstRange`):
 ```bash
 verify-upto --xfer-file tests/data/ucr_<op>.mlir --bw 64 --timeout 120 --domain UConstRange --op mlir/Operations/<OP>.mlir
 eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
+# Optional faster intermediate feedback (not comparable to --exact-bw 7 runs):
+# eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<OP>.mlir --exact-bw 6 --norm-bw 64,10000,1000
 ```
 
 Signed ConstantRange (`SConstRange`):
@@ -138,6 +144,8 @@ Signed ConstantRange (`SConstRange`):
 ```bash
 verify-upto --xfer-file tests/data/scr_<op>.mlir --bw 64 --timeout 120 --domain SConstRange --op mlir/Operations/<OP>.mlir
 eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
+# Optional faster intermediate feedback (not comparable to --exact-bw 7 runs):
+# eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<OP>.mlir --exact-bw 6 --norm-bw 64,10000,1000
 ```
 
 ## Testing Guidance
@@ -145,6 +153,8 @@ eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<O
 - Use `verify-upto` as the soundness oracle with a 120-second timeout.
 - `verify-upto` checks bitwidths from `1` up to the requested max width, and stops early on the first `timeout`.
 - Use `eval-final` as the precision/quality metric. This command might be slow, but you must let it finish. Don't time this one out.
+- For intermediate speed, you may use `--exact-bw 6`; default/final reporting should use `--exact-bw 7` unless task-specific instructions say otherwise.
+- Never compare `eval-final` values across runs that used different `--exact-bw` values.
 - Always use `--bw 64` for `verify-upto`.
 - For faster intermediate feedback from `verify-upto`, lower `--timeout` (never lower `--bw`). For final reporting, use `--timeout 120`.
 
