@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-16 18:50:18 UTC
+Generated: 2026-02-16 21:57:29 UTC
 
 ## KnownBits
 
@@ -8,20 +8,12 @@ Generated: 2026-02-16 18:50:18 UTC
 |---|---|---:|---:|---:|---|
 | `Abds` | — | missing | — | — | transfer file not present |
 | `Abdu` | — | missing | — | — | transfer file not present |
-[run] KnownBits Add: eval-final
-[run] KnownBits Add: verify-upto
-| `Add` | `tests/data/kb_add.mlir` | 100.0 | 0 | 37 | incomplete/unknown verify output |
-[run] KnownBits AddNsw: eval-final
-[run] KnownBits AddNsw: verify-upto
-| `AddNsw` | `tests/data/kb_addnsw.mlir` | 95.392653 | 0 | 79 | incomplete/unknown verify output |
+| `Add` | `tests/data/kb_add.mlir` | 100.0 | 64 | 37 | sound through bw 64 |
+| `AddNsw` | `tests/data/kb_addnsw.mlir` | 95.392653 | 64 | 79 | sound through bw 64 |
 | `AddNswNuw` | — | missing | — | — | transfer file not present |
 | `AddNuw` | — | missing | — | — | transfer file not present |
-[run] KnownBits And: eval-final
-[run] KnownBits And: verify-upto
-| `And` | `tests/data/kb_and.mlir` | 100.0 | 0 | 8 | incomplete/unknown verify output |
-[run] KnownBits Ashr: eval-final
-[run] KnownBits Ashr: verify-upto
-| `Ashr` | `tests/data/kb_ashr.mlir` | 99.268404 | 0 | 132 | incomplete/unknown verify output |
+| `And` | `tests/data/kb_and.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
+| `Ashr` | `tests/data/kb_ashr.mlir` | 99.268404 | 64 | 132 | sound through bw 64 |
 | `AshrExact` | — | missing | — | — | transfer file not present |
 | `AvgCeilS` | — | missing | — | — | transfer file not present |
 | `AvgCeilU` | — | missing | — | — | transfer file not present |
@@ -36,28 +28,20 @@ Generated: 2026-02-16 18:50:18 UTC
 | `Lerp` | — | missing | — | — | transfer file not present |
 | `Lshr` | — | missing | — | — | transfer file not present |
 | `LshrExact` | — | missing | — | — | transfer file not present |
-[run] KnownBits Mods: eval-final
-[run] KnownBits Mods: verify-upto
-| `Mods` | `tests/data/kb_mods.mlir` | 66.528614 | 0 | 75 | incomplete/unknown verify output |
+| `Mods` | `tests/data/kb_mods.mlir` | 66.528614 | 31 | 75 | stopped at bw 32 (timeout) |
 | `Modu` | — | missing | — | — | transfer file not present |
-[run] KnownBits Mul: eval-final
-[run] KnownBits Mul: verify-upto
 | `Mul` | `tests/data/kb_mul.mlir` | 57.007164 | 0 | 55 | verify command error |
 | `MulNsw` | — | missing | — | — | transfer file not present |
 | `MulNswNuw` | — | missing | — | — | transfer file not present |
 | `MulNuw` | — | missing | — | — | transfer file not present |
 | `Nop` | — | missing | — | — | transfer file not present |
-[run] KnownBits Or: eval-final
-[run] KnownBits Or: verify-upto
-| `Or` | `tests/data/kb_or.mlir` | 100.0 | 0 | 8 | incomplete/unknown verify output |
+| `Or` | `tests/data/kb_or.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
 | `PopCount` | — | missing | — | — | transfer file not present |
 | `Rotl` | — | missing | — | — | transfer file not present |
 | `Rotr` | — | missing | — | — | transfer file not present |
 | `SaddSat` | — | missing | — | — | transfer file not present |
 | `Sdiv` | — | missing | — | — | transfer file not present |
-[run] KnownBits SdivExact: eval-final
-[run] KnownBits SdivExact: verify-upto
-| `SdivExact` | `tests/data/kb_sdivexact.mlir` | 14.111862 | 0 | 81 | incomplete/unknown verify output |
+| `SdivExact` | `tests/data/kb_sdivexact.mlir` | 14.111862 | 41 | 81 | stopped at bw 42 (timeout) |
 | `Shl` | — | missing | — | — | transfer file not present |
 | `ShlNsw` | — | missing | — | — | transfer file not present |
 | `ShlNswNuw` | — | missing | — | — | transfer file not present |
@@ -66,9 +50,7 @@ Generated: 2026-02-16 18:50:18 UTC
 | `Smin` | — | missing | — | — | transfer file not present |
 | `SmulSat` | — | missing | — | — | transfer file not present |
 | `Square` | — | missing | — | — | transfer file not present |
-[run] KnownBits SshlSat: eval-final
-[run] KnownBits SshlSat: verify-upto
-| `SshlSat` | `tests/data/kb_sshlsat.mlir` | 93.669288 | 0 | 456 | incomplete/unknown verify output |
+| `SshlSat` | `tests/data/kb_sshlsat.mlir` | 93.669288 | 64 | 456 | sound through bw 64 |
 | `SsubSat` | — | missing | — | — | transfer file not present |
 | `Sub` | — | missing | — | — | transfer file not present |
 | `SubNsw` | — | missing | — | — | transfer file not present |
@@ -76,17 +58,13 @@ Generated: 2026-02-16 18:50:18 UTC
 | `SubNuw` | — | missing | — | — | transfer file not present |
 | `UaddSat` | — | missing | — | — | transfer file not present |
 | `Udiv` | — | missing | — | — | transfer file not present |
-[run] KnownBits UdivExact: eval-final
-[run] KnownBits UdivExact: verify-upto
-| `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 0 | 4879 | incomplete/unknown verify output |
+| `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
 | `Umax` | — | missing | — | — | transfer file not present |
 | `Umin` | — | missing | — | — | transfer file not present |
 | `UmulSat` | — | missing | — | — | transfer file not present |
 | `UshlSat` | — | missing | — | — | transfer file not present |
 | `UsubSat` | — | missing | — | — | transfer file not present |
-[run] KnownBits Xor: eval-final
-[run] KnownBits Xor: verify-upto
-| `Xor` | `tests/data/kb_xor.mlir` | 100.0 | 0 | 12 | incomplete/unknown verify output |
+| `Xor` | `tests/data/kb_xor.mlir` | 100.0 | 64 | 12 | sound through bw 64 |
 
 ## UConstRange
 
@@ -94,24 +72,14 @@ Generated: 2026-02-16 18:50:18 UTC
 |---|---|---:|---:|---:|---|
 | `Abds` | — | missing | — | — | transfer file not present |
 | `Abdu` | — | missing | — | — | transfer file not present |
-[run] UConstRange Add: eval-final
-[run] UConstRange Add: verify-upto
-| `Add` | `tests/data/ucr_add.mlir` | 100.0 | 0 | 17 | incomplete/unknown verify output |
+| `Add` | `tests/data/ucr_add.mlir` | 100.0 | 64 | 17 | sound through bw 64 |
 | `AddNsw` | — | missing | — | — | transfer file not present |
-[run] UConstRange AddNswNuw: eval-final
-[run] UConstRange AddNswNuw: verify-upto
-| `AddNswNuw` | `tests/data/ucr_addnswnuw.mlir` | ... | 0 | 54 | incomplete/unknown verify output |
-[run] UConstRange AddNuw: eval-final
-[run] UConstRange AddNuw: verify-upto
-| `AddNuw` | `tests/data/ucr_addnuw.mlir` | 100.0 | 0 | 17 | incomplete/unknown verify output |
-[run] UConstRange And: eval-final
-[run] UConstRange And: verify-upto
+| `AddNswNuw` | `tests/data/ucr_addnswnuw.mlir` | 100.0 | 64 | 54 | sound through bw 64 |
+| `AddNuw` | `tests/data/ucr_addnuw.mlir` | 100.0 | 64 | 17 | sound through bw 64 |
 | `And` | `tests/data/ucr_and.mlir` | 75.482397 | 0 | 437 | verify command error |
 | `Ashr` | — | missing | — | — | transfer file not present |
 | `AshrExact` | — | missing | — | — | transfer file not present |
-[run] UConstRange AvgCeilS: eval-final
-[run] UConstRange AvgCeilS: verify-upto
-| `AvgCeilS` | `tests/data/ucr_avgceils.mlir` | ... | 0 | 83 | incomplete/unknown verify output |
+| `AvgCeilS` | `tests/data/ucr_avgceils.mlir` | 100.0 | 51 | 83 | stopped at bw 52 (timeout) |
 | `AvgCeilU` | — | missing | — | — | transfer file not present |
 | `AvgFloorS` | — | missing | — | — | transfer file not present |
 | `AvgFloorU` | — | missing | — | — | transfer file not present |
@@ -138,9 +106,7 @@ Generated: 2026-02-16 18:50:18 UTC
 | `SaddSat` | — | missing | — | — | transfer file not present |
 | `Sdiv` | — | missing | — | — | transfer file not present |
 | `SdivExact` | — | missing | — | — | transfer file not present |
-[run] UConstRange Shl: eval-final
-[run] UConstRange Shl: verify-upto
-| `Shl` | `tests/data/ucr_shl.mlir` | 99.999727 | 0 | 129 | incomplete/unknown verify output |
+| `Shl` | `tests/data/ucr_shl.mlir` | 99.999727 | 64 | 129 | sound through bw 64 |
 | `ShlNsw` | — | missing | — | — | transfer file not present |
 | `ShlNswNuw` | — | missing | — | — | transfer file not present |
 | `ShlNuw` | — | missing | — | — | transfer file not present |
@@ -150,27 +116,19 @@ Generated: 2026-02-16 18:50:18 UTC
 | `Square` | — | missing | — | — | transfer file not present |
 | `SshlSat` | — | missing | — | — | transfer file not present |
 | `SsubSat` | — | missing | — | — | transfer file not present |
-[run] UConstRange Sub: eval-final
-[run] UConstRange Sub: verify-upto
-| `Sub` | `tests/data/ucr_sub.mlir` | 100.0 | 0 | 15 | incomplete/unknown verify output |
+| `Sub` | `tests/data/ucr_sub.mlir` | 100.0 | 64 | 15 | sound through bw 64 |
 | `SubNsw` | — | missing | — | — | transfer file not present |
-[run] UConstRange SubNswNuw: eval-final
-[run] UConstRange SubNswNuw: verify-upto
-| `SubNswNuw` | `tests/data/ucr_subnswnuw.mlir` | ... | 0 | 60 | incomplete/unknown verify output |
+| `SubNswNuw` | `tests/data/ucr_subnswnuw.mlir` | 100.0 | 64 | 60 | sound through bw 64 |
 | `SubNuw` | — | missing | — | — | transfer file not present |
 | `UaddSat` | — | missing | — | — | transfer file not present |
 | `Udiv` | — | missing | — | — | transfer file not present |
-[run] UConstRange UdivExact: eval-final
-[run] UConstRange UdivExact: verify-upto
-| `UdivExact` | `tests/data/ucr_udivexact.mlir` | ... | 0 | 35 | incomplete/unknown verify output |
+| `UdivExact` | `tests/data/ucr_udivexact.mlir` | 83.04657 | 16 | 35 | stopped at bw 17 (timeout) |
 | `Umax` | — | missing | — | — | transfer file not present |
 | `Umin` | — | missing | — | — | transfer file not present |
 | `UmulSat` | — | missing | — | — | transfer file not present |
 | `UshlSat` | — | missing | — | — | transfer file not present |
 | `UsubSat` | — | missing | — | — | transfer file not present |
-[run] UConstRange Xor: eval-final
-[run] UConstRange Xor: verify-upto
-| `Xor` | `tests/data/ucr_xor.mlir` | 51.9463 | 0 | 42 | incomplete/unknown verify output |
+| `Xor` | `tests/data/ucr_xor.mlir` | 51.9463 | 64 | 42 | sound through bw 64 |
 
 ## SConstRange
 
@@ -180,18 +138,12 @@ Generated: 2026-02-16 18:50:18 UTC
 | `Abdu` | — | missing | — | — | transfer file not present |
 | `Add` | — | missing | — | — | transfer file not present |
 | `AddNsw` | — | missing | — | — | transfer file not present |
-[run] SConstRange AddNswNuw: eval-final
-[run] SConstRange AddNswNuw: verify-upto
-| `AddNswNuw` | `tests/data/scr_addnswnuw.mlir` | ... | 0 | 57 | incomplete/unknown verify output |
+| `AddNswNuw` | `tests/data/scr_addnswnuw.mlir` | 100.0 | 64 | 57 | sound through bw 64 |
 | `AddNuw` | — | missing | — | — | transfer file not present |
-[run] SConstRange And: eval-final
-[run] SConstRange And: verify-upto
 | `And` | `tests/data/scr_and.mlir` | 64.144194 | 0 | 429 | verify command error |
 | `Ashr` | — | missing | — | — | transfer file not present |
 | `AshrExact` | — | missing | — | — | transfer file not present |
-[run] SConstRange AvgCeilS: eval-final
-[run] SConstRange AvgCeilS: verify-upto
-| `AvgCeilS` | `tests/data/scr_avgceils.mlir` | ... | 0 | 15 | incomplete/unknown verify output |
+| `AvgCeilS` | `tests/data/scr_avgceils.mlir` | 100.0 | 64 | 15 | sound through bw 64 |
 | `AvgCeilU` | — | missing | — | — | transfer file not present |
 | `AvgFloorS` | — | missing | — | — | transfer file not present |
 | `AvgFloorU` | — | missing | — | — | transfer file not present |
@@ -217,12 +169,8 @@ Generated: 2026-02-16 18:50:18 UTC
 | `Rotr` | — | missing | — | — | transfer file not present |
 | `SaddSat` | — | missing | — | — | transfer file not present |
 | `Sdiv` | — | missing | — | — | transfer file not present |
-[run] SConstRange SdivExact: eval-final
-[run] SConstRange SdivExact: verify-upto
-| `SdivExact` | `tests/data/scr_sdivexact.mlir` | ... | 0 | 162 | incomplete/unknown verify output |
-[run] SConstRange Shl: eval-final
-[run] SConstRange Shl: verify-upto
-| `Shl` | `tests/data/scr_shl.mlir` | 46.355066 | 0 | 85 | incomplete/unknown verify output |
+| `SdivExact` | `tests/data/scr_sdivexact.mlir` | 24.318789 | 13 | 162 | stopped at bw 14 (timeout) |
+| `Shl` | `tests/data/scr_shl.mlir` | 46.355066 | 64 | 85 | sound through bw 64 |
 | `ShlNsw` | — | missing | — | — | transfer file not present |
 | `ShlNswNuw` | — | missing | — | — | transfer file not present |
 | `ShlNuw` | — | missing | — | — | transfer file not present |
@@ -232,13 +180,9 @@ Generated: 2026-02-16 18:50:18 UTC
 | `Square` | — | missing | — | — | transfer file not present |
 | `SshlSat` | — | missing | — | — | transfer file not present |
 | `SsubSat` | — | missing | — | — | transfer file not present |
-[run] SConstRange Sub: eval-final
-[run] SConstRange Sub: verify-upto
-| `Sub` | `tests/data/scr_sub.mlir` | 100.0 | 0 | 17 | incomplete/unknown verify output |
+| `Sub` | `tests/data/scr_sub.mlir` | 100.0 | 64 | 17 | sound through bw 64 |
 | `SubNsw` | — | missing | — | — | transfer file not present |
-[run] SConstRange SubNswNuw: eval-final
-[run] SConstRange SubNswNuw: verify-upto
-| `SubNswNuw` | `tests/data/scr_subnswnuw.mlir` | ... | 0 | 67 | incomplete/unknown verify output |
+| `SubNswNuw` | `tests/data/scr_subnswnuw.mlir` | 100.0 | 64 | 67 | sound through bw 64 |
 | `SubNuw` | — | missing | — | — | transfer file not present |
 | `UaddSat` | — | missing | — | — | transfer file not present |
 | `Udiv` | — | missing | — | — | transfer file not present |
@@ -248,7 +192,5 @@ Generated: 2026-02-16 18:50:18 UTC
 | `UmulSat` | — | missing | — | — | transfer file not present |
 | `UshlSat` | — | missing | — | — | transfer file not present |
 | `UsubSat` | — | missing | — | — | transfer file not present |
-[run] SConstRange Xor: eval-final
-[run] SConstRange Xor: verify-upto
-| `Xor` | `tests/data/scr_xor.mlir` | 54.887049 | 0 | 54 | incomplete/unknown verify output |
+| `Xor` | `tests/data/scr_xor.mlir` | 54.887049 | 64 | 54 | sound through bw 64 |
 
