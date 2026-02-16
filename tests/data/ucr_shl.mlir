@@ -143,8 +143,8 @@
     %lower_known = "transfer.select"(%safe_known, %lower_acc5, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %upper_known = "transfer.select"(%safe_known, %upper_acc5, %upper_tail_bound) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %ret_lower = "transfer.select"(%has_valid_rhs, %lower_known, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
-    %ret_upper = "transfer.select"(%has_valid_rhs, %upper_known, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %ret_lower = "transfer.select"(%has_valid_rhs, %lower_known, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %ret_upper = "transfer.select"(%has_valid_rhs, %upper_known, %const0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
     %r = "transfer.make"(%ret_lower, %ret_upper) : (!transfer.integer, !transfer.integer) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>
     "func.return"(%r) : (!transfer.abs_value<[!transfer.integer, !transfer.integer]>) -> ()

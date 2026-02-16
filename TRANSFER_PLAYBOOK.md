@@ -10,6 +10,7 @@ Implement or improve one transfer function in this repo.
 
 ## Key Clarifications
 
+- In real world use cases, the transfer functions you are creating will often by used at high bitwidths such as 32 or 64. You must avoid the temptation to create specialized solutions that primarily provide precision at lower widths. Focus on the more general case of high bitwidth. What you are specifically looking for is that the exhaustive checks ``--exact-bw 5` `--exact-bw 6` `--exact-bw 7` `--exact-bw 8` do not show a significant downward trend in precision. You can also directly examine precision at high bitwidths, for example `--norm-bw 64,10000,1000` to look at high-bitwidth precision. For these norms, lower values are better.
 - CI integration is not required for this task.
 - Primary tools are `verify-upto` and `eval-final`.
 - If you need to inspect one specific abstract input pair, use `eval-point` for a single-point transfer evaluation.
