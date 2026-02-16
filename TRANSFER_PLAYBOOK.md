@@ -12,6 +12,7 @@ Implement or improve one transfer function in this repo.
 
 - CI integration is not required for this task.
 - Primary tools are `verify-upto` and `eval-final`.
+- If you need to inspect one specific abstract input pair, use `eval-point` for a single-point transfer evaluation.
 - `eval-final` must always use: `--exact-bw 8,1000 --norm-bw 64,10000,1000`.
 - For `verify-upto`, always use `--bw 64`.
 - `verify-upto` accepts the same `--bw` syntax as `verify`, but it uses the maximum provided value as the upper bound it checks (`1..max_bw`).

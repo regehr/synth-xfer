@@ -241,6 +241,9 @@ MAKE_OPAQUE_UNIFORM(KnownBits, 32);
 MAKE_OPAQUE_UNIFORM(KnownBits, 64);
 
 MAKE_OPAQUE_UNIFORM(UConstRange, 4);
+MAKE_OPAQUE_UNIFORM(UConstRange, 5);
+MAKE_OPAQUE_UNIFORM(UConstRange, 6);
+MAKE_OPAQUE_UNIFORM(UConstRange, 7);
 MAKE_OPAQUE_UNIFORM(UConstRange, 8);
 MAKE_OPAQUE_UNIFORM(UConstRange, 16);
 MAKE_OPAQUE_UNIFORM(UConstRange, 32);
@@ -289,7 +292,7 @@ PYBIND11_MODULE(_eval_engine, m) {
   register_results_class(m);
 
   register_domain_widths<KnownBits, 4, 8, 16, 32, 64>(m);
-  register_domain_widths<UConstRange, 4, 8, 16, 32, 64>(m);
+  register_domain_widths<UConstRange, 4, 5, 6, 7, 8, 16, 32, 64>(m);
   register_domain_widths<SConstRange, 4, 8, 16, 32, 64>(m);
   register_domain_widths<Mod3, 4, 8, 16, 32, 64>(m);
   register_domain_widths<Mod5, 4, 8, 16, 32, 64>(m);
