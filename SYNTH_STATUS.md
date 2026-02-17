@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-17 22:22:20 UTC
+Generated: 2026-02-17 23:32:33 UTC
 
 ## KnownBits
 
@@ -62,7 +62,7 @@ Generated: 2026-02-17 22:22:20 UTC
 | `Umin` | `tests/data/kb_umin.mlir` | 100.0 | 64 | 80 | sound through bw 64 |
 | `UmulSat` | — | missing | — | — | transfer file not present |
 | `UshlSat` | — | missing | — | — | transfer file not present |
-| `UsubSat` | `tests/data/kb_usubsat.mlir` | 66.666792 | 64 | 71 | sound through bw 64 |
+| `UsubSat` | `tests/data/kb_usubsat.mlir` | 99.746183 | 64 | 314 | sound through bw 64 |
 | `Xor` | `tests/data/kb_xor.mlir` | 100.0 | 64 | 12 | sound through bw 64 |
 
 ## UConstRange
