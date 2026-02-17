@@ -6,7 +6,7 @@ Generated: 2026-02-16 21:57:29 UTC
 
 | Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify-upto --timeout 120`) | MLIR Inst Count | Notes |
 |---|---|---:|---:|---:|---|
-| `Abds` | `tests/data/kb_abds.mlir` | 68.673893 | 64 | 158 | sound through bw 64 |
+| `Abds` | `tests/data/kb_abds.mlir` | 83.371416 | 64 | 226 | sound through bw 64 |
 | `Abdu` | — | missing | — | — | transfer file not present |
 | `Add` | `tests/data/kb_add.mlir` | 100.0 | 64 | 37 | sound through bw 64 |
 | `AddNsw` | `tests/data/kb_addnsw.mlir` | 95.392653 | 64 | 79 | sound through bw 64 |
