@@ -32,6 +32,7 @@ Choose exactly one row for a task.
 
 ## Execution Defaults (Single Source of Truth)
 
+- `vmem-ulimit-kib`: `52428800` (mandatory 50 GiB virtual-memory cap for all `verify-upto` and `eval-final` invocations).
 - `verify-final-flags`: `--bw 64 --timeout 120`.
 - `verify-intermediate-flags`: keep `--bw 64` and lower `--timeout` only.
 - `eval-final-flags`: `--exact-bw 7 --norm-bw 64,10000,1000`.
@@ -62,7 +63,7 @@ Choose exactly one row for a task.
 
 2. Transfer must be sound and as precise as possible.
 3. Keep code bitwidth-agnostic.
-4. Use timeout/bitwidth settings from Execution Defaults.
+4. Use timeout/bitwidth settings from Execution Defaults, including the mandatory `ulimit -v 52428800` cap for `verify-upto` and `eval-final`.
 5. Keep changes minimal and repo-consistent.
 6. Reuse existing transfer primitives whenever possible.
 7. After each completed `(domain, op)` task, update `SYNTH_STATUS.md` for that exact row:
@@ -127,11 +128,11 @@ Run only the commands for the row selected in Task Inputs and Domain Mapping.
 Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defaults.
 
 ```bash
-verify-upto --xfer-file <xfer-file> --domain <DOMAIN> --op mlir/Operations/<OP>.mlir <verify-final-flags>
-eval-final <xfer-file> --domain <DOMAIN> --op mlir/Operations/<OP>.mlir <eval-final-flags>
+( ulimit -v 52428800; verify-upto --xfer-file <xfer-file> --domain <DOMAIN> --op mlir/Operations/<OP>.mlir <verify-final-flags> )
+( ulimit -v 52428800; eval-final <xfer-file> --domain <DOMAIN> --op mlir/Operations/<OP>.mlir <eval-final-flags> )
 # Optional intermediate variants:
-# verify-upto ... <verify-intermediate-flags>
-# eval-final ... <eval-intermediate-flags>
+# ( ulimit -v 52428800; verify-upto ... <verify-intermediate-flags> )
+# ( ulimit -v 52428800; eval-final ... <eval-intermediate-flags> )
 ```
 
 ## Testing Guidance
