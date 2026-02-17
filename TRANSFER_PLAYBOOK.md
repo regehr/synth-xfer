@@ -10,6 +10,7 @@ Implement or improve one transfer function in this repo.
 
 ## Key Clarifications
 
+- The target for each transfer function is `100%` exact precision at `--exact-bw 7`. This is an optimization target, not a soundness exception: if `100%` is not achievable, keep the transfer sound and report the best precision reached.
 - In real world use cases, the transfer functions you are creating will often by used at high bitwidths such as 32 or 64. You must avoid the temptation to create specialized solutions that primarily provide precision at lower widths. Focus on the more general case of high bitwidth. What you are specifically looking for is that the exhaustive checks `--exact-bw 5` `--exact-bw 6` `--exact-bw 7` `--exact-bw 8` do not show a significant downward trend in precision. You can also directly examine precision at high bitwidths, for example `--norm-bw 64,10000,1000` to look at high-bitwidth precision. For these norms, lower values are better.
 - CI integration is not required for this task.
 - Primary tools are `verify-upto` and `eval-final`.
@@ -20,6 +21,7 @@ Implement or improve one transfer function in this repo.
 - For `verify-upto`, always use `--bw 64`.
 - To reduce runtime during intermediate checks, lower `--timeout` instead of lowering `--bw`.
 - You may optionally suggest concrete missing `transfer` dialect integer ops that would enable better precision or efficiency.
+- It is always fine, and even encouraged, to find tricks and techniques in existing transfer functions, that you can reuse when creating new ones.
 
 ## Placeholder Conventions
 
@@ -54,6 +56,12 @@ Implement or improve one transfer function in this repo.
 4. Keep solver timeout at or below `120` seconds. It is fine to use lower timeouts to quickly ascertain the soundness of intermediate or partial transfer functions, but use `--timeout 120` for your final reported `verify-upto` run.
 5. Keep changes minimal and repo-consistent.
 6. Reuse existing transfer primitives whenever possible.
+7. After each completed `(domain, op)` task, update `SYNTH_STATUS.md` for that exact row:
+   - Set `Transfer File` to the concrete file path if added, otherwise keep missing status.
+   - Record exact precision from `eval-final ... --exact-bw 7 --norm-bw 64,10000,1000` in the `Exact Precision` column.
+   - Record the highest proved-sound width from `verify-upto --bw 64 --timeout 120` in `Highest Sound BW`.
+   - Record the MLIR instruction count for the transfer function.
+   - Update `Notes` with `sound through bw 64`, `stopped at bw <N> (timeout|unsound)`, or a command/tool error note.
 
 ## Construction Strategy (Recommended)
 
