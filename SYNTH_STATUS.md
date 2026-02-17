@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-16 21:57:29 UTC
+Generated: 2026-02-17 06:20:10 UTC
 
 ## KnownBits
 
@@ -28,9 +28,9 @@ Generated: 2026-02-16 21:57:29 UTC
 | `Lshr` | `tests/data/kb_lshr.mlir` | 100.0 | 64 | 246 | sound through bw 64 |
 | `LshrExact` | `tests/data/kb_lshrexact.mlir` | 100.0 | 64 | 277 | sound through bw 64 |
 | `Mods` | `tests/data/kb_mods.mlir` | 66.528614 | 31 | 75 | stopped at bw 32 (timeout) |
-| `Modu` | — | missing | — | — | transfer file not present |
+| `Modu` | `tests/data/kb_modu.mlir` | 98.803944 | 6 | 1698 | stopped at bw 7 (timeout) |
 | `Mul` | `tests/data/kb_mul.mlir` | 57.007164 | 0 | 55 | verify command error |
-| `MulNsw` | — | missing | — | — | transfer file not present |
+| `MulNsw` | `tests/data/kb_mulnsw.mlir` | 10.428146 | 38 | 63 | stopped at bw 39 (timeout) |
 | `MulNswNuw` | — | missing | — | — | transfer file not present |
 | `MulNuw` | — | missing | — | — | transfer file not present |
 | `Nop` | — | missing | — | — | transfer file not present |
