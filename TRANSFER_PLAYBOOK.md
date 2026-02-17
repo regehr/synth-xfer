@@ -11,17 +11,12 @@ Implement or improve one transfer function in this repo.
 ## Key Clarifications
 
 - The target for each transfer function is `100%` exact precision at `--exact-bw 7`. This is an optimization target, not a soundness exception: if `100%` is not achievable, keep the transfer sound and report the best precision reached.
-- In real world use cases, the transfer functions you are creating will often by used at high bitwidths such as 32 or 64. You must avoid the temptation to create specialized solutions that primarily provide precision at lower widths. Focus on the more general case of high bitwidth. What you are specifically looking for is that the exhaustive checks `--exact-bw 5` `--exact-bw 6` `--exact-bw 7` `--exact-bw 8` do not show a significant downward trend in precision. You can also directly examine precision at high bitwidths, for example `--norm-bw 64,10000,1000` to look at high-bitwidth precision. For these norms, lower values are better.
+- In real-world use cases, the transfer functions you create will often be used at high bitwidths such as 32 or 64. Avoid specializing solutions primarily for low widths. Focus on high-bitwidth behavior. Specifically, ensure the exhaustive checks `--exact-bw 5`, `--exact-bw 6`, `--exact-bw 7`, and `--exact-bw 8` do not show a significant downward trend in precision. You can also directly examine high-bitwidth precision with `--norm-bw 64,10000,1000`; for these norms, lower values are better.
 - CI integration is not required for this task.
 - Primary tools are `verify-upto` and `eval-final`.
 - If you need to inspect one specific abstract input pair, use `eval-point` for a single-point transfer evaluation.
-- `eval-final` default/final setting is: `--exact-bw 7 --norm-bw 64,10000,1000`.
-- For faster intermediate feedback, you may run `eval-final` with `--exact-bw 6` (keep `--norm-bw 64,10000,1000`).
-- `eval-final` outputs are not comparable across different `--exact-bw` values; only compare runs that use the same `--exact-bw`.
-- For `verify-upto`, always use `--bw 64`.
-- To reduce runtime during intermediate checks, lower `--timeout` instead of lowering `--bw`.
 - You may optionally suggest concrete missing `transfer` dialect integer ops that would enable better precision or efficiency.
-- It is always fine, and even encouraged, to find tricks and techniques in existing transfer functions, that you can reuse when creating new ones.
+- It is always fine, and encouraged, to reuse tricks and techniques from existing transfer functions when creating new ones.
 
 ## Placeholder Conventions
 
@@ -29,19 +24,27 @@ Implement or improve one transfer function in this repo.
 - `<OP>`: concrete op filename stem in `mlir/Operations` (case-sensitive), e.g. `Shl`.
 - `<op>`: lowercase stem used in transfer filenames under `tests/data`, e.g. `shl`.
 
+## Execution Defaults (Single Source of Truth)
+
+- `verify-upto` final reporting settings: `--bw 64 --timeout 120`.
+- For faster intermediate `verify-upto` feedback, lower `--timeout` only (never lower `--bw`).
+- `eval-final` final reporting settings: `--exact-bw 7 --norm-bw 64,10000,1000`.
+- Optional faster intermediate `eval-final`: `--exact-bw 6 --norm-bw 64,10000,1000`.
+- `eval-final` outputs are not comparable across different `--exact-bw` values; only compare runs that use the same `--exact-bw`.
+
 ## Tool Bug Policy (Required)
 
 - If you hit a bug in any tool in this repository (for example `verify-upto`, `eval-final`, `sxf`, lowering, or parsing), stop normal transfer-function work immediately.
 - Report the bug clearly to the user first (minimal reproducer command, observed behavior, traceback/signature, and any relevant output paths/log files).
 - Do not attempt a workaround by default.
-- Mining logs/artifacts from the failed run is allowed, but only after the bug has been reported to the user.
+- Mining logs or artifacts from the failed run is allowed, but only after the bug has been reported to the user.
 - Only proceed with a workaround if the user explicitly asks for one after the bug report.
 - If a workaround is requested, keep it scoped and temporary, and clearly label which results were obtained under workaround conditions.
 
 ## Shared Requirements
 
 1. Match the transfer function arity to the concrete op in `mlir/Operations/<OP>.mlir`.
-   - If `concrete_op` takes `N` integer inputs, the transfer must take `N` abstract-value inputs and return one abstract value.
+   - If `concrete_op` takes `N` integer inputs, the transfer must take `N` abstract value inputs and return one abstract value.
    - Keep the per-argument abstract type as `!transfer.abs_value<[!transfer.integer, !transfer.integer]>`.
    - Typical shapes:
 
@@ -53,7 +56,7 @@ Implement or improve one transfer function in this repo.
 
 2. Transfer must be sound and as precise as possible.
 3. Keep code bitwidth-agnostic.
-4. Keep solver timeout at or below `120` seconds. It is fine to use lower timeouts to quickly ascertain the soundness of intermediate or partial transfer functions, but use `--timeout 120` for your final reported `verify-upto` run.
+4. Keep solver timeout at or below `120` seconds (see Execution Defaults for intermediate vs final settings).
 5. Keep changes minimal and repo-consistent.
 6. Reuse existing transfer primitives whenever possible.
 7. After each completed `(domain, op)` task, update `SYNTH_STATUS.md` for that exact row:
@@ -101,7 +104,7 @@ timeout 300 sxf mlir/Operations/<OP>.mlir \
   - Inspect `/tmp/<DOMAIN>_<OP>_ideas/info.log` and `/tmp/<DOMAIN>_<OP>_ideas/debug.log` for high-precision partial candidates and reusable guard patterns.
   - Treat mined snippets as hypotheses: manually simplify, convert to meet-style sub-transfers, then re-check with `verify-upto`.
   - If `sxf` fails or times out, partial logs can still be useful for extracting ideas.
-  - If the failure appears to be a tool bug, first report the bug per the Tool Bug Policy, then mine the failed-run logs.
+  - If the failure appears to be a tool bug, follow the Tool Bug Policy before mining failed-run logs.
 
 ## SSA IR Discipline (Important)
 
@@ -127,59 +130,30 @@ Choose one row only for a given task.
 
 ## Command Templates
 
-Run only the commands for your chosen domain.
-Optional `sxf` idea-mining above is still allowed and does not conflict with this rule.
-
-KnownBits:
+Run only the commands for the domain row you chose in Domain-Specific Mapping.
+Let `<xfer-file>` be the file path from that row. Optional `sxf` idea-mining above is still allowed.
 
 ```bash
-verify-upto --xfer-file tests/data/kb_<op>.mlir --bw 64 --timeout 120 --domain KnownBits --op mlir/Operations/<OP>.mlir
-eval-final tests/data/kb_<op>.mlir --domain KnownBits --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
+verify-upto --xfer-file <xfer-file> --bw 64 --timeout 120 --domain <DOMAIN> --op mlir/Operations/<OP>.mlir
+eval-final <xfer-file> --domain <DOMAIN> --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
 # Optional faster intermediate feedback (not comparable to --exact-bw 7 runs):
-# eval-final tests/data/kb_<op>.mlir --domain KnownBits --op mlir/Operations/<OP>.mlir --exact-bw 6 --norm-bw 64,10000,1000
-```
-
-Unsigned ConstantRange (`UConstRange`):
-
-```bash
-verify-upto --xfer-file tests/data/ucr_<op>.mlir --bw 64 --timeout 120 --domain UConstRange --op mlir/Operations/<OP>.mlir
-eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
-# Optional faster intermediate feedback (not comparable to --exact-bw 7 runs):
-# eval-final tests/data/ucr_<op>.mlir --domain UConstRange --op mlir/Operations/<OP>.mlir --exact-bw 6 --norm-bw 64,10000,1000
-```
-
-Signed ConstantRange (`SConstRange`):
-
-```bash
-verify-upto --xfer-file tests/data/scr_<op>.mlir --bw 64 --timeout 120 --domain SConstRange --op mlir/Operations/<OP>.mlir
-eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<OP>.mlir --exact-bw 7 --norm-bw 64,10000,1000
-# Optional faster intermediate feedback (not comparable to --exact-bw 7 runs):
-# eval-final tests/data/scr_<op>.mlir --domain SConstRange --op mlir/Operations/<OP>.mlir --exact-bw 6 --norm-bw 64,10000,1000
+# eval-final <xfer-file> --domain <DOMAIN> --op mlir/Operations/<OP>.mlir --exact-bw 6 --norm-bw 64,10000,1000
 ```
 
 ## Testing Guidance
 
-- Use `verify-upto` as the soundness oracle with a 120-second timeout.
+- Use `verify-upto` as the soundness oracle.
 - `verify-upto` checks bitwidths from `1` up to the requested max width, and stops early on the first `timeout`.
 - Use `eval-final` as the precision/quality metric. This command might be slow, but you must let it finish. Don't time this one out.
-- For intermediate speed, you may use `--exact-bw 6`; default/final reporting should use `--exact-bw 7` unless task-specific instructions say otherwise.
-- Never compare `eval-final` values across runs that used different `--exact-bw` values.
-- Always use `--bw 64` for `verify-upto`.
-- For faster intermediate feedback from `verify-upto`, lower `--timeout` (never lower `--bw`). For final reporting, use `--timeout 120`.
+- Follow Execution Defaults for final reporting vs intermediate checks.
 
 ## Optional Test File Updates (Only If Asked)
 
-KnownBits:
-- `tests/test_verif.py`: `test_verif_kb_<op>()`
-- `tests/test_jit.py`: `test_jit_with_kb_<op>()`
-
-UConstRange:
-- `tests/test_verif.py`: `test_verif_ucr_<op>()`
-- `tests/test_jit.py`: `test_jit_with_ucr_<op>()`
-
-SConstRange:
-- `tests/test_verif.py`: `test_verif_scr_<op>()` (if present/needed)
-- `tests/test_jit.py`: `test_jit_with_scr_<op>()` (if present/needed)
+| Domain | Verif test | JIT test |
+|---|---|---|
+| `KnownBits` | `tests/test_verif.py`: `test_verif_kb_<op>()` | `tests/test_jit.py`: `test_jit_with_kb_<op>()` |
+| `UConstRange` | `tests/test_verif.py`: `test_verif_ucr_<op>()` | `tests/test_jit.py`: `test_jit_with_ucr_<op>()` |
+| `SConstRange` | `tests/test_verif.py`: `test_verif_scr_<op>()` (if present/needed) | `tests/test_jit.py`: `test_jit_with_scr_<op>()` (if present/needed) |
 
 ## Required Return Format
 

@@ -6,7 +6,7 @@ Generated: 2026-02-16 21:57:29 UTC
 
 | Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify-upto --timeout 120`) | MLIR Inst Count | Notes |
 |---|---|---:|---:|---:|---|
-| `Abds` | — | missing | — | — | transfer file not present |
+| `Abds` | `tests/data/kb_abds.mlir` | 68.673893 | 64 | 158 | sound through bw 64 |
 | `Abdu` | — | missing | — | — | transfer file not present |
 | `Add` | `tests/data/kb_add.mlir` | 100.0 | 64 | 37 | sound through bw 64 |
 | `AddNsw` | `tests/data/kb_addnsw.mlir` | 95.392653 | 64 | 79 | sound through bw 64 |
@@ -193,4 +193,3 @@ Generated: 2026-02-16 21:57:29 UTC
 | `UshlSat` | — | missing | — | — | transfer file not present |
 | `UsubSat` | — | missing | — | — | transfer file not present |
 | `Xor` | `tests/data/scr_xor.mlir` | 54.887049 | 64 | 54 | sound through bw 64 |
-
