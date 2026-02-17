@@ -12,7 +12,7 @@ from synth_xfer._util.parse_mlir import parse_mlir
 def _register_parser() -> Namespace:
     p = ArgumentParser()
 
-    p.add_argument("-bw", type=int, required=True, help="Bitwidth")
+    p.add_argument("--bw", type=int, required=True, help="Bitwidth")
     p.add_argument("-i", "--input", type=Path, default=None)
     p.add_argument("-o", "--output", type=Path, default=None)
 
