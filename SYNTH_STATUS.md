@@ -23,11 +23,10 @@ Generated: 2026-02-16 21:57:29 UTC
 | `CountLZero` | `tests/data/kb_countlzero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
 | `CountROne` | `tests/data/kb_countrone.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
 | `CountRZero` | `tests/data/kb_countrzero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
-| `Fshl` | — | missing | — | — | transfer file not present |
-| `Fshr` | — | missing | — | — | transfer file not present |
-| `Lerp` | — | missing | — | — | transfer file not present |
-| `Lshr` | — | missing | — | — | transfer file not present |
-| `LshrExact` | — | missing | — | — | transfer file not present |
+| `Fshl` | `tests/data/kb_fshl.mlir` | 71.086341 | 5 | 51 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
+| `Fshr` | `tests/data/kb_fshr.mlir` | 71.086341 | 5 | 51 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
+| `Lshr` | `tests/data/kb_lshr.mlir` | 100.0 | 64 | 246 | sound through bw 64 |
+| `LshrExact` | `tests/data/kb_lshrexact.mlir` | 100.0 | 64 | 277 | sound through bw 64 |
 | `Mods` | `tests/data/kb_mods.mlir` | 66.528614 | 31 | 75 | stopped at bw 32 (timeout) |
 | `Modu` | — | missing | — | — | transfer file not present |
 | `Mul` | `tests/data/kb_mul.mlir` | 57.007164 | 0 | 55 | verify command error |
@@ -89,7 +88,6 @@ Generated: 2026-02-16 21:57:29 UTC
 | `CountRZero` | — | missing | — | — | transfer file not present |
 | `Fshl` | — | missing | — | — | transfer file not present |
 | `Fshr` | — | missing | — | — | transfer file not present |
-| `Lerp` | — | missing | — | — | transfer file not present |
 | `Lshr` | — | missing | — | — | transfer file not present |
 | `LshrExact` | — | missing | — | — | transfer file not present |
 | `Mods` | — | missing | — | — | transfer file not present |
@@ -153,7 +151,6 @@ Generated: 2026-02-16 21:57:29 UTC
 | `CountRZero` | — | missing | — | — | transfer file not present |
 | `Fshl` | — | missing | — | — | transfer file not present |
 | `Fshr` | — | missing | — | — | transfer file not present |
-| `Lerp` | — | missing | — | — | transfer file not present |
 | `Lshr` | — | missing | — | — | transfer file not present |
 | `LshrExact` | — | missing | — | — | transfer file not present |
 | `Mods` | — | missing | — | — | transfer file not present |
