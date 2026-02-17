@@ -22,10 +22,10 @@ Choose exactly one row for a task.
 | `UConstRange` | `tests/data/ucr_<op>.mlir` | `ucr_<op>` | index `0` = lower bound, index `1` = upper bound |
 | `SConstRange` | `tests/data/scr_<op>.mlir` | `scr_<op>` | index `0` = lower bound, index `1` = upper bound |
 
-## Key Clarifications
+## Key Clarifications (Required)
 
 - The target for each transfer function is `100%` exact precision at `--exact-bw 7`. This is an optimization target, not a soundness exception: if `100%` is not achievable, keep the transfer sound and report the best precision reached.
-- In real-world use cases, transfers run at high bitwidths (often 32 or 64). Avoid low-width-only tuning. Optional diagnostic checks at `--exact-bw 5,6,7,8` should not show a strong downward precision trend; `--norm-bw 64,10000,1000` can also be used to inspect high-bitwidth quality (lower is better).
+- In real-world use cases, transfers run at high bitwidths (often 32 or 64). Avoid low-width-only tuning. Optional diagnostic checks at `--exact-bw 5,6,7,8` must not show a strong downward precision trend; `--norm-bw 64,10000,1000` must also be used to inspect high-bitwidth quality (lower is better).
 - CI integration is out of scope.
 - Primary tools are `verify-upto` and `eval-final`; use `eval-point` for single abstract input-pair inspection.
 - Reuse effective patterns from existing transfers. You may also suggest missing `transfer` dialect integer ops that would improve precision or efficiency.
