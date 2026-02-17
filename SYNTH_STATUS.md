@@ -36,26 +36,26 @@ Generated: 2026-02-17 17:07:10 UTC
 | `Nop` | `tests/data/kb_nop.mlir` | 100.0 | 64 | 1 | sound through bw 64 |
 | `Or` | `tests/data/kb_or.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
 | `PopCount` | — | missing | — | — | transfer file not present |
-| `Rotl` | — | missing | — | — | transfer file not present |
-| `Rotr` | — | missing | — | — | transfer file not present |
-| `SaddSat` | — | missing | — | — | transfer file not present |
-| `Sdiv` | — | missing | — | — | transfer file not present |
+| `Rotl` | `tests/data/kb_rotl.mlir` | 78.36323 | 56 | 31 | stopped at bw 57 (timeout) |
+| `Rotr` | `tests/data/kb_rotr.mlir` | 78.36323 | 52 | 31 | stopped at bw 53 (timeout) |
+| `SaddSat` | `tests/data/kb_saddsat.mlir` | 30.396643 | 64 | 33 | sound through bw 64 |
+| `Sdiv` | `tests/data/kb_sdiv.mlir` | 58.191073 | 17 | 29 | stopped at bw 18 (timeout) |
 | `SdivExact` | `tests/data/kb_sdivexact.mlir` | 14.111862 | 41 | 81 | stopped at bw 42 (timeout) |
-| `Shl` | — | missing | — | — | transfer file not present |
-| `ShlNsw` | — | missing | — | — | transfer file not present |
+| `Shl` | `tests/data/kb_shl.mlir` | 2.036413 | 64 | 24 | sound through bw 64 |
+| `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 0.0 | 64 | 24 | sound through bw 64 |
 | `ShlNswNuw` | — | missing | — | — | transfer file not present |
-| `ShlNuw` | — | missing | — | — | transfer file not present |
-| `Smax` | — | missing | — | — | transfer file not present |
-| `Smin` | — | missing | — | — | transfer file not present |
-| `SmulSat` | — | missing | — | — | transfer file not present |
-| `Square` | — | missing | — | — | transfer file not present |
+| `ShlNuw` | `tests/data/kb_shlnuw.mlir` | 0.002676 | 64 | 24 | sound through bw 64 |
+| `Smax` | `tests/data/kb_smax.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
+| `Smin` | `tests/data/kb_smin.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
+| `SmulSat` | `tests/data/kb_smulsat.mlir` | 55.757334 | 15 | 47 | stopped at bw 16 (timeout) |
+| `Square` | `tests/data/kb_square.mlir` | 5.852766 | 20 | 12 | stopped at bw 21 (timeout) |
 | `SshlSat` | `tests/data/kb_sshlsat.mlir` | 93.669288 | 64 | 456 | sound through bw 64 |
 | `SsubSat` | — | missing | — | — | transfer file not present |
-| `Sub` | — | missing | — | — | transfer file not present |
-| `SubNsw` | — | missing | — | — | transfer file not present |
-| `SubNswNuw` | — | missing | — | — | transfer file not present |
-| `SubNuw` | — | missing | — | — | transfer file not present |
-| `UaddSat` | — | missing | — | — | transfer file not present |
+| `Sub` | `tests/data/kb_sub.mlir` | 25.440579 | 64 | 22 | sound through bw 64 |
+| `SubNsw` | `tests/data/kb_subnsw.mlir` | 19.091175 | 64 | 22 | sound through bw 64 |
+| `SubNswNuw` | `tests/data/kb_subnswnuw.mlir` | 4.140253 | 64 | 22 | sound through bw 64 |
+| `SubNuw` | `tests/data/kb_subnuw.mlir` | 10.787714 | 64 | 22 | sound through bw 64 |
+| `UaddSat` | `tests/data/kb_uaddsat.mlir` | 15.534117 | 64 | 29 | sound through bw 64 |
 | `Udiv` | — | missing | — | — | transfer file not present |
 | `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
 | `Umax` | — | missing | — | — | transfer file not present |
