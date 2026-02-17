@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-17 16:57:58 UTC
+Generated: 2026-02-17 17:07:10 UTC
 
 ## KnownBits
 
@@ -32,8 +32,8 @@ Generated: 2026-02-17 16:57:58 UTC
 | `Mul` | `tests/data/kb_mul.mlir` | 57.007164 | 0 | 55 | verify command error |
 | `MulNsw` | `tests/data/kb_mulnsw.mlir` | 94.488507 | 8 | 2433 | stopped at bw 9 (timeout) |
 | `MulNswNuw` | `tests/data/kb_mulnswnuw.mlir` | 92.084644 | 9 | 2945 | stopped at bw 10 (timeout) |
-| `MulNuw` | — | missing | — | — | transfer file not present |
-| `Nop` | — | missing | — | — | transfer file not present |
+| `MulNuw` | `tests/data/kb_mulnuw.mlir` | 93.340977 | 9 | 2413 | stopped at bw 10 (timeout) |
+| `Nop` | `tests/data/kb_nop.mlir` | 100.0 | 64 | 1 | sound through bw 64 |
 | `Or` | `tests/data/kb_or.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
 | `PopCount` | — | missing | — | — | transfer file not present |
 | `Rotl` | — | missing | — | — | transfer file not present |
