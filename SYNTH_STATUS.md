@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-17 17:07:10 UTC
+Generated: 2026-02-17 22:07:04 UTC
 
 ## KnownBits
 
@@ -58,7 +58,7 @@ Generated: 2026-02-17 17:07:10 UTC
 | `UaddSat` | `tests/data/kb_uaddsat.mlir` | 15.534117 | 64 | 29 | sound through bw 64 |
 | `Udiv` | `tests/data/kb_udiv.mlir` | 2.838195 | 18 | 31 | stopped at bw 19 (timeout) |
 | `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
-| `Umax` | — | missing | — | — | transfer file not present |
+| `Umax` | `tests/data/kb_umax.mlir` | 100.0 | 64 | 80 | sound through bw 64 |
 | `Umin` | — | missing | — | — | transfer file not present |
 | `UmulSat` | — | missing | — | — | transfer file not present |
 | `UshlSat` | — | missing | — | — | transfer file not present |
