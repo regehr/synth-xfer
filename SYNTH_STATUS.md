@@ -7,22 +7,22 @@ Generated: 2026-02-16 21:57:29 UTC
 | Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify-upto --timeout 120`) | MLIR Inst Count | Notes |
 |---|---|---:|---:|---:|---|
 | `Abds` | `tests/data/kb_abds.mlir` | 83.371416 | 64 | 226 | sound through bw 64 |
-| `Abdu` | — | missing | — | — | transfer file not present |
+| `Abdu` | `tests/data/kb_abdu.mlir` | 91.937602 | 64 | 189 | sound through bw 64 |
 | `Add` | `tests/data/kb_add.mlir` | 100.0 | 64 | 37 | sound through bw 64 |
 | `AddNsw` | `tests/data/kb_addnsw.mlir` | 95.392653 | 64 | 79 | sound through bw 64 |
-| `AddNswNuw` | — | missing | — | — | transfer file not present |
-| `AddNuw` | — | missing | — | — | transfer file not present |
+| `AddNswNuw` | `tests/data/kb_addnswnuw.mlir` | 93.384757 | 64 | 181 | sound through bw 64 |
+| `AddNuw` | `tests/data/kb_addnuw.mlir` | 100.0 | 64 | 55 | sound through bw 64 |
 | `And` | `tests/data/kb_and.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
 | `Ashr` | `tests/data/kb_ashr.mlir` | 99.268404 | 64 | 132 | sound through bw 64 |
-| `AshrExact` | — | missing | — | — | transfer file not present |
-| `AvgCeilS` | — | missing | — | — | transfer file not present |
-| `AvgCeilU` | — | missing | — | — | transfer file not present |
-| `AvgFloorS` | — | missing | — | — | transfer file not present |
-| `AvgFloorU` | — | missing | — | — | transfer file not present |
-| `CountLOne` | — | missing | — | — | transfer file not present |
-| `CountLZero` | — | missing | — | — | transfer file not present |
-| `CountROne` | — | missing | — | — | transfer file not present |
-| `CountRZero` | — | missing | — | — | transfer file not present |
+| `AshrExact` | `tests/data/kb_ashrexact.mlir` | 95.515421 | 64 | 134 | sound through bw 64 |
+| `AvgCeilS` | `tests/data/kb_avgceils.mlir` | 57.717602 | 64 | 99 | sound through bw 64 |
+| `AvgCeilU` | `tests/data/kb_avgceilu.mlir` | 46.702519 | 64 | 88 | sound through bw 64 |
+| `AvgFloorS` | `tests/data/kb_avgfloors.mlir` | 72.531371 | 64 | 66 | sound through bw 64 |
+| `AvgFloorU` | `tests/data/kb_avgflooru.mlir` | 54.572944 | 64 | 55 | sound through bw 64 |
+| `CountLOne` | `tests/data/kb_countlone.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
+| `CountLZero` | `tests/data/kb_countlzero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
+| `CountROne` | `tests/data/kb_countrone.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
+| `CountRZero` | `tests/data/kb_countrzero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
 | `Fshl` | — | missing | — | — | transfer file not present |
 | `Fshr` | — | missing | — | — | transfer file not present |
 | `Lerp` | — | missing | — | — | transfer file not present |
