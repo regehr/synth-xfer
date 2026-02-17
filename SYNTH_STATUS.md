@@ -56,7 +56,7 @@ Generated: 2026-02-17 17:07:10 UTC
 | `SubNswNuw` | `tests/data/kb_subnswnuw.mlir` | 4.140253 | 64 | 22 | sound through bw 64 |
 | `SubNuw` | `tests/data/kb_subnuw.mlir` | 10.787714 | 64 | 22 | sound through bw 64 |
 | `UaddSat` | `tests/data/kb_uaddsat.mlir` | 15.534117 | 64 | 29 | sound through bw 64 |
-| `Udiv` | — | missing | — | — | transfer file not present |
+| `Udiv` | `tests/data/kb_udiv.mlir` | 2.838195 | 18 | 31 | stopped at bw 19 (timeout) |
 | `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
 | `Umax` | — | missing | — | — | transfer file not present |
 | `Umin` | — | missing | — | — | transfer file not present |
