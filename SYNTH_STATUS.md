@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-18 03:27:53 UTC
+Generated: 2026-02-18 03:45:56 UTC
 
 ## KnownBits
 
@@ -36,7 +36,7 @@ Generated: 2026-02-18 03:27:53 UTC
 | `Nop` | `tests/data/kb_nop.mlir` | 100.0 | 64 | 1 | sound through bw 64 |
 | `Or` | `tests/data/kb_or.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
 | `PopCount` | — | missing | — | — | transfer file not present |
-| `Rotl` | `tests/data/kb_rotl.mlir` | 78.36323 | 56 | 31 | stopped at bw 57 (timeout) |
+| `Rotl` | `tests/data/kb_rotl.mlir` | 94.361327 | 32 | 54 | stopped at bw 33 (timeout) |
 | `Rotr` | `tests/data/kb_rotr.mlir` | 78.36323 | 52 | 31 | stopped at bw 53 (timeout) |
 | `SaddSat` | `tests/data/kb_saddsat.mlir` | 56.514562 | 64 | 116 | sound through bw 64 |
 | `Sdiv` | `tests/data/kb_sdiv.mlir` | 58.191073 | 17 | 29 | stopped at bw 18 (timeout) |
