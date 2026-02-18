@@ -135,6 +135,113 @@
     %res0 = "transfer.select"(%both_const, %const_res0, %base0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %res1 = "transfer.select"(%both_const, %const_res1, %base1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %r = "transfer.make"(%res0, %res1) : (!transfer.integer, !transfer.integer) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>
+    // If one operand is constant and the other has exactly one unknown bit,
+    // enumerate both concrete values and intersect.
+    %rhs_known_union = "transfer.or"(%rhs0, %rhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_unknown_mask = "transfer.xor"(%rhs_known_union, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_unknown_nonzero = "transfer.cmp"(%rhs_unknown_mask, %const0) {predicate = 1 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_unknown_minus1 = "transfer.sub"(%rhs_unknown_mask, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_unknown_and_minus1 = "transfer.and"(%rhs_unknown_mask, %rhs_unknown_minus1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_unknown_pow2ish = "transfer.cmp"(%rhs_unknown_and_minus1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_one_unknown = "arith.andi"(%rhs_unknown_nonzero, %rhs_unknown_pow2ish) : (i1, i1) -> i1
+    %rhs_unknown_not_pow2 = "arith.xori"(%rhs_unknown_pow2ish, %const_true) : (i1, i1) -> i1
+    %rhs_u2_rem_minus1 = "transfer.sub"(%rhs_unknown_and_minus1, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_u2_rem_and_minus1 = "transfer.and"(%rhs_unknown_and_minus1, %rhs_u2_rem_minus1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_u2_rem_pow2ish = "transfer.cmp"(%rhs_u2_rem_and_minus1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_two_unknown_0 = "arith.andi"(%rhs_unknown_nonzero, %rhs_unknown_not_pow2) : (i1, i1) -> i1
+    %rhs_two_unknown = "arith.andi"(%rhs_two_unknown_0, %rhs_u2_rem_pow2ish) : (i1, i1) -> i1
+    %lhs_const_rhs_one_unknown = "arith.andi"(%lhs_is_const, %rhs_one_unknown) : (i1, i1) -> i1
+    %lhs_const_rhs_two_unknown = "arith.andi"(%lhs_is_const, %rhs_two_unknown) : (i1, i1) -> i1
+    %rhs_alt = "transfer.add"(%rhs1, %rhs_unknown_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_u2_lowbit = "transfer.xor"(%rhs_unknown_mask, %rhs_unknown_and_minus1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_u2_highbit = "transfer.add"(%rhs_unknown_and_minus1, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_u2_val1 = "transfer.add"(%rhs1, %rhs_u2_lowbit) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_u2_val2 = "transfer.add"(%rhs1, %rhs_u2_highbit) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_u2_val3 = "transfer.add"(%rhs1, %rhs_unknown_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_const_neg = "transfer.cmp"(%lhs1, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_const_sat = "transfer.select"(%lhs_const_neg, %signed_min, %signed_max) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_sum0 = "transfer.add"(%lhs1, %rhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_ov0 = "transfer.sadd_overflow"(%lhs1, %rhs1) : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_rhs_val0 = "transfer.select"(%lhs_rhs_ov0, %lhs_const_sat, %lhs_rhs_sum0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_z0 = "transfer.xor"(%lhs_rhs_val0, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_sum1 = "transfer.add"(%lhs1, %rhs_alt) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_ov1 = "transfer.sadd_overflow"(%lhs1, %rhs_alt) : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_rhs_val1 = "transfer.select"(%lhs_rhs_ov1, %lhs_const_sat, %lhs_rhs_sum1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_z1 = "transfer.xor"(%lhs_rhs_val1, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_res0 = "transfer.and"(%lhs_rhs_z0, %lhs_rhs_z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_res1 = "transfer.and"(%lhs_rhs_val0, %lhs_rhs_val1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_sum1 = "transfer.add"(%lhs1, %rhs_u2_val1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_ov1 = "transfer.sadd_overflow"(%lhs1, %rhs_u2_val1) : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_rhs_u2_val1 = "transfer.select"(%lhs_rhs_u2_ov1, %lhs_const_sat, %lhs_rhs_u2_sum1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_z1 = "transfer.xor"(%lhs_rhs_u2_val1, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_sum2 = "transfer.add"(%lhs1, %rhs_u2_val2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_ov2 = "transfer.sadd_overflow"(%lhs1, %rhs_u2_val2) : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_rhs_u2_val2 = "transfer.select"(%lhs_rhs_u2_ov2, %lhs_const_sat, %lhs_rhs_u2_sum2) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_z2 = "transfer.xor"(%lhs_rhs_u2_val2, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_res0_01 = "transfer.and"(%lhs_rhs_z0, %lhs_rhs_u2_z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_res0_23 = "transfer.and"(%lhs_rhs_u2_z2, %lhs_rhs_z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_res0 = "transfer.and"(%lhs_rhs_u2_res0_01, %lhs_rhs_u2_res0_23) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_res1_01 = "transfer.and"(%lhs_rhs_val0, %lhs_rhs_u2_val1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_res1_23 = "transfer.and"(%lhs_rhs_u2_val2, %lhs_rhs_val1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_rhs_u2_res1 = "transfer.and"(%lhs_rhs_u2_res1_01, %lhs_rhs_u2_res1_23) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %lhs_known_union = "transfer.or"(%lhs0, %lhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_unknown_mask = "transfer.xor"(%lhs_known_union, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_unknown_nonzero = "transfer.cmp"(%lhs_unknown_mask, %const0) {predicate = 1 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_unknown_minus1 = "transfer.sub"(%lhs_unknown_mask, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_unknown_and_minus1 = "transfer.and"(%lhs_unknown_mask, %lhs_unknown_minus1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_unknown_pow2ish = "transfer.cmp"(%lhs_unknown_and_minus1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_one_unknown = "arith.andi"(%lhs_unknown_nonzero, %lhs_unknown_pow2ish) : (i1, i1) -> i1
+    %lhs_unknown_not_pow2 = "arith.xori"(%lhs_unknown_pow2ish, %const_true) : (i1, i1) -> i1
+    %lhs_u2_rem_minus1 = "transfer.sub"(%lhs_unknown_and_minus1, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_u2_rem_and_minus1 = "transfer.and"(%lhs_unknown_and_minus1, %lhs_u2_rem_minus1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_u2_rem_pow2ish = "transfer.cmp"(%lhs_u2_rem_and_minus1, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %lhs_two_unknown_0 = "arith.andi"(%lhs_unknown_nonzero, %lhs_unknown_not_pow2) : (i1, i1) -> i1
+    %lhs_two_unknown = "arith.andi"(%lhs_two_unknown_0, %lhs_u2_rem_pow2ish) : (i1, i1) -> i1
+    %rhs_const_lhs_one_unknown = "arith.andi"(%rhs_is_const, %lhs_one_unknown) : (i1, i1) -> i1
+    %rhs_const_lhs_two_unknown = "arith.andi"(%rhs_is_const, %lhs_two_unknown) : (i1, i1) -> i1
+    %lhs_alt = "transfer.add"(%lhs1, %lhs_unknown_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_u2_lowbit = "transfer.xor"(%lhs_unknown_mask, %lhs_unknown_and_minus1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_u2_highbit = "transfer.add"(%lhs_unknown_and_minus1, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_u2_val1 = "transfer.add"(%lhs1, %lhs_u2_lowbit) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_u2_val2 = "transfer.add"(%lhs1, %lhs_u2_highbit) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhs_u2_val3 = "transfer.add"(%lhs1, %lhs_unknown_mask) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_const_neg = "transfer.cmp"(%rhs1, %const0) {predicate = 2 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_const_sat = "transfer.select"(%rhs_const_neg, %signed_min, %signed_max) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_sum0 = "transfer.add"(%lhs1, %rhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_ov0 = "transfer.sadd_overflow"(%lhs1, %rhs1) : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_lhs_val0 = "transfer.select"(%rhs_lhs_ov0, %rhs_const_sat, %rhs_lhs_sum0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_z0 = "transfer.xor"(%rhs_lhs_val0, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_sum1 = "transfer.add"(%lhs_alt, %rhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_ov1 = "transfer.sadd_overflow"(%lhs_alt, %rhs1) : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_lhs_val1 = "transfer.select"(%rhs_lhs_ov1, %rhs_const_sat, %rhs_lhs_sum1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_z1 = "transfer.xor"(%rhs_lhs_val1, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_res0 = "transfer.and"(%rhs_lhs_z0, %rhs_lhs_z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_res1 = "transfer.and"(%rhs_lhs_val0, %rhs_lhs_val1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_sum1 = "transfer.add"(%lhs_u2_val1, %rhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_ov1 = "transfer.sadd_overflow"(%lhs_u2_val1, %rhs1) : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_lhs_u2_val1 = "transfer.select"(%rhs_lhs_u2_ov1, %rhs_const_sat, %rhs_lhs_u2_sum1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_z1 = "transfer.xor"(%rhs_lhs_u2_val1, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_sum2 = "transfer.add"(%lhs_u2_val2, %rhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_ov2 = "transfer.sadd_overflow"(%lhs_u2_val2, %rhs1) : (!transfer.integer, !transfer.integer) -> i1
+    %rhs_lhs_u2_val2 = "transfer.select"(%rhs_lhs_u2_ov2, %rhs_const_sat, %rhs_lhs_u2_sum2) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_z2 = "transfer.xor"(%rhs_lhs_u2_val2, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_res0_01 = "transfer.and"(%rhs_lhs_z0, %rhs_lhs_u2_z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_res0_23 = "transfer.and"(%rhs_lhs_u2_z2, %rhs_lhs_z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_res0 = "transfer.and"(%rhs_lhs_u2_res0_01, %rhs_lhs_u2_res0_23) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_res1_01 = "transfer.and"(%rhs_lhs_val0, %rhs_lhs_u2_val1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_res1_23 = "transfer.and"(%rhs_lhs_u2_val2, %rhs_lhs_val1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhs_lhs_u2_res1 = "transfer.and"(%rhs_lhs_u2_res1_01, %rhs_lhs_u2_res1_23) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %res0_lhs_one_unknown = "transfer.select"(%lhs_const_rhs_one_unknown, %lhs_rhs_res0, %res0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res1_lhs_one_unknown = "transfer.select"(%lhs_const_rhs_one_unknown, %lhs_rhs_res1, %res1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res0_lhs_two_unknown = "transfer.select"(%lhs_const_rhs_two_unknown, %lhs_rhs_u2_res0, %res0_lhs_one_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res1_lhs_two_unknown = "transfer.select"(%lhs_const_rhs_two_unknown, %lhs_rhs_u2_res1, %res1_lhs_one_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res0_one_unknown = "transfer.select"(%rhs_const_lhs_one_unknown, %rhs_lhs_res0, %res0_lhs_two_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res1_one_unknown = "transfer.select"(%rhs_const_lhs_one_unknown, %rhs_lhs_res1, %res1_lhs_two_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res0_two_unknown = "transfer.select"(%rhs_const_lhs_two_unknown, %rhs_lhs_u2_res0, %res0_one_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res1_two_unknown = "transfer.select"(%rhs_const_lhs_two_unknown, %rhs_lhs_u2_res1, %res1_one_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %r = "transfer.make"(%res0_two_unknown, %res1_two_unknown) : (!transfer.integer, !transfer.integer) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>
     "func.return"(%r) : (!transfer.abs_value<[!transfer.integer, !transfer.integer]>) -> ()
 }) {"sym_name" = "kb_saddsat", "function_type" = (!transfer.abs_value<[!transfer.integer, !transfer.integer]>, !transfer.abs_value<[!transfer.integer, !transfer.integer]>) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>} : () -> ()

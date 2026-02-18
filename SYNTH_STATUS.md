@@ -1,12 +1,12 @@
 # SYNTH Status
 
-Generated: 2026-02-18 04:21:38 UTC
+Generated: 2026-02-18 05:50:38 UTC
 
 ## KnownBits
 
 | Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify-upto --timeout 120`) | MLIR Inst Count | Notes |
 |---|---|---:|---:|---:|---|
-| `Abds` | `tests/data/kb_abds.mlir` | 83.371416 | 64 | 226 | sound through bw 64 |
+| `Abds` | `tests/data/kb_abds.mlir` | 83.746999 | 64 | 272 | sound through bw 64 |
 | `Abdu` | `tests/data/kb_abdu.mlir` | 91.937602 | 64 | 189 | sound through bw 64 |
 | `Add` | `tests/data/kb_add.mlir` | 100.0 | 64 | 37 | sound through bw 64 |
 | `AddNsw` | `tests/data/kb_addnsw.mlir` | 95.392653 | 64 | 79 | sound through bw 64 |
@@ -38,7 +38,7 @@ Generated: 2026-02-18 04:21:38 UTC
 | `PopCount` | — | missing | — | — | transfer file not present |
 | `Rotl` | `tests/data/kb_rotl.mlir` | 94.361327 | 32 | 54 | stopped at bw 33 (timeout) |
 | `Rotr` | `tests/data/kb_rotr.mlir` | 94.361327 | 34 | 54 | stopped at bw 35 (timeout) |
-| `SaddSat` | `tests/data/kb_saddsat.mlir` | 56.514562 | 64 | 116 | sound through bw 64 |
+| `SaddSat` | `tests/data/kb_saddsat.mlir` | 58.446751 | 64 | 219 | sound through bw 64 |
 | `Sdiv` | `tests/data/kb_sdiv.mlir` | 58.191073 | 17 | 29 | stopped at bw 18 (timeout) |
 | `SdivExact` | `tests/data/kb_sdivexact.mlir` | 14.111862 | 41 | 81 | stopped at bw 42 (timeout) |
 | `Shl` | `tests/data/kb_shl.mlir` | 91.653511 | 64 | 267 | sound through bw 64 |
@@ -60,7 +60,7 @@ Generated: 2026-02-18 04:21:38 UTC
 | `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
 | `Umax` | `tests/data/kb_umax.mlir` | 100.0 | 64 | 80 | sound through bw 64 |
 | `Umin` | `tests/data/kb_umin.mlir` | 100.0 | 64 | 80 | sound through bw 64 |
-| `UmulSat` | `tests/data/kb_umulsat.mlir` | 89.259328 | 12 | 281 | stopped at bw 13 (timeout) |
+| `UmulSat` | `tests/data/kb_umulsat.mlir` | 89.429055 | 13 | 365 | stopped at bw 14 (timeout) |
 | `UshlSat` | `tests/data/kb_ushlsat.mlir` | 94.948702 | 64 | 264 | sound through bw 64 |
 | `UsubSat` | `tests/data/kb_usubsat.mlir` | 99.746183 | 64 | 314 | sound through bw 64 |
 | `Xor` | `tests/data/kb_xor.mlir` | 100.0 | 64 | 12 | sound through bw 64 |
