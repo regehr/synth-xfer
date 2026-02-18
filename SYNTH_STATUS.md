@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-18 01:55:20 UTC
+Generated: 2026-02-18 02:25:21 UTC
 
 ## KnownBits
 
@@ -50,7 +50,7 @@ Generated: 2026-02-18 01:55:20 UTC
 | `SmulSat` | `tests/data/kb_smulsat.mlir` | 55.757334 | 15 | 47 | stopped at bw 16 (timeout) |
 | `Square` | `tests/data/kb_square.mlir` | 5.852766 | 20 | 12 | stopped at bw 21 (timeout) |
 | `SshlSat` | `tests/data/kb_sshlsat.mlir` | 93.669288 | 64 | 456 | sound through bw 64 |
-| `SsubSat` | `tests/data/kb_ssubsat.mlir` | 71.807574 | 64 | 283 | sound through bw 64 using an equivalent local op workaround (verifier lowering bug on `transfer.is_negative`) |
+| `SsubSat` | `tests/data/kb_ssubsat.mlir` | 97.252836 | 46 | 696 | stopped at bw 47 (timeout); used equivalent local op workaround for verifier lowering bug on `transfer.is_negative` |
 | `Sub` | `tests/data/kb_sub.mlir` | 25.440579 | 64 | 22 | sound through bw 64 |
 | `SubNsw` | `tests/data/kb_subnsw.mlir` | 19.091175 | 64 | 22 | sound through bw 64 |
 | `SubNswNuw` | `tests/data/kb_subnswnuw.mlir` | 4.140253 | 64 | 22 | sound through bw 64 |
