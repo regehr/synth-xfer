@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-18 02:55:06 UTC
+Generated: 2026-02-18 03:27:53 UTC
 
 ## KnownBits
 
@@ -44,7 +44,7 @@ Generated: 2026-02-18 02:55:06 UTC
 | `Shl` | `tests/data/kb_shl.mlir` | 91.653511 | 64 | 267 | sound through bw 64 |
 | `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 80.246914 | 64 | 280 | sound through bw 64 |
 | `ShlNswNuw` | — | missing | — | — | transfer file not present |
-| `ShlNuw` | `tests/data/kb_shlnuw.mlir` | 0.002676 | 64 | 24 | sound through bw 64 |
+| `ShlNuw` | `tests/data/kb_shlnuw.mlir` | 89.526045 | 64 | 489 | sound through bw 64 |
 | `Smax` | `tests/data/kb_smax.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
 | `Smin` | `tests/data/kb_smin.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
 | `SmulSat` | `tests/data/kb_smulsat.mlir` | 55.757334 | 15 | 47 | stopped at bw 16 (timeout) |
