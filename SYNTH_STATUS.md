@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-18 00:46:00 UTC
+Generated: 2026-02-18 01:55:20 UTC
 
 ## KnownBits
 
@@ -50,12 +50,12 @@ Generated: 2026-02-18 00:46:00 UTC
 | `SmulSat` | `tests/data/kb_smulsat.mlir` | 55.757334 | 15 | 47 | stopped at bw 16 (timeout) |
 | `Square` | `tests/data/kb_square.mlir` | 5.852766 | 20 | 12 | stopped at bw 21 (timeout) |
 | `SshlSat` | `tests/data/kb_sshlsat.mlir` | 93.669288 | 64 | 456 | sound through bw 64 |
-| `SsubSat` | — | missing | — | — | transfer file not present |
+| `SsubSat` | `tests/data/kb_ssubsat.mlir` | 71.807574 | 64 | 283 | sound through bw 64 using an equivalent local op workaround (verifier lowering bug on `transfer.is_negative`) |
 | `Sub` | `tests/data/kb_sub.mlir` | 25.440579 | 64 | 22 | sound through bw 64 |
 | `SubNsw` | `tests/data/kb_subnsw.mlir` | 19.091175 | 64 | 22 | sound through bw 64 |
 | `SubNswNuw` | `tests/data/kb_subnswnuw.mlir` | 4.140253 | 64 | 22 | sound through bw 64 |
 | `SubNuw` | `tests/data/kb_subnuw.mlir` | 10.787714 | 64 | 22 | sound through bw 64 |
-| `UaddSat` | `tests/data/kb_uaddsat.mlir` | 63.743754 | 64 | 195 | sound through bw 64 |
+| `UaddSat` | `tests/data/kb_uaddsat.mlir` | 100.0 | 64 | 347 | sound through bw 64 |
 | `Udiv` | `tests/data/kb_udiv.mlir` | 2.838195 | 18 | 31 | stopped at bw 19 (timeout) |
 | `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
 | `Umax` | `tests/data/kb_umax.mlir` | 100.0 | 64 | 80 | sound through bw 64 |
