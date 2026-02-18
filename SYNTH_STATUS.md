@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-18 00:26:08 UTC
+Generated: 2026-02-18 00:46:00 UTC
 
 ## KnownBits
 
@@ -38,7 +38,7 @@ Generated: 2026-02-18 00:26:08 UTC
 | `PopCount` | — | missing | — | — | transfer file not present |
 | `Rotl` | `tests/data/kb_rotl.mlir` | 78.36323 | 56 | 31 | stopped at bw 57 (timeout) |
 | `Rotr` | `tests/data/kb_rotr.mlir` | 78.36323 | 52 | 31 | stopped at bw 53 (timeout) |
-| `SaddSat` | `tests/data/kb_saddsat.mlir` | 30.396643 | 64 | 33 | sound through bw 64 |
+| `SaddSat` | `tests/data/kb_saddsat.mlir` | 56.514562 | 64 | 116 | sound through bw 64 |
 | `Sdiv` | `tests/data/kb_sdiv.mlir` | 58.191073 | 17 | 29 | stopped at bw 18 (timeout) |
 | `SdivExact` | `tests/data/kb_sdivexact.mlir` | 14.111862 | 41 | 81 | stopped at bw 42 (timeout) |
 | `Shl` | `tests/data/kb_shl.mlir` | 2.036413 | 64 | 24 | sound through bw 64 |
@@ -55,7 +55,7 @@ Generated: 2026-02-18 00:26:08 UTC
 | `SubNsw` | `tests/data/kb_subnsw.mlir` | 19.091175 | 64 | 22 | sound through bw 64 |
 | `SubNswNuw` | `tests/data/kb_subnswnuw.mlir` | 4.140253 | 64 | 22 | sound through bw 64 |
 | `SubNuw` | `tests/data/kb_subnuw.mlir` | 10.787714 | 64 | 22 | sound through bw 64 |
-| `UaddSat` | `tests/data/kb_uaddsat.mlir` | 62.342114 | 64 | 67 | sound through bw 64 |
+| `UaddSat` | `tests/data/kb_uaddsat.mlir` | 63.743754 | 64 | 195 | sound through bw 64 |
 | `Udiv` | `tests/data/kb_udiv.mlir` | 2.838195 | 18 | 31 | stopped at bw 19 (timeout) |
 | `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
 | `Umax` | `tests/data/kb_umax.mlir` | 100.0 | 64 | 80 | sound through bw 64 |
