@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-18 02:25:21 UTC
+Generated: 2026-02-18 02:55:06 UTC
 
 ## KnownBits
 
@@ -41,8 +41,8 @@ Generated: 2026-02-18 02:25:21 UTC
 | `SaddSat` | `tests/data/kb_saddsat.mlir` | 56.514562 | 64 | 116 | sound through bw 64 |
 | `Sdiv` | `tests/data/kb_sdiv.mlir` | 58.191073 | 17 | 29 | stopped at bw 18 (timeout) |
 | `SdivExact` | `tests/data/kb_sdivexact.mlir` | 14.111862 | 41 | 81 | stopped at bw 42 (timeout) |
-| `Shl` | `tests/data/kb_shl.mlir` | 2.036413 | 64 | 24 | sound through bw 64 |
-| `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 0.0 | 64 | 24 | sound through bw 64 |
+| `Shl` | `tests/data/kb_shl.mlir` | 91.653511 | 64 | 267 | sound through bw 64 |
+| `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 80.246914 | 64 | 280 | sound through bw 64 |
 | `ShlNswNuw` | — | missing | — | — | transfer file not present |
 | `ShlNuw` | `tests/data/kb_shlnuw.mlir` | 0.002676 | 64 | 24 | sound through bw 64 |
 | `Smax` | `tests/data/kb_smax.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
