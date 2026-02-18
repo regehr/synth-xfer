@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-18 03:45:56 UTC
+Generated: 2026-02-18 04:21:38 UTC
 
 ## KnownBits
 
@@ -23,8 +23,8 @@ Generated: 2026-02-18 03:45:56 UTC
 | `CountLZero` | `tests/data/kb_countlzero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
 | `CountROne` | `tests/data/kb_countrone.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
 | `CountRZero` | `tests/data/kb_countrzero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
-| `Fshl` | `tests/data/kb_fshl.mlir` | 71.086341 | 5 | 51 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
-| `Fshr` | `tests/data/kb_fshr.mlir` | 71.086341 | 5 | 51 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
+| `Fshl` | `tests/data/kb_fshl.mlir` | 93.51092 | 5 | 76 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
+| `Fshr` | `tests/data/kb_fshr.mlir` | 93.51092 | 5 | 76 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
 | `Lshr` | `tests/data/kb_lshr.mlir` | 100.0 | 64 | 246 | sound through bw 64 |
 | `LshrExact` | `tests/data/kb_lshrexact.mlir` | 100.0 | 64 | 277 | sound through bw 64 |
 | `Mods` | `tests/data/kb_mods.mlir` | 66.528614 | 31 | 75 | stopped at bw 32 (timeout) |
@@ -37,12 +37,12 @@ Generated: 2026-02-18 03:45:56 UTC
 | `Or` | `tests/data/kb_or.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
 | `PopCount` | — | missing | — | — | transfer file not present |
 | `Rotl` | `tests/data/kb_rotl.mlir` | 94.361327 | 32 | 54 | stopped at bw 33 (timeout) |
-| `Rotr` | `tests/data/kb_rotr.mlir` | 78.36323 | 52 | 31 | stopped at bw 53 (timeout) |
+| `Rotr` | `tests/data/kb_rotr.mlir` | 94.361327 | 34 | 54 | stopped at bw 35 (timeout) |
 | `SaddSat` | `tests/data/kb_saddsat.mlir` | 56.514562 | 64 | 116 | sound through bw 64 |
 | `Sdiv` | `tests/data/kb_sdiv.mlir` | 58.191073 | 17 | 29 | stopped at bw 18 (timeout) |
 | `SdivExact` | `tests/data/kb_sdivexact.mlir` | 14.111862 | 41 | 81 | stopped at bw 42 (timeout) |
 | `Shl` | `tests/data/kb_shl.mlir` | 91.653511 | 64 | 267 | sound through bw 64 |
-| `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 80.246914 | 64 | 280 | sound through bw 64 |
+| `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 88.501201 | 64 | 280 | sound through bw 64 |
 | `ShlNswNuw` | — | missing | — | — | transfer file not present |
 | `ShlNuw` | `tests/data/kb_shlnuw.mlir` | 89.526045 | 64 | 489 | sound through bw 64 |
 | `Smax` | `tests/data/kb_smax.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
