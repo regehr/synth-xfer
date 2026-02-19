@@ -11,7 +11,7 @@ def main() -> None:
     output_dir = Path("output")
     output_dir.mkdir(exist_ok=True)
 
-    for index, path in enumerate(sorted(Path(".").glob("bench/*/optimized/*.ll"))):
+    for index, path in enumerate(sorted(Path(".").glob("bench/*/original/*.ll"))):
         log_file = output_dir / f"{index}_{path.stem}.log"
         if log_file.exists():
             print(f"skipping {path} (exists: {log_file})", flush=True)
@@ -20,7 +20,7 @@ def main() -> None:
         subprocess.run(
             [
                 OPT,
-                "-O2",
+                "-O3",
                 "-disable-output",
                 "-non-global-value-max-name-size",
                 "4096",
