@@ -34,12 +34,13 @@ Choose exactly one row for a task.
 ## Execution Defaults (Single Source of Truth)
 
 - `memlimit-cap`: `50G` (mandatory memory cap for all `verify` and `eval-final` invocations, via `python3 tools/memlimit.py`).
-- `verify-final-flags`: `--bw 64 --timeout 120`.
-- `verify-intermediate-flags`: keep `--bw 64` and lower `--timeout` only.
+- `verify-final-flags`: `--bw 1-64 --timeout 120`.
+- `verify-intermediate-flags`: keep `--bw 1-64` and lower `--timeout` only.
+- `verify-bw-format` (mandatory): every `verify` command must use an explicit inclusive range that starts at `1` (for example `--bw 1-64` or `--bw 1-32`), never a single max-width form like `--bw 64`.
 - `eval-final-flags`: `--exact-bw 7 --norm-bw 64,10000,1000`.
 - `eval-intermediate-flags` (optional): `--exact-bw 6 --norm-bw 64,10000,1000`.
 - `eval-final` outputs are not comparable across different `--exact-bw` values; only compare runs that use the same `--exact-bw`.
-- Ternary-op override: for ternary instructions such as `fshl`/`fshr`, use `--bw 5` for `verify` and `--exact-bw 5` for `eval-final`/`eval-intermediate` (keep other flags unchanged).
+- Ternary-op override: for ternary instructions such as `fshl`/`fshr`, use `--bw 1-5` for `verify` and `--exact-bw 5` for `eval-final`/`eval-intermediate` (keep other flags unchanged).
 
 ## Tool Bug Policy (Required)
 
@@ -141,7 +142,7 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 ## Testing Guidance
 
 - Use `verify` as the soundness oracle.
-- `verify` checks bitwidths from `1` up to the requested max width, and stops early on the first `timeout`.
+- `verify` checks bitwidths from `1` up to the requested max width, and stops early on the first `timeout`; therefore the CLI form must be an explicit range beginning at `1` (for example `--bw 1-64`), never `--bw 64`.
 - Use `eval-final` as the precision/quality metric. This command might be slow, but you must let it finish. Don't time this one out.
 - Follow Execution Defaults for final reporting vs intermediate checks.
 

@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-20 22:29:48 UTC
+Generated: 2026-02-20 22:48:05 UTC
 
 ## KnownBits
 
@@ -53,7 +53,7 @@ Generated: 2026-02-20 22:29:48 UTC
 | `SsubSat` | `tests/data/kb_ssubsat.mlir` | 97.252836 | 46 | 696 | stopped at bw 47 (timeout); used equivalent local op workaround for verifier lowering bug on `transfer.is_negative` |
 | `Sub` | `tests/data/kb_sub.mlir` | 25.440579 | 64 | 22 | sound through bw 64 |
 | `SubNsw` | `tests/data/kb_subnsw.mlir` | 19.091175 | 64 | 22 | sound through bw 64 |
-| `SubNswNuw` | `tests/data/kb_subnswnuw.mlir` | 4.140253 | 64 | 22 | sound through bw 64 |
+| `SubNswNuw` | `tests/data/kb_subnswnuw.mlir` | 74.28919150427276 | 64 | 343 | sound through bw 64 |
 | `SubNuw` | `tests/data/kb_subnuw.mlir` | 10.787714 | 64 | 22 | sound through bw 64 |
 | `UaddSat` | `tests/data/kb_uaddsat.mlir` | 100.0 | 64 | 347 | sound through bw 64 |
 | `Udiv` | `tests/data/kb_udiv.mlir` | 92.39903081119698 | 63 | 85 | stopped at bw 64 (timeout) |
