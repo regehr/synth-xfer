@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-18 05:50:38 UTC
+Generated: 2026-02-20 20:45:19 UTC
 
 ## KnownBits
 
@@ -35,7 +35,7 @@ Generated: 2026-02-18 05:50:38 UTC
 | `MulNuw` | `tests/data/kb_mulnuw.mlir` | 93.340977 | 9 | 2413 | stopped at bw 10 (timeout) |
 | `Nop` | `tests/data/kb_nop.mlir` | 100.0 | 64 | 1 | sound through bw 64 |
 | `Or` | `tests/data/kb_or.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
-| `PopCount` | — | missing | — | — | transfer file not present |
+| `PopCount` | `tests/data/kb_popcount.mlir` | 100.0 | 64 | 21 | sound through bw 64 |
 | `Rotl` | `tests/data/kb_rotl.mlir` | 94.361327 | 32 | 54 | stopped at bw 33 (timeout) |
 | `Rotr` | `tests/data/kb_rotr.mlir` | 94.361327 | 34 | 54 | stopped at bw 35 (timeout) |
 | `SaddSat` | `tests/data/kb_saddsat.mlir` | 58.446751 | 64 | 219 | sound through bw 64 |
@@ -43,7 +43,7 @@ Generated: 2026-02-18 05:50:38 UTC
 | `SdivExact` | `tests/data/kb_sdivexact.mlir` | 14.111862 | 41 | 81 | stopped at bw 42 (timeout) |
 | `Shl` | `tests/data/kb_shl.mlir` | 91.653511 | 64 | 267 | sound through bw 64 |
 | `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 88.501201 | 64 | 280 | sound through bw 64 |
-| `ShlNswNuw` | — | missing | — | — | transfer file not present |
+| `ShlNswNuw` | `tests/data/kb_shlnswnuw.mlir` | 89.52014951382708 | 64 | 489 | sound through bw 64 |
 | `ShlNuw` | `tests/data/kb_shlnuw.mlir` | 89.526045 | 64 | 489 | sound through bw 64 |
 | `Smax` | `tests/data/kb_smax.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
 | `Smin` | `tests/data/kb_smin.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
