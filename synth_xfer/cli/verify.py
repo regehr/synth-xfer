@@ -1,6 +1,5 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-import sys
 from time import perf_counter
 
 from xdsl.dialects.func import FuncOp
@@ -219,45 +218,41 @@ def main() -> None:
     helper_funcs = get_helper_funcs(args.op, domain)
 
     for bw in args.bw:
-        try:
-            start_time = perf_counter()
-            is_sound, model = verify_function(
-                bw, xfer_fn, list(xfer_fns.values()), helper_funcs, args.timeout
-            )
-            run_time = perf_counter() - start_time
+        start_time = perf_counter()
+        is_sound, model = verify_function(
+            bw, xfer_fn, list(xfer_fns.values()), helper_funcs, args.timeout
+        )
+        run_time = perf_counter() - start_time
 
-            if is_sound is None:
-                if args.continue_timeout:
-                    print(f"{bw:<2} bits | timeout | took {args.timeout}s")
-                else:
-                    print(
-                        f"Verifier TIMEOUT at {bw}-bits.\nTimeout was {args.timeout} second."
-                    )
-                    break
-            elif is_sound:
-                print(f"{bw:<2} bits | sound   | took {run_time:.4f}s")
+        if is_sound is None:
+            if args.continue_timeout:
+                print(f"{bw:<2} bits | timeout | took {args.timeout}s")
             else:
-                print("-----------------------------------------------------")
-                print(f"Verifier UNSOUND at {bw}-bits. Took {run_time:.4f}s.")
-                print("Counterexample:")
-
-                assert isinstance(model, ModelRef)
-                _print_counterexample(
-                    str(args.op.stem),
-                    model,
-                    bw,
-                    domain,
-                    mlir_mod,
-                    xfer_name,
-                    helper_funcs,
-                    args.no_exec,
+                print(
+                    f"Verifier TIMEOUT at {bw}-bits.\nTimeout was {args.timeout} second."
                 )
+                break
+        elif is_sound:
+            print(f"{bw:<2} bits | sound   | took {run_time:.4f}s")
+        else:
+            print("-----------------------------------------------------")
+            print(f"Verifier UNSOUND at {bw}-bits. Took {run_time:.4f}s.")
+            print("Counterexample:")
 
-                if not args.continue_unsound:
-                    break
-        finally:
-            sys.stdout.flush()
-            sys.stderr.flush()
+            assert isinstance(model, ModelRef)
+            _print_counterexample(
+                str(args.op.stem),
+                model,
+                bw,
+                domain,
+                mlir_mod,
+                xfer_name,
+                helper_funcs,
+                args.no_exec,
+            )
+
+            if not args.continue_unsound:
+                break
 
 
 if __name__ == "__main__":
