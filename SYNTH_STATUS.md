@@ -4,7 +4,7 @@ Generated: 2026-02-18 05:50:38 UTC
 
 ## KnownBits
 
-| Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify-upto --timeout 120`) | MLIR Inst Count | Notes |
+| Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify --timeout 120`) | MLIR Inst Count | Notes |
 |---|---|---:|---:|---:|---|
 | `Abds` | `tests/data/kb_abds.mlir` | 83.746999 | 64 | 272 | sound through bw 64 |
 | `Abdu` | `tests/data/kb_abdu.mlir` | 91.937602 | 64 | 189 | sound through bw 64 |
@@ -67,7 +67,7 @@ Generated: 2026-02-18 05:50:38 UTC
 
 ## UConstRange
 
-| Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify-upto --timeout 120`) | MLIR Inst Count | Notes |
+| Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify --timeout 120`) | MLIR Inst Count | Notes |
 |---|---|---:|---:|---:|---|
 | `Abds` | — | missing | — | — | transfer file not present |
 | `Abdu` | — | missing | — | — | transfer file not present |
@@ -130,7 +130,7 @@ Generated: 2026-02-18 05:50:38 UTC
 
 ## SConstRange
 
-| Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify-upto --timeout 120`) | MLIR Inst Count | Notes |
+| Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify --timeout 120`) | MLIR Inst Count | Notes |
 |---|---|---:|---:|---:|---|
 | `Abds` | — | missing | — | — | transfer file not present |
 | `Abdu` | — | missing | — | — | transfer file not present |
