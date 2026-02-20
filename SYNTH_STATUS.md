@@ -1,6 +1,6 @@
 # SYNTH Status
 
-Generated: 2026-02-20 20:45:19 UTC
+Generated: 2026-02-20 22:29:48 UTC
 
 ## KnownBits
 
@@ -56,7 +56,7 @@ Generated: 2026-02-20 20:45:19 UTC
 | `SubNswNuw` | `tests/data/kb_subnswnuw.mlir` | 4.140253 | 64 | 22 | sound through bw 64 |
 | `SubNuw` | `tests/data/kb_subnuw.mlir` | 10.787714 | 64 | 22 | sound through bw 64 |
 | `UaddSat` | `tests/data/kb_uaddsat.mlir` | 100.0 | 64 | 347 | sound through bw 64 |
-| `Udiv` | `tests/data/kb_udiv.mlir` | 2.838195 | 18 | 31 | stopped at bw 19 (timeout) |
+| `Udiv` | `tests/data/kb_udiv.mlir` | 92.39903081119698 | 63 | 85 | stopped at bw 64 (timeout) |
 | `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
 | `Umax` | `tests/data/kb_umax.mlir` | 100.0 | 64 | 81 | sound through bw 64 |
 | `Umin` | `tests/data/kb_umin.mlir` | 100.0 | 64 | 81 | sound through bw 64 |
