@@ -10,8 +10,8 @@ Generated: 2026-02-20 20:45:19 UTC
 | `Abdu` | `tests/data/kb_abdu.mlir` | 91.937602 | 64 | 189 | sound through bw 64 |
 | `Add` | `tests/data/kb_add.mlir` | 100.0 | 64 | 37 | sound through bw 64 |
 | `AddNsw` | `tests/data/kb_addnsw.mlir` | 95.392653 | 64 | 79 | sound through bw 64 |
-| `AddNswNuw` | `tests/data/kb_addnswnuw.mlir` | 93.384757 | 64 | 181 | sound through bw 64 |
-| `AddNuw` | `tests/data/kb_addnuw.mlir` | 100.0 | 64 | 55 | sound through bw 64 |
+| `AddNswNuw` | `tests/data/kb_addnswnuw.mlir` | 93.384757 | 64 | 182 | sound through bw 64 |
+| `AddNuw` | `tests/data/kb_addnuw.mlir` | 100.0 | 64 | 56 | sound through bw 64 |
 | `And` | `tests/data/kb_and.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
 | `Ashr` | `tests/data/kb_ashr.mlir` | 99.268404 | 64 | 132 | sound through bw 64 |
 | `AshrExact` | `tests/data/kb_ashrexact.mlir` | 95.515421 | 64 | 134 | sound through bw 64 |
@@ -25,8 +25,8 @@ Generated: 2026-02-20 20:45:19 UTC
 | `CountRZero` | `tests/data/kb_countrzero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
 | `Fshl` | `tests/data/kb_fshl.mlir` | 93.51092 | 5 | 76 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
 | `Fshr` | `tests/data/kb_fshr.mlir` | 93.51092 | 5 | 76 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
-| `Lshr` | `tests/data/kb_lshr.mlir` | 100.0 | 64 | 246 | sound through bw 64 |
-| `LshrExact` | `tests/data/kb_lshrexact.mlir` | 100.0 | 64 | 277 | sound through bw 64 |
+| `Lshr` | `tests/data/kb_lshr.mlir` | 100.0 | 64 | 247 | sound through bw 64 |
+| `LshrExact` | `tests/data/kb_lshrexact.mlir` | 100.0 | 64 | 278 | sound through bw 64 |
 | `Mods` | `tests/data/kb_mods.mlir` | 66.528614 | 31 | 75 | stopped at bw 32 (timeout) |
 | `Modu` | `tests/data/kb_modu.mlir` | 98.803944 | 6 | 1698 | stopped at bw 7 (timeout) |
 | `Mul` | `tests/data/kb_mul.mlir` | 57.007164 | 0 | 55 | verify command error |
@@ -41,8 +41,8 @@ Generated: 2026-02-20 20:45:19 UTC
 | `SaddSat` | `tests/data/kb_saddsat.mlir` | 58.446751 | 64 | 219 | sound through bw 64 |
 | `Sdiv` | `tests/data/kb_sdiv.mlir` | 58.191073 | 17 | 29 | stopped at bw 18 (timeout) |
 | `SdivExact` | `tests/data/kb_sdivexact.mlir` | 14.111862 | 41 | 81 | stopped at bw 42 (timeout) |
-| `Shl` | `tests/data/kb_shl.mlir` | 91.653511 | 64 | 267 | sound through bw 64 |
-| `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 88.501201 | 64 | 280 | sound through bw 64 |
+| `Shl` | `tests/data/kb_shl.mlir` | 91.653511 | 64 | 268 | sound through bw 64 |
+| `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 88.501201 | 64 | 442 | sound through bw 64 |
 | `ShlNswNuw` | `tests/data/kb_shlnswnuw.mlir` | 89.52014951382708 | 64 | 489 | sound through bw 64 |
 | `ShlNuw` | `tests/data/kb_shlnuw.mlir` | 89.526045 | 64 | 489 | sound through bw 64 |
 | `Smax` | `tests/data/kb_smax.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
@@ -58,11 +58,11 @@ Generated: 2026-02-20 20:45:19 UTC
 | `UaddSat` | `tests/data/kb_uaddsat.mlir` | 100.0 | 64 | 347 | sound through bw 64 |
 | `Udiv` | `tests/data/kb_udiv.mlir` | 2.838195 | 18 | 31 | stopped at bw 19 (timeout) |
 | `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
-| `Umax` | `tests/data/kb_umax.mlir` | 100.0 | 64 | 80 | sound through bw 64 |
-| `Umin` | `tests/data/kb_umin.mlir` | 100.0 | 64 | 80 | sound through bw 64 |
+| `Umax` | `tests/data/kb_umax.mlir` | 100.0 | 64 | 81 | sound through bw 64 |
+| `Umin` | `tests/data/kb_umin.mlir` | 100.0 | 64 | 81 | sound through bw 64 |
 | `UmulSat` | `tests/data/kb_umulsat.mlir` | 89.429055 | 13 | 365 | stopped at bw 14 (timeout) |
-| `UshlSat` | `tests/data/kb_ushlsat.mlir` | 94.948702 | 64 | 264 | sound through bw 64 |
-| `UsubSat` | `tests/data/kb_usubsat.mlir` | 99.746183 | 64 | 314 | sound through bw 64 |
+| `UshlSat` | `tests/data/kb_ushlsat.mlir` | 94.948702 | 64 | 265 | sound through bw 64 |
+| `UsubSat` | `tests/data/kb_usubsat.mlir` | 99.746183 | 64 | 317 | sound through bw 64 |
 | `Xor` | `tests/data/kb_xor.mlir` | 100.0 | 64 | 12 | sound through bw 64 |
 
 ## UConstRange
@@ -75,7 +75,7 @@ Generated: 2026-02-20 20:45:19 UTC
 | `AddNsw` | — | missing | — | — | transfer file not present |
 | `AddNswNuw` | `tests/data/ucr_addnswnuw.mlir` | 100.0 | 64 | 54 | sound through bw 64 |
 | `AddNuw` | `tests/data/ucr_addnuw.mlir` | 100.0 | 64 | 17 | sound through bw 64 |
-| `And` | `tests/data/ucr_and.mlir` | 75.482397 | 0 | 437 | verify command error |
+| `And` | `tests/data/ucr_and.mlir` | 75.482397 | 0 | 372 | verify command error |
 | `Ashr` | — | missing | — | — | transfer file not present |
 | `AshrExact` | — | missing | — | — | transfer file not present |
 | `AvgCeilS` | `tests/data/ucr_avgceils.mlir` | 100.0 | 51 | 83 | stopped at bw 52 (timeout) |
@@ -138,7 +138,7 @@ Generated: 2026-02-20 20:45:19 UTC
 | `AddNsw` | — | missing | — | — | transfer file not present |
 | `AddNswNuw` | `tests/data/scr_addnswnuw.mlir` | 100.0 | 64 | 57 | sound through bw 64 |
 | `AddNuw` | — | missing | — | — | transfer file not present |
-| `And` | `tests/data/scr_and.mlir` | 64.144194 | 0 | 429 | verify command error |
+| `And` | `tests/data/scr_and.mlir` | 64.144194 | 0 | 366 | verify command error |
 | `Ashr` | — | missing | — | — | transfer file not present |
 | `AshrExact` | — | missing | — | — | transfer file not present |
 | `AvgCeilS` | `tests/data/scr_avgceils.mlir` | 100.0 | 64 | 15 | sound through bw 64 |
