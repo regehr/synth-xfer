@@ -179,7 +179,7 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `AvgCeilS` | `tests/data/kb_avgceils.mlir` | 57.717602 | 64 | 99 | sound through bw 64 |
 | `AvgCeilU` | `tests/data/kb_avgceilu.mlir` | 98.23139142235712 | 28 | 1945 | stopped at bw 29 (timeout) |
 | `AvgFloorS` | `tests/data/kb_avgfloors.mlir` | 72.531371 | 64 | 66 | sound through bw 64 |
-| `AvgFloorU` | `tests/data/kb_avgflooru.mlir` | 54.572944 | 64 | 55 | sound through bw 64 |
+| `AvgFloorU` | `tests/data/kb_avgflooru.mlir` | 98.5801287861159 | 40 | 1912 | stopped at bw 41 (timeout) |
 | `CountLOne` | `tests/data/kb_countlone.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
 | `CountLZero` | `tests/data/kb_countlzero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
 | `CountROne` | `tests/data/kb_countrone.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
