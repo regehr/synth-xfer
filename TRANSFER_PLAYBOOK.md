@@ -190,7 +190,7 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `LshrExact` | `tests/data/kb_LshrExact.mlir` | 100.0 | 64 | 278 | sound through bw 64 |
 | `Mods` | `tests/data/kb_Mods.mlir` | 66.528614 | 31 | 75 | stopped at bw 32 (timeout) |
 | `Modu` | `tests/data/kb_Modu.mlir` | 98.803944 | 6 | 1698 | stopped at bw 7 (timeout) |
-| `Mul` | `tests/data/kb_Mul.mlir` | 57.007164 | 0 | 55 | verify command error |
+| `Mul` | `tests/data/kb_Mul.mlir` | 95.3205007182777 | 7 | 1872 | stopped at bw 8 (timeout) |
 | `MulNsw` | `tests/data/kb_MulNsw.mlir` | 94.488507 | 8 | 2433 | stopped at bw 9 (timeout) |
 | `MulNswNuw` | `tests/data/kb_MulNswNuw.mlir` | 92.084644 | 9 | 2945 | stopped at bw 10 (timeout) |
 | `MulNuw` | `tests/data/kb_MulNuw.mlir` | 93.340977 | 9 | 2413 | stopped at bw 10 (timeout) |
@@ -199,16 +199,16 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `PopCount` | `tests/data/kb_PopCount.mlir` | 100.0 | 64 | 21 | sound through bw 64 |
 | `Rotl` | `tests/data/kb_Rotl.mlir` | 94.361327 | 32 | 54 | stopped at bw 33 (timeout) |
 | `Rotr` | `tests/data/kb_Rotr.mlir` | 94.361327 | 34 | 54 | stopped at bw 35 (timeout) |
-| `SaddSat` | `tests/data/kb_SaddSat.mlir` | 58.446751 | 64 | 219 | sound through bw 64 |
-| `Sdiv` | `tests/data/kb_Sdiv.mlir` | 58.191073 | 17 | 29 | stopped at bw 18 (timeout) |
-| `SdivExact` | `tests/data/kb_SdivExact.mlir` | 14.111862 | 41 | 81 | stopped at bw 42 (timeout) |
+| `SaddSat` | `tests/data/kb_SaddSat.mlir` | 97.72124803652292 | 18 | 2898 | stopped at bw 19 (timeout) |
+| `Sdiv` | `tests/data/kb_Sdiv.mlir` | 98.7710562205191 | 7 | 3665 | stopped at bw 8 (timeout) |
+| `SdivExact` | `tests/data/kb_SdivExact.mlir` | 94.43228672399925 | 6 | 4433 | stopped at bw 7 (timeout) |
 | `Shl` | `tests/data/kb_Shl.mlir` | 91.653511 | 64 | 268 | sound through bw 64 |
 | `ShlNsw` | `tests/data/kb_ShlNsw.mlir` | 88.501201 | 64 | 442 | sound through bw 64 |
 | `ShlNswNuw` | `tests/data/kb_ShlNswNuw.mlir` | 89.52014951382708 | 64 | 489 | sound through bw 64 |
 | `ShlNuw` | `tests/data/kb_ShlNuw.mlir` | 89.526045 | 64 | 489 | sound through bw 64 |
 | `Smax` | `tests/data/kb_Smax.mlir` | 98.44590253459722 | 64 | 1123 | sound through bw 64 |
 | `Smin` | `tests/data/kb_Smin.mlir` | 98.44590253459722 | 64 | 1123 | sound through bw 64 |
-| `SmulSat` | `tests/data/kb_SmulSat.mlir` | 55.757334 | 15 | 47 | stopped at bw 16 (timeout) |
+| `SmulSat` | `tests/data/kb_SmulSat.mlir` | 98.48813571653925 | 8 | 3410 | stopped at bw 9 (timeout) |
 | `Square` | `tests/data/kb_Square.mlir` | 98.8111568358482 | 14 | 127 | stopped at bw 15 (timeout) |
 | `SshlSat` | `tests/data/kb_SshlSat.mlir` | 93.669288 | 64 | 456 | sound through bw 64 |
 | `SsubSat` | `tests/data/kb_SsubSat.mlir` | 97.252836 | 46 | 696 | stopped at bw 47 (timeout); used equivalent local op workaround for verifier lowering bug on `transfer.is_negative` |
