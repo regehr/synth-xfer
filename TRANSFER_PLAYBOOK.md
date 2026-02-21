@@ -177,7 +177,7 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `Ashr` | `tests/data/kb_ashr.mlir` | 99.268404 | 64 | 132 | sound through bw 64 |
 | `AshrExact` | `tests/data/kb_ashrexact.mlir` | 95.515421 | 64 | 134 | sound through bw 64 |
 | `AvgCeilS` | `tests/data/kb_avgceils.mlir` | 57.717602 | 64 | 99 | sound through bw 64 |
-| `AvgCeilU` | `tests/data/kb_avgceilu.mlir` | 46.702519 | 64 | 88 | sound through bw 64 |
+| `AvgCeilU` | `tests/data/kb_avgceilu.mlir` | 98.23139142235712 | 28 | 1945 | stopped at bw 29 (timeout) |
 | `AvgFloorS` | `tests/data/kb_avgfloors.mlir` | 72.531371 | 64 | 66 | sound through bw 64 |
 | `AvgFloorU` | `tests/data/kb_avgflooru.mlir` | 54.572944 | 64 | 55 | sound through bw 64 |
 | `CountLOne` | `tests/data/kb_countlone.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
@@ -206,16 +206,16 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `ShlNsw` | `tests/data/kb_shlnsw.mlir` | 88.501201 | 64 | 442 | sound through bw 64 |
 | `ShlNswNuw` | `tests/data/kb_shlnswnuw.mlir` | 89.52014951382708 | 64 | 489 | sound through bw 64 |
 | `ShlNuw` | `tests/data/kb_shlnuw.mlir` | 89.526045 | 64 | 489 | sound through bw 64 |
-| `Smax` | `tests/data/kb_smax.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
-| `Smin` | `tests/data/kb_smin.mlir` | 6.254128 | 64 | 41 | sound through bw 64 |
+| `Smax` | `tests/data/kb_smax.mlir` | 98.44590253459722 | 64 | 1123 | sound through bw 64 |
+| `Smin` | `tests/data/kb_smin.mlir` | 98.44590253459722 | 64 | 1123 | sound through bw 64 |
 | `SmulSat` | `tests/data/kb_smulsat.mlir` | 55.757334 | 15 | 47 | stopped at bw 16 (timeout) |
 | `Square` | `tests/data/kb_square.mlir` | 98.8111568358482 | 14 | 127 | stopped at bw 15 (timeout) |
 | `SshlSat` | `tests/data/kb_sshlsat.mlir` | 93.669288 | 64 | 456 | sound through bw 64 |
 | `SsubSat` | `tests/data/kb_ssubsat.mlir` | 97.252836 | 46 | 696 | stopped at bw 47 (timeout); used equivalent local op workaround for verifier lowering bug on `transfer.is_negative` |
-| `Sub` | `tests/data/kb_sub.mlir` | 25.440579 | 64 | 22 | sound through bw 64 |
-| `SubNsw` | `tests/data/kb_subnsw.mlir` | 19.091175 | 64 | 22 | sound through bw 64 |
+| `Sub` | `tests/data/kb_sub.mlir` | 97.2441803407047 | 42 | 1117 | stopped at bw 43 (timeout) |
+| `SubNsw` | `tests/data/kb_subnsw.mlir` | 96.38095082782263 | 14 | 2397 | stopped at bw 15 (timeout) |
 | `SubNswNuw` | `tests/data/kb_subnswnuw.mlir` | 74.28919150427276 | 64 | 343 | sound through bw 64 |
-| `SubNuw` | `tests/data/kb_subnuw.mlir` | 10.787714 | 64 | 22 | sound through bw 64 |
+| `SubNuw` | `tests/data/kb_subnuw.mlir` | 99.52222144864413 | 64 | 343 | sound through bw 64 |
 | `UaddSat` | `tests/data/kb_uaddsat.mlir` | 100.0 | 64 | 347 | sound through bw 64 |
 | `Udiv` | `tests/data/kb_udiv.mlir` | 92.39903081119698 | 63 | 85 | stopped at bw 64 (timeout) |
 | `UdivExact` | `tests/data/kb_udivexact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
