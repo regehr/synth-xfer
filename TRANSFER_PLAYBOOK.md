@@ -188,7 +188,7 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `Fshr` | `tests/data/kb_Fshr.mlir` | 93.51092 | 5 | 76 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
 | `Lshr` | `tests/data/kb_Lshr.mlir` | 100.0 | 64 | 247 | sound through bw 64 |
 | `LshrExact` | `tests/data/kb_LshrExact.mlir` | 100.0 | 64 | 278 | sound through bw 64 |
-| `Mods` | `tests/data/kb_Mods.mlir` | 66.528614 | 31 | 75 | stopped at bw 32 (timeout) |
+| `Mods` | `tests/data/kb_Mods.mlir` | 99.69305676035115 | 6 | 1726 | stopped at bw 7 (timeout) |
 | `Modu` | `tests/data/kb_Modu.mlir` | 98.803944 | 6 | 1698 | stopped at bw 7 (timeout) |
 | `Mul` | `tests/data/kb_Mul.mlir` | 95.3205007182777 | 7 | 1872 | stopped at bw 8 (timeout) |
 | `MulNsw` | `tests/data/kb_MulNsw.mlir` | 94.488507 | 8 | 2433 | stopped at bw 9 (timeout) |
@@ -203,9 +203,9 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `Sdiv` | `tests/data/kb_Sdiv.mlir` | 98.7710562205191 | 7 | 3665 | stopped at bw 8 (timeout) |
 | `SdivExact` | `tests/data/kb_SdivExact.mlir` | 94.43228672399925 | 6 | 4433 | stopped at bw 7 (timeout) |
 | `Shl` | `tests/data/kb_Shl.mlir` | 91.653511 | 64 | 268 | sound through bw 64 |
-| `ShlNsw` | `tests/data/kb_ShlNsw.mlir` | 88.501201 | 64 | 442 | sound through bw 64 |
-| `ShlNswNuw` | `tests/data/kb_ShlNswNuw.mlir` | 89.52014951382708 | 64 | 489 | sound through bw 64 |
-| `ShlNuw` | `tests/data/kb_ShlNuw.mlir` | 89.526045 | 64 | 489 | sound through bw 64 |
+| `ShlNsw` | `tests/data/kb_ShlNsw.mlir` | 93.68551207419492 | 64 | 1512 | sound through bw 64 |
+| `ShlNswNuw` | `tests/data/kb_ShlNswNuw.mlir` | 94.25892160287889 | 64 | 1687 | sound through bw 64 |
+| `ShlNuw` | `tests/data/kb_ShlNuw.mlir` | 94.26025968389091 | 64 | 1303 | sound through bw 64 |
 | `Smax` | `tests/data/kb_Smax.mlir` | 98.44590253459722 | 64 | 1123 | sound through bw 64 |
 | `Smin` | `tests/data/kb_Smin.mlir` | 98.44590253459722 | 64 | 1123 | sound through bw 64 |
 | `SmulSat` | `tests/data/kb_SmulSat.mlir` | 98.48813571653925 | 8 | 3410 | stopped at bw 9 (timeout) |
@@ -214,14 +214,14 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `SsubSat` | `tests/data/kb_SsubSat.mlir` | 97.252836 | 46 | 696 | stopped at bw 47 (timeout); used equivalent local op workaround for verifier lowering bug on `transfer.is_negative` |
 | `Sub` | `tests/data/kb_Sub.mlir` | 97.2441803407047 | 42 | 1117 | stopped at bw 43 (timeout) |
 | `SubNsw` | `tests/data/kb_SubNsw.mlir` | 96.38095082782263 | 14 | 2397 | stopped at bw 15 (timeout) |
-| `SubNswNuw` | `tests/data/kb_SubNswNuw.mlir` | 74.28919150427276 | 64 | 343 | sound through bw 64 |
+| `SubNswNuw` | `tests/data/kb_SubNswNuw.mlir` | 99.97967789462989 | 64 | 49675 | sound through bw 64 (prior run); current full-range verify can hit SMT-printer recursion limits |
 | `SubNuw` | `tests/data/kb_SubNuw.mlir` | 99.52222144864413 | 64 | 343 | sound through bw 64 |
 | `UaddSat` | `tests/data/kb_UaddSat.mlir` | 100.0 | 64 | 347 | sound through bw 64 |
 | `Udiv` | `tests/data/kb_Udiv.mlir` | 92.39903081119698 | 63 | 85 | stopped at bw 64 (timeout) |
 | `UdivExact` | `tests/data/kb_UdivExact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
 | `Umax` | `tests/data/kb_Umax.mlir` | 100.0 | 64 | 81 | sound through bw 64 |
 | `Umin` | `tests/data/kb_Umin.mlir` | 100.0 | 64 | 81 | sound through bw 64 |
-| `UmulSat` | `tests/data/kb_UmulSat.mlir` | 89.429055 | 13 | 365 | stopped at bw 14 (timeout) |
+| `UmulSat` | `tests/data/kb_UmulSat.mlir` | 90.98035132571421 | 10 | 1886 | stopped at bw 11 (timeout) |
 | `UshlSat` | `tests/data/kb_UshlSat.mlir` | 94.948702 | 64 | 265 | sound through bw 64 |
 | `UsubSat` | `tests/data/kb_UsubSat.mlir` | 99.746183 | 64 | 317 | sound through bw 64 |
 | `Xor` | `tests/data/kb_Xor.mlir` | 100.0 | 64 | 12 | sound through bw 64 |
