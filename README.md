@@ -121,7 +121,7 @@ sxf mlir/Operations/Add.mlir          \
 
 For example:
 ```bash
-verify --xfer-file tests/data/kb_xor.mlir \
+verify --xfer-file tests/data/kb_Xor.mlir \
        --bw 4-8,16,32                     \
        --domain KnownBits                 \
        --op mlir/Operations/Xor.mlir
@@ -151,7 +151,7 @@ Should produce:
 
 For example:
 ```bash
-eval-final tests/data/kb_and.mlir        \
+eval-final tests/data/kb_And.mlir        \
            --domain KnownBits            \
            --op mlir/Operations/And.mlir \
            --exact-bw 8,5000             \

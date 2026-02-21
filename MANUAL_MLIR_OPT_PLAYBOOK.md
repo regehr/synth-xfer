@@ -26,7 +26,7 @@ Important:
 Assume target file is `tests/data/FOO.mlir` and concrete op is `mlir/Operations/Op.mlir`.
 
 Before running validation, confirm the concrete op file is correct.
-- Example: `kb_addnsw.mlir` pairs with `mlir/Operations/AddNsw.mlir`, not a generic placeholder path.
+- Example: `kb_AddNsw.mlir` pairs with `mlir/Operations/AddNsw.mlir`, not a generic placeholder path.
 - Quick check:
 
 ```bash
