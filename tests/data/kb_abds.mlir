@@ -297,6 +297,150 @@
     %res0 = "transfer.select"(%both_const, %const_val_not, %res0_one_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %res1 = "transfer.select"(%both_const, %const_val, %res1_one_unknown) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %r = "transfer.make"(%res0, %res1) : (!transfer.integer, !transfer.integer) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>
+
+    %lhsu_known = "transfer.or"(%lhs0, %lhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_unk = "transfer.xor"(%lhsu_known, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_unk_m1 = "transfer.sub"(%lhsu_unk, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_rem1 = "transfer.and"(%lhsu_unk, %lhsu_unk_m1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_rem1_m1 = "transfer.sub"(%lhsu_rem1, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_rem2 = "transfer.and"(%lhsu_rem1, %lhsu_rem1_m1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_rem2_m1 = "transfer.sub"(%lhsu_rem2, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_le2 = "transfer.cmp"(%lhsu_rem2, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %lhsu_b1 = "transfer.xor"(%lhsu_unk, %lhsu_rem1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_b2 = "transfer.xor"(%lhsu_rem1, %lhsu_rem2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_v0 = "transfer.add"(%lhs1, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_v1 = "transfer.add"(%lhsu_v0, %lhsu_b1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_v2 = "transfer.add"(%lhsu_v0, %lhsu_b2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %lhsu_v3 = "transfer.add"(%lhsu_v1, %lhsu_b2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_known = "transfer.or"(%rhs0, %rhs1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_unk = "transfer.xor"(%rhsu_known, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_unk_m1 = "transfer.sub"(%rhsu_unk, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_rem1 = "transfer.and"(%rhsu_unk, %rhsu_unk_m1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_rem1_m1 = "transfer.sub"(%rhsu_rem1, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_rem2 = "transfer.and"(%rhsu_rem1, %rhsu_rem1_m1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_rem2_m1 = "transfer.sub"(%rhsu_rem2, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_le2 = "transfer.cmp"(%rhsu_rem2, %const0) {predicate = 0 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %rhsu_b1 = "transfer.xor"(%rhsu_unk, %rhsu_rem1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_b2 = "transfer.xor"(%rhsu_rem1, %rhsu_rem2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_v0 = "transfer.add"(%rhs1, %const0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_v1 = "transfer.add"(%rhsu_v0, %rhsu_b1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_v2 = "transfer.add"(%rhsu_v0, %rhsu_b2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %rhsu_v3 = "transfer.add"(%rhsu_v1, %rhsu_b2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %exact_on = "arith.andi"(%lhsu_le2, %rhsu_le2) : (i1, i1) -> i1
+    %pair_ge_0 = "transfer.cmp"(%lhsu_v0, %rhsu_v0) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_0 = "transfer.sub"(%lhsu_v0, %rhsu_v0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_0 = "transfer.sub"(%rhsu_v0, %lhsu_v0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_0 = "transfer.select"(%pair_ge_0, %pair_sub_lr_0, %pair_sub_rl_0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_0 = "transfer.xor"(%pair_res_0, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_0 = "transfer.and"(%all_ones, %pair_not_0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_0 = "transfer.and"(%all_ones, %pair_res_0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_1 = "transfer.cmp"(%lhsu_v0, %rhsu_v1) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_1 = "transfer.sub"(%lhsu_v0, %rhsu_v1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_1 = "transfer.sub"(%rhsu_v1, %lhsu_v0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_1 = "transfer.select"(%pair_ge_1, %pair_sub_lr_1, %pair_sub_rl_1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_1 = "transfer.xor"(%pair_res_1, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_1 = "transfer.and"(%acc0_0, %pair_not_1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_1 = "transfer.and"(%acc1_0, %pair_res_1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_2 = "transfer.cmp"(%lhsu_v0, %rhsu_v2) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_2 = "transfer.sub"(%lhsu_v0, %rhsu_v2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_2 = "transfer.sub"(%rhsu_v2, %lhsu_v0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_2 = "transfer.select"(%pair_ge_2, %pair_sub_lr_2, %pair_sub_rl_2) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_2 = "transfer.xor"(%pair_res_2, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_2 = "transfer.and"(%acc0_1, %pair_not_2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_2 = "transfer.and"(%acc1_1, %pair_res_2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_3 = "transfer.cmp"(%lhsu_v0, %rhsu_v3) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_3 = "transfer.sub"(%lhsu_v0, %rhsu_v3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_3 = "transfer.sub"(%rhsu_v3, %lhsu_v0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_3 = "transfer.select"(%pair_ge_3, %pair_sub_lr_3, %pair_sub_rl_3) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_3 = "transfer.xor"(%pair_res_3, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_3 = "transfer.and"(%acc0_2, %pair_not_3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_3 = "transfer.and"(%acc1_2, %pair_res_3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_4 = "transfer.cmp"(%lhsu_v1, %rhsu_v0) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_4 = "transfer.sub"(%lhsu_v1, %rhsu_v0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_4 = "transfer.sub"(%rhsu_v0, %lhsu_v1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_4 = "transfer.select"(%pair_ge_4, %pair_sub_lr_4, %pair_sub_rl_4) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_4 = "transfer.xor"(%pair_res_4, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_4 = "transfer.and"(%acc0_3, %pair_not_4) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_4 = "transfer.and"(%acc1_3, %pair_res_4) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_5 = "transfer.cmp"(%lhsu_v1, %rhsu_v1) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_5 = "transfer.sub"(%lhsu_v1, %rhsu_v1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_5 = "transfer.sub"(%rhsu_v1, %lhsu_v1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_5 = "transfer.select"(%pair_ge_5, %pair_sub_lr_5, %pair_sub_rl_5) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_5 = "transfer.xor"(%pair_res_5, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_5 = "transfer.and"(%acc0_4, %pair_not_5) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_5 = "transfer.and"(%acc1_4, %pair_res_5) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_6 = "transfer.cmp"(%lhsu_v1, %rhsu_v2) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_6 = "transfer.sub"(%lhsu_v1, %rhsu_v2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_6 = "transfer.sub"(%rhsu_v2, %lhsu_v1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_6 = "transfer.select"(%pair_ge_6, %pair_sub_lr_6, %pair_sub_rl_6) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_6 = "transfer.xor"(%pair_res_6, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_6 = "transfer.and"(%acc0_5, %pair_not_6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_6 = "transfer.and"(%acc1_5, %pair_res_6) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_7 = "transfer.cmp"(%lhsu_v1, %rhsu_v3) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_7 = "transfer.sub"(%lhsu_v1, %rhsu_v3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_7 = "transfer.sub"(%rhsu_v3, %lhsu_v1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_7 = "transfer.select"(%pair_ge_7, %pair_sub_lr_7, %pair_sub_rl_7) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_7 = "transfer.xor"(%pair_res_7, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_7 = "transfer.and"(%acc0_6, %pair_not_7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_7 = "transfer.and"(%acc1_6, %pair_res_7) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_8 = "transfer.cmp"(%lhsu_v2, %rhsu_v0) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_8 = "transfer.sub"(%lhsu_v2, %rhsu_v0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_8 = "transfer.sub"(%rhsu_v0, %lhsu_v2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_8 = "transfer.select"(%pair_ge_8, %pair_sub_lr_8, %pair_sub_rl_8) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_8 = "transfer.xor"(%pair_res_8, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_8 = "transfer.and"(%acc0_7, %pair_not_8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_8 = "transfer.and"(%acc1_7, %pair_res_8) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_9 = "transfer.cmp"(%lhsu_v2, %rhsu_v1) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_9 = "transfer.sub"(%lhsu_v2, %rhsu_v1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_9 = "transfer.sub"(%rhsu_v1, %lhsu_v2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_9 = "transfer.select"(%pair_ge_9, %pair_sub_lr_9, %pair_sub_rl_9) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_9 = "transfer.xor"(%pair_res_9, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_9 = "transfer.and"(%acc0_8, %pair_not_9) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_9 = "transfer.and"(%acc1_8, %pair_res_9) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_10 = "transfer.cmp"(%lhsu_v2, %rhsu_v2) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_10 = "transfer.sub"(%lhsu_v2, %rhsu_v2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_10 = "transfer.sub"(%rhsu_v2, %lhsu_v2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_10 = "transfer.select"(%pair_ge_10, %pair_sub_lr_10, %pair_sub_rl_10) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_10 = "transfer.xor"(%pair_res_10, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_10 = "transfer.and"(%acc0_9, %pair_not_10) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_10 = "transfer.and"(%acc1_9, %pair_res_10) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_11 = "transfer.cmp"(%lhsu_v2, %rhsu_v3) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_11 = "transfer.sub"(%lhsu_v2, %rhsu_v3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_11 = "transfer.sub"(%rhsu_v3, %lhsu_v2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_11 = "transfer.select"(%pair_ge_11, %pair_sub_lr_11, %pair_sub_rl_11) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_11 = "transfer.xor"(%pair_res_11, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_11 = "transfer.and"(%acc0_10, %pair_not_11) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_11 = "transfer.and"(%acc1_10, %pair_res_11) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_12 = "transfer.cmp"(%lhsu_v3, %rhsu_v0) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_12 = "transfer.sub"(%lhsu_v3, %rhsu_v0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_12 = "transfer.sub"(%rhsu_v0, %lhsu_v3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_12 = "transfer.select"(%pair_ge_12, %pair_sub_lr_12, %pair_sub_rl_12) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_12 = "transfer.xor"(%pair_res_12, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_12 = "transfer.and"(%acc0_11, %pair_not_12) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_12 = "transfer.and"(%acc1_11, %pair_res_12) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_13 = "transfer.cmp"(%lhsu_v3, %rhsu_v1) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_13 = "transfer.sub"(%lhsu_v3, %rhsu_v1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_13 = "transfer.sub"(%rhsu_v1, %lhsu_v3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_13 = "transfer.select"(%pair_ge_13, %pair_sub_lr_13, %pair_sub_rl_13) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_13 = "transfer.xor"(%pair_res_13, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_13 = "transfer.and"(%acc0_12, %pair_not_13) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_13 = "transfer.and"(%acc1_12, %pair_res_13) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_14 = "transfer.cmp"(%lhsu_v3, %rhsu_v2) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_14 = "transfer.sub"(%lhsu_v3, %rhsu_v2) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_14 = "transfer.sub"(%rhsu_v2, %lhsu_v3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_14 = "transfer.select"(%pair_ge_14, %pair_sub_lr_14, %pair_sub_rl_14) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_14 = "transfer.xor"(%pair_res_14, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_14 = "transfer.and"(%acc0_13, %pair_not_14) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_14 = "transfer.and"(%acc1_13, %pair_res_14) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_ge_15 = "transfer.cmp"(%lhsu_v3, %rhsu_v3) {predicate = 5 : i64} : (!transfer.integer, !transfer.integer) -> i1
+    %pair_sub_lr_15 = "transfer.sub"(%lhsu_v3, %rhsu_v3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_sub_rl_15 = "transfer.sub"(%rhsu_v3, %lhsu_v3) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_res_15 = "transfer.select"(%pair_ge_15, %pair_sub_lr_15, %pair_sub_rl_15) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %pair_not_15 = "transfer.xor"(%pair_res_15, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc0_15 = "transfer.and"(%acc0_14, %pair_not_15) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %acc1_15 = "transfer.and"(%acc1_14, %pair_res_15) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %res0_out = "transfer.select"(%exact_on, %acc0_15, %res0) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %res1_out = "transfer.select"(%exact_on, %acc1_15, %res1) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
+    %r = "transfer.make"(%res0_out, %res1_out) : (!transfer.integer, !transfer.integer) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>
     "func.return"(%r) : (!transfer.abs_value<[!transfer.integer, !transfer.integer]>) -> ()
 }) {"sym_name" = "kb_abds", "function_type" = (!transfer.abs_value<[!transfer.integer, !transfer.integer]>, !transfer.abs_value<[!transfer.integer, !transfer.integer]>) -> !transfer.abs_value<[!transfer.integer, !transfer.integer]>} : () -> ()

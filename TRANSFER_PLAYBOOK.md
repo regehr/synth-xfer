@@ -167,7 +167,7 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 
 | Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify --timeout 120`) | MLIR Inst Count | Notes |
 |---|---|---:|---:|---:|---|
-| `Abds` | `tests/data/kb_abds.mlir` | 83.746999 | 64 | 272 | sound through bw 64 |
+| `Abds` | `tests/data/kb_abds.mlir` | 90.87972345210684 | 26 | 415 | stopped at bw 27 (timeout) |
 | `Abdu` | `tests/data/kb_abdu.mlir` | 91.937602 | 64 | 189 | sound through bw 64 |
 | `Add` | `tests/data/kb_add.mlir` | 100.0 | 64 | 37 | sound through bw 64 |
 | `AddNsw` | `tests/data/kb_addnsw.mlir` | 95.392653 | 64 | 79 | sound through bw 64 |
