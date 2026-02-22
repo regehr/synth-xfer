@@ -26,7 +26,7 @@ Choose exactly one row for a task.
 
 - The target for each transfer function is `100%` exact precision at `--exact-bw 7`. This is an optimization target, not a soundness exception: if `100%` is not achievable, keep the transfer sound and report the best precision reached.
 - In real-world use cases, transfers run at high bitwidths (often 32 or 64). Avoid low-width-only tuning. Optional diagnostic checks at `--exact-bw 5,6,7,8` must not show a strong downward precision trend; `--norm-bw 64,10000,1000` must also be used to inspect high-bitwidth quality (lower is better).
-- Ternary instructions (for example `fshl` and `fshr`) must not be evaluated with the same bitwidth settings as binary instructions. For ternary instructions, cap evaluation/soundness checks at bitwidth `5`.
+- Ternary instructions (for example `fshl` and `fshr`) must not be evaluated with the same bitwidth settings as binary instructions. For ternary instructions, cap precision checks at bitwidth `5`. Soundness checks for ternary instructions should go all the way to 64 bits.
 - CI integration is out of scope.
 - Primary tools are `verify` and `eval-final`; use `eval-point` for single abstract input-pair inspection.
 - Reuse effective patterns from existing transfers. You may also suggest missing `transfer` dialect integer ops that would improve precision or efficiency.
@@ -40,7 +40,7 @@ Choose exactly one row for a task.
 - `eval-final-flags`: `--exact-bw 7 --norm-bw 64,10000,1000`.
 - `eval-intermediate-flags` (optional): `--exact-bw 6 --norm-bw 64,10000,1000`.
 - `eval-final` outputs are not comparable across different `--exact-bw` values; only compare runs that use the same `--exact-bw`.
-- Ternary-op override: for ternary instructions such as `fshl`/`fshr`, use `--bw 1-5` for `verify` and `--exact-bw 5` for `eval-final`/`eval-intermediate` (keep other flags unchanged).
+- Ternary-op override: for ternary instructions such as `fshl`/`fshr`, use `--exact-bw 5` for `eval-final`/`eval-intermediate` (keep other flags unchanged). For soundness checks using `verify`, you should go all the way to 64 bits for ternary operations.
 
 ## Tool Bug Policy (Required)
 
