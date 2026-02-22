@@ -1,5 +1,6 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
+from sys import stdout
 from time import perf_counter
 from typing import cast
 
@@ -197,7 +198,13 @@ def _print_counterexample(
         abst_output = None
         conc_output = None
     else:
-        abst_output = run_xfer_fn(domain, bw, [tuple(abst_args)], mlir_mod, xfer_name)[0]  # type: ignore
+        try:
+            abst_output = run_xfer_fn(
+                domain, bw, [tuple(abst_args)], mlir_mod, xfer_name
+            )[0]  # type: ignore
+        except ImportError as e:
+            abst_output = None
+            print(f"Warning: Could not execute due {e}")
         conc_output = run_concrete_fn(helper_funcs, bw, [tuple(conc_args)])[0]
         conc_output = (
             _format_concrete(conc_output, domain, bw)
@@ -246,18 +253,19 @@ def main() -> None:
 
         if is_sound is None:
             if args.continue_timeout:
-                print(f"{bw:<2} bits | timeout | took {args.timeout}s")
+                print(f"{bw:<2} bits | timeout | took {args.timeout}s", flush=True)
             else:
                 print(
-                    f"Verifier TIMEOUT at {bw}-bits.\nTimeout was {args.timeout} second."
+                    f"Verifier TIMEOUT at {bw}-bits.\nTimeout was {args.timeout} seconds.",
+                    flush=True,
                 )
                 break
         elif is_sound:
-            print(f"{bw:<2} bits | sound   | took {run_time:.4f}s")
+            print(f"{bw:<2} bits | sound   | took {run_time:.4f}s", flush=True)
         else:
-            print("-----------------------------------------------------")
-            print(f"Verifier UNSOUND at {bw}-bits. Took {run_time:.4f}s.")
-            print("Counterexample:")
+            print("-----------------------------------------------------", flush=True)
+            print(f"Verifier UNSOUND at {bw}-bits. Took {run_time:.4f}s.", flush=True)
+            print("Counterexample:", flush=True)
 
             assert isinstance(model, BVCounterexampleModel)
             _print_counterexample(
@@ -270,6 +278,7 @@ def main() -> None:
                 helper_funcs,
                 args.no_exec,
             )
+            stdout.flush()
 
             if not args.continue_unsound:
                 break
