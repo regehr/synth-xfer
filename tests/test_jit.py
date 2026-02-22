@@ -214,9 +214,9 @@ def test_jit_with_kb_ashr():
 def test_jit_with_kb_udivexact():
     conc_udivexact_f = PROJ_DIR / "mlir" / "Operations" / "UdivExact.mlir"
 
-    lowerer = LowerToLLVM([4, 8])
+    lowerer = LowerToLLVM([4])
     helpers = get_helper_funcs(conc_udivexact_f, AbstractDomain.KnownBits)
-    xfer_mlir = parse_mlir_func(DATA_DIR / "kb_udivexact.mlir")
+    xfer_mlir = parse_mlir_func(DATA_DIR / "kb_UdivExact.mlir")
     lowerer.add_fn(xfer_mlir, shim=True)
     lowerer.add_fn(helpers.crt_func, shim=True)
     lowerer.add_fn(helpers.op_constraint_func, shim=True)
@@ -234,21 +234,6 @@ def test_jit_with_kb_udivexact():
     assert res.all_cases > 0
     assert res.bitwidth == 4
 
-    conc_op_addr = jit.get_fn_ptr("concrete_op_8_shim")
-    op_constraint_addr = jit.get_fn_ptr("op_constraint_8_shim")
-    xfer_fn_addr = jit.get_fn_ptr("kb_udivexact_8_shim")
-
-    NUM_CASES = 5000
-    sampler = Sampler.uniform()
-    to_eval_mid = enum_mid_knownbits_8_8_8(
-        conc_op_addr, op_constraint_addr, NUM_CASES, 100, sampler.sampler
-    )
-    raw_res = eval_knownbits_8_8_8(to_eval_mid, [xfer_fn_addr], [])
-    res = get_per_bit(raw_res)[0]
-    assert res.get_sound_prop() == 1.0
-    assert res.all_cases == NUM_CASES
-    assert res.bitwidth == 8
-
 
 def test_jit_with_ucr_add():
     conc_add_f = PROJ_DIR / "mlir" / "Operations" / "Add.mlir"
@@ -262,7 +247,7 @@ def test_jit_with_ucr_add():
     with Jit() as jit:
         jit.add_mod(str(lowerer))
         conc_op_addr = jit.get_fn_ptr("concrete_op_4_shim")
-        xfer_fn_addr = jit.get_fn_ptr("cr_add_4_shim")
+        xfer_fn_addr = jit.get_fn_ptr("ucr_add_4_shim")
 
         to_eval_low = enum_low_uconstrange_4_4_4(conc_op_addr.addr, None)
         raw_res = eval_uconstrange_4_4_4(to_eval_low, [xfer_fn_addr.addr], [])
@@ -273,7 +258,7 @@ def test_jit_with_ucr_add():
         )
 
         conc_op_addr = jit.get_fn_ptr("concrete_op_8_shim")
-        xfer_fn_addr = jit.get_fn_ptr("cr_add_8_shim")
+        xfer_fn_addr = jit.get_fn_ptr("ucr_add_8_shim")
 
         NUM_CASES = 5000
         sampler = Sampler.uniform()

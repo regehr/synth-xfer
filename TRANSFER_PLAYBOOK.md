@@ -165,66 +165,66 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 
 ## KnownBits
 
-| Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (`verify --timeout 120`) | MLIR Inst Count | Notes |
-|---|---|---:|---:|---:|---|
-| `Abds` | `tests/data/kb_Abds.mlir` | 90.87972345210684 | 26 | 415 | stopped at bw 27 (timeout) |
-| `Abdu` | `tests/data/kb_Abdu.mlir` | 91.937602 | 64 | 189 | sound through bw 64 |
-| `Add` | `tests/data/kb_Add.mlir` | 100.0 | 64 | 37 | sound through bw 64 |
-| `AddNsw` | `tests/data/kb_AddNsw.mlir` | 95.392653 | 64 | 79 | sound through bw 64 |
-| `AddNswNuw` | `tests/data/kb_AddNswNuw.mlir` | 93.384757 | 64 | 182 | sound through bw 64 |
-| `AddNuw` | `tests/data/kb_AddNuw.mlir` | 100.0 | 64 | 56 | sound through bw 64 |
-| `And` | `tests/data/kb_And.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
-| `Ashr` | `tests/data/kb_Ashr.mlir` | 99.268404 | 64 | 132 | sound through bw 64 |
-| `AshrExact` | `tests/data/kb_AshrExact.mlir` | 95.515421 | 64 | 134 | sound through bw 64 |
-| `AvgCeilS` | `tests/data/kb_AvgCeilS.mlir` | 98.32430442262954 | 28 | 1956 | stopped at bw 29 (timeout) |
-| `AvgCeilU` | `tests/data/kb_AvgCeilU.mlir` | 98.23139142235712 | 28 | 1945 | stopped at bw 29 (timeout) |
-| `AvgFloorS` | `tests/data/kb_AvgFloorS.mlir` | 98.90202089957096 | 39 | 1923 | stopped at bw 40 (timeout) |
-| `AvgFloorU` | `tests/data/kb_AvgFloorU.mlir` | 98.5801287861159 | 40 | 1912 | stopped at bw 41 (timeout) |
-| `CountLOne` | `tests/data/kb_CountLOne.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
-| `CountLZero` | `tests/data/kb_CountLZero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
-| `CountROne` | `tests/data/kb_CountROne.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
-| `CountRZero` | `tests/data/kb_CountRZero.mlir` | 90.946502 | 64 | 20 | sound through bw 64 |
-| `Fshl` | `tests/data/kb_Fshl.mlir` | 93.51092 | 5 | 76 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
-| `Fshr` | `tests/data/kb_Fshr.mlir` | 93.51092 | 5 | 76 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
-| `Lshr` | `tests/data/kb_Lshr.mlir` | 100.0 | 64 | 247 | sound through bw 64 |
-| `LshrExact` | `tests/data/kb_LshrExact.mlir` | 100.0 | 64 | 278 | sound through bw 64 |
-| `Mods` | `tests/data/kb_Mods.mlir` | 99.69305676035115 | 6 | 1726 | stopped at bw 7 (timeout) |
-| `Modu` | `tests/data/kb_Modu.mlir` | 98.803944 | 6 | 1698 | stopped at bw 7 (timeout) |
-| `Mul` | `tests/data/kb_Mul.mlir` | 95.3205007182777 | 7 | 1872 | stopped at bw 8 (timeout) |
-| `MulNsw` | `tests/data/kb_MulNsw.mlir` | 94.488507 | 8 | 2433 | stopped at bw 9 (timeout) |
-| `MulNswNuw` | `tests/data/kb_MulNswNuw.mlir` | 92.084644 | 9 | 2945 | stopped at bw 10 (timeout) |
-| `MulNuw` | `tests/data/kb_MulNuw.mlir` | 93.340977 | 9 | 2413 | stopped at bw 10 (timeout) |
-| `Nop` | `tests/data/kb_Nop.mlir` | 100.0 | 64 | 1 | sound through bw 64 |
-| `Or` | `tests/data/kb_Or.mlir` | 100.0 | 64 | 8 | sound through bw 64 |
-| `PopCount` | `tests/data/kb_PopCount.mlir` | 100.0 | 64 | 21 | sound through bw 64 |
-| `Rotl` | `tests/data/kb_Rotl.mlir` | 94.361327 | 32 | 54 | stopped at bw 33 (timeout) |
-| `Rotr` | `tests/data/kb_Rotr.mlir` | 94.361327 | 34 | 54 | stopped at bw 35 (timeout) |
-| `SaddSat` | `tests/data/kb_SaddSat.mlir` | 97.72124803652292 | 18 | 2898 | stopped at bw 19 (timeout) |
-| `Sdiv` | `tests/data/kb_Sdiv.mlir` | 98.7710562205191 | 7 | 3665 | stopped at bw 8 (timeout) |
-| `SdivExact` | `tests/data/kb_SdivExact.mlir` | 94.43228672399925 | 6 | 4433 | stopped at bw 7 (timeout) |
-| `Shl` | `tests/data/kb_Shl.mlir` | 91.653511 | 64 | 268 | sound through bw 64 |
-| `ShlNsw` | `tests/data/kb_ShlNsw.mlir` | 93.68551207419492 | 64 | 1512 | sound through bw 64 |
-| `ShlNswNuw` | `tests/data/kb_ShlNswNuw.mlir` | 94.25892160287889 | 64 | 1687 | sound through bw 64 |
-| `ShlNuw` | `tests/data/kb_ShlNuw.mlir` | 94.26025968389091 | 64 | 1303 | sound through bw 64 |
-| `Smax` | `tests/data/kb_Smax.mlir` | 98.44590253459722 | 64 | 1123 | sound through bw 64 |
-| `Smin` | `tests/data/kb_Smin.mlir` | 98.44590253459722 | 64 | 1123 | sound through bw 64 |
-| `SmulSat` | `tests/data/kb_SmulSat.mlir` | 98.48813571653925 | 8 | 3410 | stopped at bw 9 (timeout) |
-| `Square` | `tests/data/kb_Square.mlir` | 98.8111568358482 | 14 | 127 | stopped at bw 15 (timeout) |
-| `SshlSat` | `tests/data/kb_SshlSat.mlir` | 93.669288 | 64 | 456 | sound through bw 64 |
-| `SsubSat` | `tests/data/kb_SsubSat.mlir` | 97.252836 | 46 | 696 | stopped at bw 47 (timeout); used equivalent local op workaround for verifier lowering bug on `transfer.is_negative` |
-| `Sub` | `tests/data/kb_Sub.mlir` | 97.2441803407047 | 42 | 1117 | stopped at bw 43 (timeout) |
-| `SubNsw` | `tests/data/kb_SubNsw.mlir` | 96.38095082782263 | 14 | 2397 | stopped at bw 15 (timeout) |
-| `SubNswNuw` | `tests/data/kb_SubNswNuw.mlir` | 99.97967789462989 | 64 | 49675 | sound through bw 64 (prior run); current full-range verify can hit SMT-printer recursion limits |
-| `SubNuw` | `tests/data/kb_SubNuw.mlir` | 99.52222144864413 | 64 | 343 | sound through bw 64 |
-| `UaddSat` | `tests/data/kb_UaddSat.mlir` | 100.0 | 64 | 347 | sound through bw 64 |
-| `Udiv` | `tests/data/kb_Udiv.mlir` | 92.39903081119698 | 63 | 85 | stopped at bw 64 (timeout) |
-| `UdivExact` | `tests/data/kb_UdivExact.mlir` | 95.945949 | 5 | 49453 | stopped at bw 6 (timeout) |
-| `Umax` | `tests/data/kb_Umax.mlir` | 100.0 | 64 | 81 | sound through bw 64 |
-| `Umin` | `tests/data/kb_Umin.mlir` | 100.0 | 64 | 81 | sound through bw 64 |
-| `UmulSat` | `tests/data/kb_UmulSat.mlir` | 90.98035132571421 | 10 | 1886 | stopped at bw 11 (timeout) |
-| `UshlSat` | `tests/data/kb_UshlSat.mlir` | 94.948702 | 64 | 265 | sound through bw 64 |
-| `UsubSat` | `tests/data/kb_UsubSat.mlir` | 99.746183 | 64 | 317 | sound through bw 64 |
-| `Xor` | `tests/data/kb_Xor.mlir` | 100.0 | 64 | 12 | sound through bw 64 |
+| Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (Z3, `verify --timeout 120`) | Highest Sound BW (CVC5, `verify --timeout 120`) | MLIR Inst Count | Notes |
+|---|---|---:|---:|---:|---:|---|
+| `Abds` | `tests/data/kb_Abds.mlir` | 90.87972345210684 | 26 | 21 | 415 | stopped at bw 27 (timeout) |
+| `Abdu` | `tests/data/kb_Abdu.mlir` | 91.937602 | 64 | 64 | 189 | sound through bw 64 |
+| `Add` | `tests/data/kb_Add.mlir` | 100.0 | 64 | 64 | 37 | sound through bw 64 |
+| `AddNsw` | `tests/data/kb_AddNsw.mlir` | 95.392653 | 64 | 64 | 79 | sound through bw 64 |
+| `AddNswNuw` | `tests/data/kb_AddNswNuw.mlir` | 93.384757 | 64 | 64 | 182 | sound through bw 64 |
+| `AddNuw` | `tests/data/kb_AddNuw.mlir` | 100.0 | 64 | 64 | 56 | sound through bw 64 |
+| `And` | `tests/data/kb_And.mlir` | 100.0 | 64 | 64 | 8 | sound through bw 64 |
+| `Ashr` | `tests/data/kb_Ashr.mlir` | 99.268404 | 64 | 64 | 132 | sound through bw 64 |
+| `AshrExact` | `tests/data/kb_AshrExact.mlir` | 95.515421 | 64 | 64 | 134 | sound through bw 64 |
+| `AvgCeilS` | `tests/data/kb_AvgCeilS.mlir` | 98.32430442262954 | 28 | 54 | 1956 | stopped at bw 29 (timeout) |
+| `AvgCeilU` | `tests/data/kb_AvgCeilU.mlir` | 98.23139142235712 | 28 | 56 | 1945 | stopped at bw 29 (timeout) |
+| `AvgFloorS` | `tests/data/kb_AvgFloorS.mlir` | 98.90202089957096 | 39 | 64 | 1923 | stopped at bw 40 (timeout) |
+| `AvgFloorU` | `tests/data/kb_AvgFloorU.mlir` | 98.5801287861159 | 40 | 64 | 1912 | stopped at bw 41 (timeout) |
+| `CountLOne` | `tests/data/kb_CountLOne.mlir` | 90.946502 | 64 | 64 | 20 | sound through bw 64 |
+| `CountLZero` | `tests/data/kb_CountLZero.mlir` | 90.946502 | 64 | 64 | 20 | sound through bw 64 |
+| `CountROne` | `tests/data/kb_CountROne.mlir` | 90.946502 | 64 | 64 | 20 | sound through bw 64 |
+| `CountRZero` | `tests/data/kb_CountRZero.mlir` | 90.946502 | 64 | 64 | 20 | sound through bw 64 |
+| `Fshl` | `tests/data/kb_Fshl.mlir` | 93.51092 | 5 | 17 | 76 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
+| `Fshr` | `tests/data/kb_Fshr.mlir` | 93.51092 | 5 | 16 | 76 | sound through bw 5 (ternary cap; exact run used `--exact-bw 5`) |
+| `Lshr` | `tests/data/kb_Lshr.mlir` | 100.0 | 64 | 64 | 247 | sound through bw 64 |
+| `LshrExact` | `tests/data/kb_LshrExact.mlir` | 100.0 | 64 | 64 | 278 | sound through bw 64 |
+| `Mods` | `tests/data/kb_Mods.mlir` | 99.69305676035115 | 6 | 6 | 1726 | stopped at bw 7 (timeout) |
+| `Modu` | `tests/data/kb_Modu.mlir` | 98.803944 | 6 | 6 | 1698 | stopped at bw 7 (timeout) |
+| `Mul` | `tests/data/kb_Mul.mlir` | 95.3205007182777 | 7 | 7 | 1872 | stopped at bw 8 (timeout) |
+| `MulNsw` | `tests/data/kb_MulNsw.mlir` | 94.488507 | 8 | 2 | 2433 | stopped at bw 9 (timeout) |
+| `MulNswNuw` | `tests/data/kb_MulNswNuw.mlir` | 92.084644 | 9 | 2 | 2945 | stopped at bw 10 (timeout) |
+| `MulNuw` | `tests/data/kb_MulNuw.mlir` | 93.340977 | 9 | 2 | 2413 | stopped at bw 10 (timeout) |
+| `Nop` | `tests/data/kb_Nop.mlir` | 100.0 | 64 | 64 | 1 | sound through bw 64 |
+| `Or` | `tests/data/kb_Or.mlir` | 100.0 | 64 | 64 | 8 | sound through bw 64 |
+| `PopCount` | `tests/data/kb_PopCount.mlir` | 100.0 | 64 | error | 21 | sound through bw 64 |
+| `Rotl` | `tests/data/kb_Rotl.mlir` | 94.361327 | 32 | 22 | 54 | stopped at bw 33 (timeout) |
+| `Rotr` | `tests/data/kb_Rotr.mlir` | 94.361327 | 34 | 22 | 54 | stopped at bw 35 (timeout) |
+| `SaddSat` | `tests/data/kb_SaddSat.mlir` | 97.72124803652292 | 18 | 2 | 2898 | stopped at bw 19 (timeout) |
+| `Sdiv` | `tests/data/kb_Sdiv.mlir` | 98.7710562205191 | 7 | 7 | 3665 | stopped at bw 8 (timeout) |
+| `SdivExact` | `tests/data/kb_SdivExact.mlir` | 94.43228672399925 | 6 | 3 | 4433 | stopped at bw 7 (timeout) |
+| `Shl` | `tests/data/kb_Shl.mlir` | 91.653511 | 64 | 64 | 268 | sound through bw 64 |
+| `ShlNsw` | `tests/data/kb_ShlNsw.mlir` | 93.68551207419492 | 64 | 45 | 1512 | sound through bw 64 |
+| `ShlNswNuw` | `tests/data/kb_ShlNswNuw.mlir` | 94.25892160287889 | 64 | 2 | 1687 | sound through bw 64 |
+| `ShlNuw` | `tests/data/kb_ShlNuw.mlir` | 94.26025968389091 | 64 | 15 | 1303 | sound through bw 64 |
+| `Smax` | `tests/data/kb_Smax.mlir` | 98.44590253459722 | 64 | 2 | 1123 | sound through bw 64 |
+| `Smin` | `tests/data/kb_Smin.mlir` | 98.44590253459722 | 64 | 2 | 1123 | sound through bw 64 |
+| `SmulSat` | `tests/data/kb_SmulSat.mlir` | 98.48813571653925 | 8 | 2 | 3410 | stopped at bw 9 (timeout) |
+| `Square` | `tests/data/kb_Square.mlir` | 98.8111568358482 | 14 | 14 | 127 | stopped at bw 15 (timeout) |
+| `SshlSat` | `tests/data/kb_SshlSat.mlir` | 93.669288 | 64 | 64 | 456 | sound through bw 64 |
+| `SsubSat` | `tests/data/kb_SsubSat.mlir` | 97.252836 | 46 | error | 696 | stopped at bw 47 (timeout); used equivalent local op workaround for verifier lowering bug on `transfer.is_negative` |
+| `Sub` | `tests/data/kb_Sub.mlir` | 97.2441803407047 | 42 | 52 | 1117 | stopped at bw 43 (timeout) |
+| `SubNsw` | `tests/data/kb_SubNsw.mlir` | 96.38095082782263 | 14 | 1 | 2397 | stopped at bw 15 (timeout) |
+| `SubNswNuw` | `tests/data/kb_SubNswNuw.mlir` | 99.97967789462989 | 64 | error | 49675 | sound through bw 64 (prior run); current full-range verify can hit SMT-printer recursion limits |
+| `SubNuw` | `tests/data/kb_SubNuw.mlir` | 99.52222144864413 | 64 | 63 | 343 | sound through bw 64 |
+| `UaddSat` | `tests/data/kb_UaddSat.mlir` | 100.0 | 64 | 64 | 347 | sound through bw 64 |
+| `Udiv` | `tests/data/kb_Udiv.mlir` | 92.39903081119698 | 63 | 14 | 85 | stopped at bw 64 (timeout) |
+| `UdivExact` | `tests/data/kb_UdivExact.mlir` | 95.945949 | 5 | 0 | 49453 | stopped at bw 6 (timeout) |
+| `Umax` | `tests/data/kb_Umax.mlir` | 100.0 | 64 | 64 | 81 | sound through bw 64 |
+| `Umin` | `tests/data/kb_Umin.mlir` | 100.0 | 64 | 64 | 81 | sound through bw 64 |
+| `UmulSat` | `tests/data/kb_UmulSat.mlir` | 90.98035132571421 | 10 | 11 | 1886 | stopped at bw 11 (timeout) |
+| `UshlSat` | `tests/data/kb_UshlSat.mlir` | 94.948702 | 64 | 27 | 265 | sound through bw 64 |
+| `UsubSat` | `tests/data/kb_UsubSat.mlir` | 99.746183 | 64 | 64 | 317 | sound through bw 64 |
+| `Xor` | `tests/data/kb_Xor.mlir` | 100.0 | 64 | 64 | 12 | sound through bw 64 |
 
 ## UConstRange
 

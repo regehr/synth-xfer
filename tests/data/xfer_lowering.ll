@@ -347,7 +347,7 @@ entry:
   ret [2 x i64] %".16"
 }
 
-define [2 x i4] @"cr_add_4"([2 x i4] %".1", [2 x i4] %".2") alwaysinline norecurse nounwind readnone
+define [2 x i4] @"ucr_add_4"([2 x i4] %".1", [2 x i4] %".2") alwaysinline norecurse nounwind readnone
 {
 entry:
   %"lhs_lower" = extractvalue [2 x i4] %".1", 0
@@ -372,7 +372,7 @@ entry:
 
 declare {i4, i1} @"llvm.uadd.with.overflow.i4"(i4 %".1", i4 %".2")
 
-define [2 x i64] @"cr_add_4_shim"([2 x i64] %".1", [2 x i64] %".2") alwaysinline norecurse nounwind readnone
+define [2 x i64] @"ucr_add_4_shim"([2 x i64] %".1", [2 x i64] %".2") alwaysinline norecurse nounwind readnone
 {
 entry:
   %".4" = extractvalue [2 x i64] %".1", 0
@@ -387,7 +387,7 @@ entry:
   %".13" = trunc i64 %".12" to i4
   %".14" = insertvalue [2 x i4] zeroinitializer, i4 %".11", 0
   %".15" = insertvalue [2 x i4] %".14", i4 %".13", 1
-  %".16" = call [2 x i4] @"cr_add_4"([2 x i4] %".9", [2 x i4] %".15")
+  %".16" = call [2 x i4] @"ucr_add_4"([2 x i4] %".9", [2 x i4] %".15")
   %".17" = extractvalue [2 x i4] %".16", 0
   %".18" = zext i4 %".17" to i64
   %".19" = extractvalue [2 x i4] %".16", 1
@@ -397,7 +397,7 @@ entry:
   ret [2 x i64] %".22"
 }
 
-define [2 x i8] @"cr_add_8"([2 x i8] %".1", [2 x i8] %".2") alwaysinline norecurse nounwind readnone
+define [2 x i8] @"ucr_add_8"([2 x i8] %".1", [2 x i8] %".2") alwaysinline norecurse nounwind readnone
 {
 entry:
   %"lhs_lower" = extractvalue [2 x i8] %".1", 0
@@ -422,7 +422,7 @@ entry:
 
 declare {i8, i1} @"llvm.uadd.with.overflow.i8"(i8 %".1", i8 %".2")
 
-define [2 x i64] @"cr_add_8_shim"([2 x i64] %".1", [2 x i64] %".2") alwaysinline norecurse nounwind readnone
+define [2 x i64] @"ucr_add_8_shim"([2 x i64] %".1", [2 x i64] %".2") alwaysinline norecurse nounwind readnone
 {
 entry:
   %".4" = extractvalue [2 x i64] %".1", 0
@@ -437,7 +437,7 @@ entry:
   %".13" = trunc i64 %".12" to i8
   %".14" = insertvalue [2 x i8] zeroinitializer, i8 %".11", 0
   %".15" = insertvalue [2 x i8] %".14", i8 %".13", 1
-  %".16" = call [2 x i8] @"cr_add_8"([2 x i8] %".9", [2 x i8] %".15")
+  %".16" = call [2 x i8] @"ucr_add_8"([2 x i8] %".9", [2 x i8] %".15")
   %".17" = extractvalue [2 x i8] %".16", 0
   %".18" = zext i8 %".17" to i64
   %".19" = extractvalue [2 x i8] %".16", 1
@@ -447,7 +447,7 @@ entry:
   ret [2 x i64] %".22"
 }
 
-define [2 x i64] @"cr_add_64"([2 x i64] %".1", [2 x i64] %".2") alwaysinline norecurse nounwind readnone
+define [2 x i64] @"ucr_add_64"([2 x i64] %".1", [2 x i64] %".2") alwaysinline norecurse nounwind readnone
 {
 entry:
   %"lhs_lower" = extractvalue [2 x i64] %".1", 0
@@ -472,7 +472,7 @@ entry:
 
 declare {i64, i1} @"llvm.uadd.with.overflow.i64"(i64 %".1", i64 %".2")
 
-define [2 x i64] @"cr_add_64_shim"([2 x i64] %".1", [2 x i64] %".2") alwaysinline norecurse nounwind readnone
+define [2 x i64] @"ucr_add_64_shim"([2 x i64] %".1", [2 x i64] %".2") alwaysinline norecurse nounwind readnone
 {
 entry:
   %".4" = extractvalue [2 x i64] %".1", 0
@@ -483,7 +483,7 @@ entry:
   %".9" = extractvalue [2 x i64] %".2", 1
   %".10" = insertvalue [2 x i64] zeroinitializer, i64 %".8", 0
   %".11" = insertvalue [2 x i64] %".10", i64 %".9", 1
-  %".12" = call [2 x i64] @"cr_add_64"([2 x i64] %".7", [2 x i64] %".11")
+  %".12" = call [2 x i64] @"ucr_add_64"([2 x i64] %".7", [2 x i64] %".11")
   %".13" = extractvalue [2 x i64] %".12", 0
   %".14" = extractvalue [2 x i64] %".12", 1
   %".15" = insertvalue [2 x i64] zeroinitializer, i64 %".13", 0

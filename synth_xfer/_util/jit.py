@@ -15,6 +15,12 @@ class FnPtr:
             raise RuntimeError("FnPtr used after Jit was closed")
         return self._addr
 
+    def __int__(self) -> int:
+        return self.addr
+
+    def __index__(self) -> int:
+        return self.addr
+
 
 class Jit:
     @staticmethod
