@@ -65,8 +65,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Aggregate known-bits logs per instruction and bitwidth. "
-            "For each (instruction, width), emit total unknown result bits "
-            "and input-pattern counts."
+            "For each (instruction, width), write labeled tab-separated fields "
+            "including arguments, count, and LLVM transfer results."
         )
     )
     parser.add_argument("files", nargs="+", type=Path, help="Known-bits log files to process")
@@ -94,8 +94,10 @@ def main() -> int:
     args = parse_args()
 
     # Keyed by (instruction_name, result_bitwidth).
-    unknown_bits_by_bucket: Counter[tuple[str, int]] = Counter()
-    input_patterns_by_bucket: dict[tuple[str, int], Counter[str]] = defaultdict(Counter)
+    input_patterns_by_bucket: dict[tuple[str, int], Counter[tuple[str, ...]]] = defaultdict(Counter)
+    llvm_results_by_pattern_by_bucket: dict[
+        tuple[str, int], dict[tuple[str, ...], Counter[str]]
+    ] = defaultdict(lambda: defaultdict(Counter))
 
     for path in args.files:
         try:
@@ -115,14 +117,14 @@ def main() -> int:
 
                     llvm_insn = parts[0]
                     result = parts[1]
-                    inputs = parts[2:]
+                    inputs = tuple(parts[2:])
 
                     insn = map_llvm_insn_to_mlir_stem(llvm_insn)
                     width = len(result)
                     bucket = (insn, width)
 
-                    unknown_bits_by_bucket[bucket] += result.count("?")
-                    input_patterns_by_bucket[bucket][" ".join(inputs)] += 1
+                    input_patterns_by_bucket[bucket][inputs] += 1
+                    llvm_results_by_pattern_by_bucket[bucket][inputs][result] += 1
         except FileNotFoundError:
             print(f"error: file not found: {path}", file=sys.stderr)
             return 1
@@ -130,17 +132,22 @@ def main() -> int:
     output_dir = Path("output2")
     output_dir.mkdir(exist_ok=True)
 
-    for insn, width in sorted(unknown_bits_by_bucket, key=lambda item: (item[0], item[1])):
+    for insn, width in sorted(input_patterns_by_bucket, key=lambda item: (item[0], item[1])):
         file_insn = sanitize_insn_for_filename(insn)
         out_file = output_dir / f"KnownBits_{file_insn}_{width}.txt"
 
         with out_file.open("w", encoding="utf-8") as outfile:
-            outfile.write(f"unknown_result_bits\t{unknown_bits_by_bucket[(insn, width)]}\n")
-            for pattern, count in sorted(
+            for inputs, count in sorted(
                 input_patterns_by_bucket[(insn, width)].items(),
                 key=lambda item: (-item[1], item[0]),
             ):
-                outfile.write(f"{count}\t{pattern}\n")
+                result_counter = llvm_results_by_pattern_by_bucket[(insn, width)][inputs]
+                sorted_results = sorted(result_counter.items(), key=lambda item: (-item[1], item[0]))
+
+                fields = [f"arg{i}={arg}" for i, arg in enumerate(inputs)]
+                fields.append(f"count={count}")
+                fields.extend(f"llvm_result={result_bits}" for result_bits, _ in sorted_results)
+                outfile.write("\t".join(fields) + "\n")
 
     return 0
 
