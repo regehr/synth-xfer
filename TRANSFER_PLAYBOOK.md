@@ -176,6 +176,7 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `4_177254` | `tests/data/kb_4_177254.mlir` | 82.74354973518192 | 64 | 64 | 197 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
 | `45_32922` | `tests/data/kb_45_32922.mlir` | 100.0 | 64 | 64 | 49 | sound through bw 64 |
 | `5_158932` | `tests/data/kb_5_158932.mlir` | 100.0 | 64 | 64 | 257 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
+| `62_24270` | `tests/data/kb_62_24270.mlir` | 100.0 | 64 | 64 | 255 | sound through bw 64 |
 | `Abds` | `tests/data/kb_Abds.mlir` | 90.87972345210684 | 26 | 21 | 415 | stopped at bw 27 (timeout) |
 | `Abdu` | `tests/data/kb_Abdu.mlir` | 91.937602 | 64 | 64 | 189 | sound through bw 64 |
 | `Add` | `tests/data/kb_Add.mlir` | 100.0 | 64 | 64 | 37 | sound through bw 64 |
