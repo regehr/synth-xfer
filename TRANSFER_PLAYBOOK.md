@@ -70,7 +70,7 @@ Choose exactly one row for a task.
 4. Use timeout/bitwidth settings from Execution Defaults, including the mandatory `python3 tools/memlimit.py 50G -- ...` cap wrapper for `verify` and `eval-final`.
 5. Keep changes minimal and repo-consistent.
 6. Reuse existing transfer primitives whenever possible.
-7. After each completed `(domain, op)` task, update `SYNTH_STATUS.md` for that exact row:
+7. After each completed `(domain, op)` task, update `TRANSFER_PLAYBOOK.md` for that exact row:
    - Set `Transfer File` to the concrete file path if added, otherwise keep missing status.
    - Record exact precision from the final `eval-final` run (Execution Defaults) in `Exact Precision`.
    - Record the highest proved-sound width from the final `verify` run (Execution Defaults) in `Highest Sound BW`.
@@ -167,6 +167,15 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 
 | Op | Transfer File | Exact Precision (`--exact-bw 7`, Synth Exact %) | Highest Sound BW (Z3, `verify --timeout 120`) | Highest Sound BW (CVC5, `verify --timeout 120`) | MLIR Inst Count | Notes |
 |---|---|---:|---:|---:|---:|---|
+| `1_348667` | `tests/data/kb_1_348667.mlir` | 100.0 | 64 | 64 | 30 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
+| `13_67254` | `tests/data/kb_13_67254.mlir` | 100.0 | 64 | 64 | 49 | sound through bw 64 |
+| `14_63673` | `tests/data/kb_14_63673.mlir` | 84.69970569883824 | 64 | 64 | 73 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
+| `18_61336` | `tests/data/kb_18_61336.mlir` | 82.73675479254273 | 64 | 64 | 65 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
+| `2_215733` | `tests/data/kb_2_215733.mlir` | 100.0 | 64 | 64 | 52 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
+| `3_186886` | `tests/data/kb_3_186886.mlir` | 94.64243513460642 | 64 | 64 | 136 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
+| `4_177254` | `tests/data/kb_4_177254.mlir` | 82.74354973518192 | 64 | 64 | 197 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
+| `45_32922` | `tests/data/kb_45_32922.mlir` | 100.0 | 64 | 64 | 49 | sound through bw 64 |
+| `5_158932` | `tests/data/kb_5_158932.mlir` | 100.0 | 64 | 64 | 257 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
 | `Abds` | `tests/data/kb_Abds.mlir` | 90.87972345210684 | 26 | 21 | 415 | stopped at bw 27 (timeout) |
 | `Abdu` | `tests/data/kb_Abdu.mlir` | 91.937602 | 64 | 64 | 189 | sound through bw 64 |
 | `Add` | `tests/data/kb_Add.mlir` | 100.0 | 64 | 64 | 37 | sound through bw 64 |
