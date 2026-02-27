@@ -170,9 +170,9 @@ Let `<xfer-file>` be that row's file path. Use flag bundles from Execution Defau
 | `1_348667` | `tests/data/kb_1_348667.mlir` | 100.0 | 64 | 64 | 30 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
 | `13_67254` | `tests/data/kb_13_67254.mlir` | 100.0 | 64 | 64 | 49 | sound through bw 64 |
 | `14_63673` | `tests/data/kb_14_63673.mlir` | 84.69970569883824 | 64 | 64 | 73 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
-| `18_61336` | `tests/data/kb_18_61336.mlir` | 82.73675479254273 | 64 | 64 | 65 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
+| `18_61336` | `tests/data/kb_18_61336.mlir` | 82.7473967180915 | 64 | 64 | 170 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
 | `2_215733` | `tests/data/kb_2_215733.mlir` | 100.0 | 64 | 64 | 52 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
-| `3_186886` | `tests/data/kb_3_186886.mlir` | 94.64243513460642 | 64 | 64 | 136 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
+| `3_186886` | `tests/data/kb_3_186886.mlir` | 97.3592413693949 | 64 | 64 | 193 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
 | `4_177254` | `tests/data/kb_4_177254.mlir` | 82.74354973518192 | 64 | 64 | 197 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |
 | `45_32922` | `tests/data/kb_45_32922.mlir` | 100.0 | 64 | 64 | 49 | sound through bw 64 |
 | `5_158932` | `tests/data/kb_5_158932.mlir` | 100.0 | 64 | 64 | 257 | sound through bw 64 (ternary cap; exact run used `--exact-bw 5`) |

@@ -160,8 +160,78 @@
     %outb0 = "transfer.or"(%outb_res0_00, %outb_res0_11) : (!transfer.integer, !transfer.integer) -> !transfer.integer
     %outb1 = "transfer.or"(%outb_res1_01, %outb_res1_10) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
-    %out0_meet = "transfer.or"(%out0, %outb0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
-    %out1_meet = "transfer.or"(%out1, %outb1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_sum_min = "transfer.add"(%x1, %z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_sum_max = "transfer.add"(%x_max, %z_max) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %xz_min_and = "transfer.and"(%x1, %z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_min_or = "transfer.or"(%x1, %z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_sum_min_not = "transfer.xor"(%xz_sum_min, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_min_or_and_sum_not = "transfer.and"(%xz_min_or, %xz_sum_min_not) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_carry_out_min = "transfer.or"(%xz_min_and, %xz_min_or_and_sum_not) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %xz_max_and = "transfer.and"(%x_max, %z_max) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_max_or = "transfer.or"(%x_max, %z_max) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_sum_max_not = "transfer.xor"(%xz_sum_max, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_max_or_and_sum_not = "transfer.and"(%xz_max_or, %xz_sum_max_not) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_carry_out_max = "transfer.or"(%xz_max_and, %xz_max_or_and_sum_not) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %xz_carry_one = "transfer.shl"(%xz_carry_out_min, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_carry_may_one = "transfer.shl"(%xz_carry_out_max, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_carry_zero = "transfer.xor"(%xz_carry_may_one, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %xz_xor0_00 = "transfer.and"(%x0, %z0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_xor0_11 = "transfer.and"(%x1, %z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_xor1_01 = "transfer.and"(%x0, %z1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_xor1_10 = "transfer.and"(%x1, %z0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_xor0 = "transfer.or"(%xz_xor0_00, %xz_xor0_11) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_xor1 = "transfer.or"(%xz_xor1_01, %xz_xor1_10) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %xz_sum_xor0_00 = "transfer.and"(%xz_xor0, %xz_carry_zero) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_sum_xor0_11 = "transfer.and"(%xz_xor1, %xz_carry_one) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_sum_xor1_01 = "transfer.and"(%xz_xor0, %xz_carry_one) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_sum_xor1_10 = "transfer.and"(%xz_xor1, %xz_carry_zero) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_sum0 = "transfer.or"(%xz_sum_xor0_00, %xz_sum_xor0_11) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %xz_sum1 = "transfer.or"(%xz_sum_xor1_01, %xz_sum_xor1_10) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %xz_max2 = "transfer.xor"(%xz_sum0, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %outc_sum_min = "transfer.add"(%xz_sum1, %y1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_sum_max = "transfer.add"(%xz_max2, %y_max) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %outc_min_and = "transfer.and"(%xz_sum1, %y1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_min_or = "transfer.or"(%xz_sum1, %y1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_sum_min_not = "transfer.xor"(%outc_sum_min, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_min_or_and_sum_not = "transfer.and"(%outc_min_or, %outc_sum_min_not) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_carry_out_min = "transfer.or"(%outc_min_and, %outc_min_or_and_sum_not) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %outc_max_and = "transfer.and"(%xz_max2, %y_max) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_max_or = "transfer.or"(%xz_max2, %y_max) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_sum_max_not = "transfer.xor"(%outc_sum_max, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_max_or_and_sum_not = "transfer.and"(%outc_max_or, %outc_sum_max_not) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_carry_out_max = "transfer.or"(%outc_max_and, %outc_max_or_and_sum_not) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %outc_carry_one = "transfer.shl"(%outc_carry_out_min, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_carry_may_one = "transfer.shl"(%outc_carry_out_max, %const1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_carry_zero = "transfer.xor"(%outc_carry_may_one, %all_ones) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %outc_xor0_00 = "transfer.and"(%xz_sum0, %y0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_xor0_11 = "transfer.and"(%xz_sum1, %y1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_xor1_01 = "transfer.and"(%xz_sum0, %y1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_xor1_10 = "transfer.and"(%xz_sum1, %y0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_xor0 = "transfer.or"(%outc_xor0_00, %outc_xor0_11) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_xor1 = "transfer.or"(%outc_xor1_01, %outc_xor1_10) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %outc_res0_00 = "transfer.and"(%outc_xor0, %outc_carry_zero) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_res0_11 = "transfer.and"(%outc_xor1, %outc_carry_one) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_res1_01 = "transfer.and"(%outc_xor0, %outc_carry_one) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc_res1_10 = "transfer.and"(%outc_xor1, %outc_carry_zero) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc0 = "transfer.or"(%outc_res0_00, %outc_res0_11) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %outc1 = "transfer.or"(%outc_res1_01, %outc_res1_10) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+
+    %out0_ab = "transfer.or"(%out0, %outb0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %out1_ab = "transfer.or"(%out1, %outb1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %out0_meet = "transfer.or"(%out0_ab, %outc0) : (!transfer.integer, !transfer.integer) -> !transfer.integer
+    %out1_meet = "transfer.or"(%out1_ab, %outc1) : (!transfer.integer, !transfer.integer) -> !transfer.integer
 
     %out0_final = "transfer.select"(%has_feasible_pair, %out0_meet, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
     %out1_final = "transfer.select"(%has_feasible_pair, %out1_meet, %all_ones) : (i1, !transfer.integer, !transfer.integer) -> !transfer.integer
